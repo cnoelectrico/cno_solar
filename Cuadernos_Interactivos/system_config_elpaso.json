@@ -1,0 +1,39 @@
+{
+  "latitude": 9.789103,
+  "longitude": -73.722451,
+  "tz": "America/Bogota",
+  "altitude": 50.0,
+  "surface_type": "soil",
+  "surface_albedo": 0.0,
+  "inverters_database": null,
+  "inverter_name": null,
+  "inverter": {
+    "pdc0": 1424690.0,
+    "eta_inv_nom": 0.9932,
+    "eta_inv_ref": 0.9637
+  },
+  "ac_model": "pvwatts",
+  "modules_database": "CECMod",
+  "module_name": "Jinko_Solar_Co___Ltd_JKM345M_72",
+  "module": null,
+  "with_tracker": true,
+  "surface_azimuth": null,
+  "surface_tilt": null,
+  "axis_tilt": 0.0,
+  "axis_azimuth": 180.0,
+  "max_angle": 60.0,
+  "module_type": "open_rack_glass_polymer",
+  "racking_model": "open_rack",
+  "module_height": 0.0,
+  "num_arrays": 2.0,
+  "num_inverter": 48.0,
+  "modules_per_string": [
+    30,
+    30
+  ],
+  "strings_per_inverter": [
+    168,
+    6
+  ],
+  "loss": 26.9
+}
