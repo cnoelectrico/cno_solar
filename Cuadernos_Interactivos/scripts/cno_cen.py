@@ -1,3 +1,4 @@
+from IPython import get_ipython
 get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,5 +32,6 @@ def get_cen(ac, perc, decimals, curve=True):
                                      xlim_min=None, xlim_max=None, 
                                      loc='best')
         plt.legend(loc='best', bbox_to_anchor=(1,1), fontsize=10);
+        plt.show()
         
     return cen_per, cen_pmax

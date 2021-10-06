@@ -1,20 +1,31 @@
 import pvlib
 
-def get_arrays(num_arrays, array_name, mount, surface_type, module_type, module, mps, spi):
+def get_arrays(num_arrays, mount, surface_type, module_type, module, mps, spi):
 
     temp_params = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS['sapm'][module_type]
     
-    string_arrays = []
-    for i in range(num_arrays):
-        string_arrays.append(pvlib.pvsystem.Array(mount=mount, 
-                                                  albedo=pvlib.irradiance.SURFACE_ALBEDOS[surface_type], 
-                                                  surface_type=surface_type, 
-                                                  module_type=module_type, 
-                                                  module_parameters=module, 
-                                                  temperature_model_parameters=temp_params, 
-                                                  modules_per_string=mps[i], 
-                                                  strings=spi[i],
-                                                  name=array_name[i]))
+    if num_arrays == 1:
+        string_arrays = [pvlib.pvsystem.Array(mount=mount, 
+                                              albedo=pvlib.irradiance.SURFACE_ALBEDOS[surface_type], 
+                                              surface_type=surface_type, 
+                                              module_type=module_type, 
+                                              module_parameters=module, 
+                                              temperature_model_parameters=temp_params, 
+                                              modules_per_string=mps, 
+                                              strings=spi,
+                                              name='')]
+    else:
+        string_arrays = []
+        for i in range(num_arrays):
+            string_arrays.append(pvlib.pvsystem.Array(mount=mount, 
+                                                      albedo=pvlib.irradiance.SURFACE_ALBEDOS[surface_type], 
+                                                      surface_type=surface_type, 
+                                                      module_type=module_type, 
+                                                      module_parameters=module, 
+                                                      temperature_model_parameters=temp_params, 
+                                                      modules_per_string=mps[i], 
+                                                      strings=spi[i],
+                                                      name=''))
 
     return string_arrays
 

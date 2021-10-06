@@ -26,7 +26,6 @@ def get_inverter(inverters_database, inverter_name, inv=None):
     return inverter
 
 def get_module(modules_database, module_name, mod=None):
-    
     if mod != None:
         module = mod
     else:

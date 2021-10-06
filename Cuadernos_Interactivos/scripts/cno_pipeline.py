@@ -2,12 +2,13 @@ import sys
 sys.path.insert(0, './scripts')
 
 import cno_libraries
+from IPython import get_ipython
 get_ipython().run_line_magic('run', "-i './scripts/cno_libraries.py'")
 
 import cno_meteorology
 import cno_decomposition_transposition
 import cno_inverter_module
-import cno_singletracker
+import cno_mount_tracker
 import cno_def_pvsystem
 import cno_cell_temperature
 import cno_production
@@ -16,68 +17,65 @@ def full_pipeline(system_configuration, data, resolution, energy_units):
     sc = system_configuration
     
     # Meteorological Data
-    location, solpos, airmass, etr_nrel = cno_meteorology.get_meteo(sc['latitude'], 
-                                                                    sc['longitude'], 
-                                                                    sc['tz'], 
-                                                                    sc['altitude'], 
+    location, solpos, airmass, etr_nrel = cno_meteorology.get_meteo(latitude=sc['latitude'], 
+                                                                    longitude=sc['longitude'], 
+                                                                    tz=sc['tz'], 
+                                                                    altitude=sc['altitude'], 
                                                                     datetime=data.index)
-    
     
     # Decomposition
     disc = cno_decomposition_transposition.decomposition(ghi=data.GHI, 
                                                          solpos=solpos, 
                                                          datetime=data.index)
     
-    # Mount
-    if sc['with_tracker'] == False:
-        mount = cno_inverter_module.get_mount(sc['surface_tilt'], 
-                                              sc['surface_azimuth'], 
-                                              sc['racking_model'], 
-                                              sc['module_height'])
-        
-        tracker = None
-    
-    elif sc['with_tracker'] == True:
-        tracker, mount = cno_singletracker.get_tracker(solpos, 
-                                                       sc['axis_tilt'], 
-                                                       sc['axis_azimuth'], 
-                                                       sc['max_angle'], 
-                                                       sc['racking_model'], 
-                                                       sc['module_height'], 
-                                                       sc['with_tracker'])
-        
+    # Mount and Tracker
+    mount, tracker = cno_mount_tracker.get_mount_tracker(with_tracker=sc['with_tracker'], 
+                                                         surface_tilt=sc['surface_tilt'], 
+                                                         surface_azimuth=sc['surface_azimuth'], 
+                                                         solpos=solpos, 
+                                                         axis_tilt=sc['axis_tilt'], 
+                                                         axis_azimuth=sc['axis_azimuth'], 
+                                                         max_angle=sc['max_angle'], 
+                                                         tracker_axis=sc['tracker_axis'], # ACTUALIZARRRR!!!
+                                                         racking_model='open_rack', 
+                                                         module_height=None)
     
     # Transposition
-    poa = cno_decomposition_transposition.transposition(sc['surface_tilt'], 
-                                                        sc['surface_azimuth'], 
+    poa = cno_decomposition_transposition.transposition(with_tracker=sc['with_tracker'], 
+                                                        tracker=tracker, 
+                                                        surface_tilt=sc['surface_tilt'], 
+                                                        surface_azimuth=sc['surface_azimuth'], 
                                                         solpos=solpos, 
                                                         disc=disc, 
-                                                        ghi=data.GHI, 
+                                                        ghi=data.GHI, # ACTUALIZARRRR!!! 
                                                         etr_nrel=etr_nrel, 
                                                         airmass=airmass, 
                                                         surface_type=sc['surface_type'])
     
     # Inverter
-    inverter = cno_inverter_module.get_inverter(sc['inverters_database'], 
-                                                sc['inverter_name'], 
+    inverter = cno_inverter_module.get_inverter(inverters_database=sc['inverters_database'], 
+                                                inverter_name=sc['inverter_name'], 
                                                 inv=sc['inverter'])
     
     # Module
-    module = cno_inverter_module.get_module(sc['modules_database'], 
-                                            sc['module_name'], 
+    module = cno_inverter_module.get_module(modules_database=sc['modules_database'], 
+                                            module_name=sc['module_name'], 
                                             mod=sc['module'])    
     
     # Arrays
-    string_arrays = cno_def_pvsystem.get_arrays(sc['num_arrays'], 
+    string_arrays = cno_def_pvsystem.get_arrays(num_arrays=sc['num_arrays'],
                                                 mount=mount, 
                                                 surface_type=sc['surface_type'], 
                                                 module_type=sc['module_type'], 
-                                                module=pvlib.irradiance.SURFACE_ALBEDOS[surface_type], 
+                                                module=module, 
                                                 mps=sc['modules_per_string'], 
                                                 spi=sc['strings_per_inverter'])
+#                                                 array_name=['SysA'], # ACTUALIZARRRR!!!
     
     # PV System
-    system = cno_def_pvsystem.get_pvsystem(string_arrays=string_arrays, 
+    system = cno_def_pvsystem.get_pvsystem(with_tracker=sc['with_tracker'], 
+                                           tracker=tracker, 
+                                           string_arrays=string_arrays, 
                                            surface_tilt=sc['surface_tilt'], 
                                            surface_azimuth=sc['surface_azimuth'], 
                                            surface_type=sc['surface_type'], 

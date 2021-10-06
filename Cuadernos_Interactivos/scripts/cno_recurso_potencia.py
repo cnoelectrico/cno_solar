@@ -1,4 +1,6 @@
+from IPython import get_ipython
 get_ipython().run_line_magic('matplotlib', 'inline')
+
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -17,9 +19,10 @@ def get_curve(poa, ac, ac_units):
              label=f'Pac Max. [MW] = {np.round(np.max(ac/units[ac_units]), 2)}')
 
     cno_plots_metrics.plot_specs(title=f'Relación Recurso-Potencia',
-                                 ylabel=f'Potencia AC, ${ac_units}$',
+                                 ylabel=f'Potencia AC, $kW$', #${ac_units}$
                                  xlabel='Irradiancia POA, $W/m^2$',
                                  rot=0, 
                                  ylim_min=0, ylim_max=None, 
                                  xlim_min=0, xlim_max=None, 
                                  loc='best');
+    plt.show()

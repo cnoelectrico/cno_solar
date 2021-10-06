@@ -1,3 +1,7 @@
+###############################
+#      CONFIGURATION GUI      #
+###############################
+
 import json
 import pytz
 import pvlib
@@ -121,38 +125,38 @@ dropdown_manual = widgets.Dropdown(options=['', 'SNL PVlib', 'NREL PVWatts'],
 def handle_toggle(change):
     if change['new'] == 'Repositorio':
         inverter_vbox.children = [inverter_btn, dropdown_invrepo]
-        
+
     elif change['new'] == 'PVsyst':
         inverter_vbox.children = [inverter_btn, dropdown_pvsyst]
-        
+
     elif change['new'] == 'Manual':
         inverter_vbox.children = [inverter_btn, dropdown_manual]
-        
+
 def handle_dropdown_repo(change):
     if change['new'] == 'CECInverter':
         inv_drop = widgets.Dropdown(options=list(pvlib.pvsystem.retrieve_sam(change['new']).transpose().index),
                             value=None,
                             description='Inversores:',
                             style={'description_width': 'initial'})
-        
+
         inverter_vbox.children = [inverter_btn, dropdown_invrepo, inv_drop]
-        
+
     elif change['new'] == 'SandiaInverter':
         inv_drop = widgets.Dropdown(options=list(pvlib.pvsystem.retrieve_sam(change['new']).transpose().index),
                             value=None,
                             description='Inversores:',
                             style={'description_width': 'initial'})
-        
+
         inverter_vbox.children = [inverter_btn, dropdown_invrepo, inv_drop]
-        
+
     elif change['new'] == 'ADRInverter':
         inv_drop = widgets.Dropdown(options=list(pvlib.pvsystem.retrieve_sam(change['new']).transpose().index),
                             value=None,
                             description='Inversores:',
                             style={'description_width': 'initial'})
-        
+
         inverter_vbox.children = [inverter_btn, dropdown_manual, inv_drop]
-        
+
 def handle_dropdown_manual(change):    
     if change['new'] == 'SNL PVlib':
         w_Paco = widgets.FloatText(value=None, description='Paco [W]', style={'description_width': 'initial'})
@@ -164,22 +168,22 @@ def handle_dropdown_manual(change):
         w_C2 = widgets.FloatText(value=None, description='C2 [1/V]', style={'description_width': 'initial'})
         w_C3 = widgets.FloatText(value=None, description='C3 [1/V]', style={'description_width': 'initial'})
         w_Pnt = widgets.FloatText(value=None, description='Pnt [W]', style={'description_width': 'initial'})
-        
+
         inv_conf = widgets.VBox([widgets.HTML("<h5>Configuración SNL PVlib</h5>", layout=widgets.Layout(height='auto')),
                                  w_Paco, w_Pdco, w_Vdco, w_Pso, w_C0, w_C1, w_C2, w_C3, w_Pnt])
-        
+
         inverter_vbox.children = [inverter_btn, dropdown_manual, inv_conf]
-        
+
     elif change['new'] == 'NREL PVWatts':
         w_pdc0 = widgets.FloatText(value=None, description='pdc0 [W]', style={'description_width': 'initial'})
         w_eta_inv_nom = widgets.FloatText(value=None, description='eta_inv_nom [ad.]', style={'description_width': 'initial'})
         w_eta_inv_ref = widgets.FloatText(value=0.9637, description='eta_inv_ref [ad.]', style={'description_width': 'initial'})
-        
+
         inv_conf = widgets.VBox([widgets.HTML("<h5>Configuración NREL PVWatts</h5>", layout=widgets.Layout(height='auto')),
                                  w_pdc0, w_eta_inv_nom, w_eta_inv_ref])
-        
+
         inverter_vbox.children = [inverter_btn, dropdown_manual, inv_conf]
-        
+
 inverter_btn.observe(handle_toggle, 'value')
 dropdown_invrepo.observe(handle_dropdown_repo, 'value')
 dropdown_manual.observe(handle_dropdown_manual, 'value')
@@ -218,12 +222,12 @@ dropdown_pvsyst = widgets.Dropdown(options=['', 'pvmodule', 'cecmodule'],
 def handle_toggle(change):
     if change['new'] == 'Repositorio':
         module_vbox.children = [module_btn, dropdown_modrepo]
-        
+
     elif change['new'] == 'PVsyst':
         module_vbox.children = [module_btn, dropdown_pvsyst]
-        
+
     elif change['new'] == 'Manual':
-        
+
         w_BIPV = widgets.Text(value='N', description='BIPV', style={'description_width': 'initial'})
         w_T_NOCT = widgets.FloatText(value=None, description='T_NOCT', style={'description_width': 'initial'})
         w_A_c = widgets.FloatText(value=None, description='A_c', style={'description_width': 'initial'})
@@ -243,29 +247,29 @@ def handle_toggle(change):
         w_gamma_r = widgets.FloatText(value=None, description='gamma_r', style={'description_width': 'initial'})
         w_PTC = widgets.FloatText(value=None, description='PTC', style={'description_width': 'initial'})
         w_pdc0 = widgets.FloatText(value=None, description='pdc0', style={'description_width': 'initial'})
-        
+
         mod_conf = widgets.VBox([widgets.HTML("<h5>Configuración Módulo</h5>", layout=widgets.Layout(height='auto')),
                                  w_BIPV, w_T_NOCT, w_A_c, w_N_s,  w_I_sc_ref, w_V_oc_ref, w_I_mp_ref, w_V_mp_ref,
                                  w_alpha_sc, w_beta_oc, w_a_ref, w_I_L_ref, w_I_o_ref, w_R_s, w_R_sh_ref,
                                  w_Adjust, w_gamma_r, w_PTC, w_pdc0])
-        
+
         module_vbox.children = [module_btn, mod_conf]
-        
+
 def handle_dropdown_repo(change):
     if change['new'] == 'CECMod':
         mod_drop = widgets.Dropdown(options=list(pvlib.pvsystem.retrieve_sam(change['new']).transpose().index),
                                     value=None,
                                     description='Módulos:',
                                     style={'description_width': 'initial'})
-        
+
         module_vbox.children = [module_btn, dropdown_modrepo, mod_drop]
-        
+
     elif change['new'] == 'SandiaMod':
         mod_drop = widgets.Dropdown(options=list(pvlib.pvsystem.retrieve_sam(change['new']).transpose().index),
                                     value=None,
                                     description='Módulos:',
                                     style={'description_width': 'initial'})
-        
+
         module_vbox.children = [module_btn, dropdown_modrepo, mod_drop]
 
     elif change['new'] == 'PVFree':
@@ -273,11 +277,11 @@ def handle_dropdown_repo(change):
                                            value=None,
                                            description='Repositorio:',
                                            style={'description_width': 'initial'})
-        
+
         mod_conf = widgets.VBox([widgets.IntText(value=None, description='ID', style={'description_width': 'initial'})])        
-        
+
         module_vbox.children = [module_btn, dropdown_modrepo, dropdown_pvfree, mod_conf]
-        
+
 module_btn.observe(handle_toggle, 'value')
 dropdown_modrepo.observe(handle_dropdown_repo, 'value')
 
@@ -317,12 +321,12 @@ def handle_toggle(change):
         w_Azimuth = widgets.FloatText(value=None, description='Azimutal', style={'description_width': 'initial'})
         w_Tilt = widgets.FloatText(value=None, description='Elevación', style={'description_width': 'initial'})
         w_ModuleType = widgets.Dropdown(options=['open_rack_glass_glass', 'close_mount_glass_glass', 'open_rack_glass_polymer', 'insulated_back_glass_polymer'], value=None, description='Tipo Módulo', style={'description_width': 'initial'})
-        
+
         no_tracker = widgets.VBox([widgets.HTML("<h5>Configuración Módulo</h5>", layout=widgets.Layout(height='auto')),
                                    w_Azimuth, w_Tilt, w_ModuleType])
-        
+
         sysconfig_vbox.children = [tracker_btn, no_tracker]
-        
+
     elif change['new'] == 'Seguidor 1-Eje':
         w_AxisTilt = widgets.FloatText(value=0, description='Elevación Eje', style={'description_width': 'initial'})
         w_AxisAzimuth = widgets.FloatText(value=180, description='Azimutal Eje', style={'description_width': 'initial'})
@@ -330,12 +334,12 @@ def handle_toggle(change):
         w_ModuleType = widgets.Dropdown(options=['open_rack_glass_glass', 'close_mount_glass_glass', 'open_rack_glass_polymer', 'insulated_back_glass_polymer'], value=None, description='Tipo Módulo', style={'description_width': 'initial'})
         w_Racking = widgets.Dropdown(options=['open_rack', 'close_mount', 'insulated_back'], value=None, description='Estructura Montaje', style={'description_width': 'initial'})
         w_Heigh = widgets.FloatText(value=None, description='Altura Módulo', style={'description_width': 'initial'})
-        
+
         single_tracker = widgets.VBox([widgets.HTML("<h5>Configuración Módulo</h5>", layout=widgets.Layout(height='auto')),
                                  w_AxisTilt, w_AxisAzimuth, w_MaxAngle, w_ModuleType, w_Racking, w_Heigh])
 
         sysconfig_vbox.children = [tracker_btn, single_tracker]
-        
+
     elif change['new'] == 'Seguidor 2-Eje':
         w_AxisTilt = widgets.FloatText(value=0, description='Elevación Eje', style={'description_width': 'initial'})
         w_AxisAzimuth = widgets.FloatText(value=180, description='Azimutal Eje', style={'description_width': 'initial'})
@@ -343,27 +347,27 @@ def handle_toggle(change):
         w_ModuleType = widgets.Dropdown(options=['open_rack_glass_glass', 'close_mount_glass_glass', 'open_rack_glass_polymer', 'insulated_back_glass_polymer'], value=None, description='Tipo Módulo', style={'description_width': 'initial'})
         w_Racking = widgets.Dropdown(options=['open_rack', 'close_mount', 'insulated_back'], value=None, description='Estructura Montaje', style={'description_width': 'initial'})
         w_Heigh = widgets.FloatText(value=None, description='Altura Módulo', style={'description_width': 'initial'})
-        
+
         single_tracker = widgets.VBox([widgets.HTML("<h5>Configuración Módulo</h5>", layout=widgets.Layout(height='auto')),
                                  w_AxisTilt, w_AxisAzimuth, w_MaxAngle, w_ModuleType, w_Racking, w_Heigh])
 
         sysconfig_vbox.children = [tracker_btn, single_tracker]
-        
+
 def handle_dropdown_repo(change):
     if change['new'] == 'CECMod':
         mod_drop = widgets.Dropdown(options=list(pvlib.pvsystem.retrieve_sam(change['new']).transpose().index),
                                     value=None,
                                     description='Módulos:',
                                     style={'description_width': 'initial'})
-        
+
         sysconfig_vbox.children = [tracker_btn, dropdown_repo, mod_drop]
-        
+
     elif change['new'] == 'SandiaMod':
         mod_drop = widgets.Dropdown(options=list(pvlib.pvsystem.retrieve_sam(change['new']).transpose().index),
                                     value=None,
                                     description='Módulos:',
                                     style={'description_width': 'initial'})
-        
+
         sysconfig_vbox.children = [tracker_btn, dropdown_repo, mod_drop]
 
     elif change['new'] == 'PVFree':
@@ -371,11 +375,11 @@ def handle_dropdown_repo(change):
                                            value=None,
                                            description='Repositorio:',
                                            style={'description_width': 'initial'})
-        
+
         mod_conf = widgets.VBox([widgets.IntText(value=None, description='ID', style={'description_width': 'initial'})])        
-        
+
         sysconfig_vbox.children = [tracker_btn, dropdown_repo, dropdown_pvfree, mod_conf]
-        
+
 tracker_btn.observe(handle_toggle, 'value')
 dropdown_repo.observe(handle_dropdown_repo, 'value')
 
@@ -417,7 +421,7 @@ def check_inverter():
         inverter_name = inverter_vbox.children[2].value
         inverter = None
         ac_model = 'sandia'
-    
+
     if inverter_btn.value == 'Manual':
         if dropdown_manual.value == 'SNL PVlib':
             inverter = {'Paco': inverter_vbox.children[2].children[1].value,
@@ -429,35 +433,35 @@ def check_inverter():
                         'C2': inverter_vbox.children[2].children[7].value,
                         'C3': inverter_vbox.children[2].children[8].value,
                         'Pnt': inverter_vbox.children[2].children[9].value}
-            
+
             ac_model = 'sandia'
-    
+
         elif dropdown_manual.value == 'NREL PVWatts':
             inverter = {'pdc0': inverter_vbox.children[2].children[1].value,
                         'eta_inv_nom': inverter_vbox.children[2].children[2].value,
                         'eta_inv_ref': inverter_vbox.children[2].children[3].value}
-            
+
             ac_model = 'pvwatts'
-        
+
         inverters_database = None
         inverter_name = None
-        
+
     return [inverters_database, inverter_name, inverter, ac_model]
 
 ## Module
 def check_module():
     if module_btn.value == 'Repositorio':
-        
+
         if dropdown_modrepo.value != 'PVFree':
             modules_database = dropdown_modrepo.value
             modules_name = module_vbox.children[2].value
             module = None
-        
+
         else:
             modules_database = dropdown_modrepo.value
             module = requests.get(f'https://pvfree.herokuapp.com/api/v1/{module_vbox.children[2].value}/{module_vbox.children[3].children[0].value}/').json()
             modules_name = module['Name']           
-    
+
     if module_btn.value == 'Manual':
         module = {'BIPV': module_vbox.children[1].children[1].value,
                   'T_NOCT': module_vbox.children[1].children[2].value,
@@ -478,16 +482,17 @@ def check_module():
                   'gamma_r': module_vbox.children[1].children[17].value,
                   'PTC': module_vbox.children[1].children[18].value,
                   'pdc0': module_vbox.children[1].children[19].value}
-        
+
         modules_database = None
         modules_name = None
-        
+
     return [modules_database, modules_name, module]
 
 ## Mount
 def check_mount():
     if tracker_btn.value == 'Sin Seguidor': 
         with_tracker = False
+        tracker_axis = 0
         surface_azimuth = sysconfig_vbox.children[1].children[1].value
         surface_tilt = sysconfig_vbox.children[1].children[2].value
         axis_tilt = None
@@ -499,6 +504,7 @@ def check_mount():
 
     elif tracker_btn.value == 'Seguidor 1-Eje':
         with_tracker = True
+        tracker_axis = 1
         surface_azimuth = None
         surface_tilt = None
         axis_tilt = sysconfig_vbox.children[1].children[1].value
@@ -510,6 +516,7 @@ def check_mount():
 
     elif tracker_btn.value == 'Seguidor 2-Eje':
         with_tracker = True
+        tracker_axis = 2
         surface_azimuth = None
         surface_tilt = None
         axis_tilt = sysconfig_vbox.children[1].children[1].value
@@ -518,19 +525,19 @@ def check_mount():
         module_type = sysconfig_vbox.children[1].children[4].value
         racking_model = sysconfig_vbox.children[1].children[5].value
         module_height = sysconfig_vbox.children[1].children[6].value
-        
-    return [with_tracker, surface_azimuth, surface_tilt, axis_tilt, axis_azimuth, max_angle, module_type, racking_model, module_height]
+
+    return [with_tracker, tracker_axis, surface_azimuth, surface_tilt, axis_tilt, axis_azimuth, max_angle, module_type, racking_model, module_height]
 
 ## Electric Configuration
 def check_econfig(num_arrays):
     if num_arrays == 1:
         modules_per_string = int(mps.value) #Modules Per String
         strings_per_inverter = int(spi.value) #Strings Per Inverter  
-    
+
     elif num_arrays > 1:
         modules_per_string = str_to_list(mps.value) #Modules Per String
         strings_per_inverter = str_to_list(spi.value) #Strings Per Inverter
-        
+
     return [modules_per_string, strings_per_inverter]
 
 ## System Configuration
@@ -556,14 +563,15 @@ def sys_config(inverter_status, module_status, mount_status, econfig_status):
 
                             # Mount
                             'with_tracker': mount_status[0],
-                            'surface_azimuth': mount_status[1],
-                            'surface_tilt': mount_status[2],
-                            'axis_tilt': mount_status[3],
-                            'axis_azimuth': mount_status[4],
-                            'max_angle': mount_status[5],
-                            'module_type': mount_status[6],
-                            'racking_model': mount_status[7],
-                            'module_height': mount_status[8],
+                            'tracker_axis': mount_status[1],
+                            'surface_azimuth': mount_status[2],
+                            'surface_tilt': mount_status[3],
+                            'axis_tilt': mount_status[4],
+                            'axis_azimuth': mount_status[5],
+                            'max_angle': mount_status[6],
+                            'module_type': mount_status[7],
+                            'racking_model': mount_status[8],
+                            'module_height': mount_status[9],
 
                             # Electric Configuration
                             'num_arrays': n_arrays.value,
@@ -573,7 +581,7 @@ def sys_config(inverter_status, module_status, mount_status, econfig_status):
 
                             # Loss
                             'loss': w_loss.value}
-    
+
     return system_configuration
 
 # GUI - Dashboard
@@ -602,12 +610,12 @@ genconfig_output = widgets.Output()
 def on_genconfig_clicked(obj):    
     with genconfig_output:
         genconfig_output.clear_output()
-        
+
         inverter_status = check_inverter()
         module_status = check_module()
         mount_status = check_mount()
         econfig_status = check_econfig(num_arrays=n_arrays.value)
-    
+
         system_configuration = sys_config(inverter_status, module_status, mount_status, econfig_status)
 
         print('Configuración exitosa!')
@@ -633,10 +641,10 @@ def on_button_clicked(obj):
         mount_status = check_mount()
         econfig_status = check_econfig(num_arrays=n_arrays.value)
         system_configuration = sys_config(inverter_status, module_status, mount_status, econfig_status)
-        
+
         with open('system_config.json', 'w') as f:
             json.dump(system_configuration, f, indent=2)
-        
+
         print('Descarga exitosa!')
 
 download_btn.on_click(on_button_clicked)

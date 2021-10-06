@@ -1,4 +1,6 @@
+from IPython import get_ipython
 get_ipython().run_line_magic('matplotlib', 'inline')
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -119,3 +121,5 @@ def behaviour_plot(data, label, title, ylabel, xlabel, rot, ylim_min, ylim_max, 
                ylim_min=ylim_min, ylim_max=ylim_max, 
                xlim_min=xlim_min, xlim_max=xlim_max, 
                loc=loc)
+    
+    plt.show()

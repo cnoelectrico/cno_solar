@@ -29,13 +29,13 @@ def enficc_creg(df, Kinc, IHF, CEN, a, b, c, d, Kmedt):
     
     # Step 5: Use factor of actual irradiance and degradation measurements
     enficc_t = np.round(enficc * Kmedt, 2) # kWh/day
-    print('ENFICC [kWh/día] -- CREG 201 de 2017 =', enficc_t)
+    print('ENFICC [kWh/día] =', enficc_t)
     
     return efirme, enficc_t
 
-def efirme_pvlib_creg(energy):
+def efirme_pvlib_prom(energy):
     '''
-    1. Energía mensual de PVlib
+    1. Energía **mensual** de PVlib
     2. Energía diaria según CREG 201 de 2017
     3. Energía Firme según CREG 201 de 2017 sin incluir Kmedt
     '''
@@ -48,15 +48,15 @@ def efirme_pvlib_creg(energy):
     efirme = energy['month'].copy()
     efirme['En'] = En
     
-    # Step 2: "ENFICC"
+    # Step 2: Energía Firme
     enficc = np.round(np.min(efirme['En']), 2) # kWh/day
-    print('ENFI [kWh/día] -- Mín(Energía Mes PVlib / Días) =', enficc)
+    print('ENFI [kWh/día] -- Mín(Energía Mes PVlib / # Días) =', enficc)
     
     return efirme, enficc
 
 def efirme_pvlib_min(energy):
     '''
-    1. Energía diaria de PVlib
+    1. Energía *diaria* de PVlib
     2. Energía Firme como valor mínimo de energía diaria
     '''
     enficc = np.round(np.min(energy['daily']['energy'].loc[energy['daily']['energy'] != 0]) / 1000, 2) # kWh
