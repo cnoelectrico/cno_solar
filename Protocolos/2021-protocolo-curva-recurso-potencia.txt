@@ -1,0 +1,34 @@
+---
+title: Protocolo para la construcción del modelo de una planta solar fotovoltaica
+subtitle: "Andrés González Mancera, Ph.D., Nelson Salazar Peña, M.Sc."
+author:
+  - Universidad de los Andes - Consejo Nacional de Operación
+date: Octubre de 2021
+documentclass: article
+bibliography: zotero.bib
+csl: ieee.csl
+geometry:
+- margin=3cm
+papersize: letter
+numbersections: true
+titlepage: true
+titlepage-text-color: '002d62'
+titlepage-rule-color: 'FF9f00'
+titlepage-rule-height: 4
+logo: "Uniandes-CNO.png"
+logo-width: 380pt
+lang: es-CO
+---
+
+[//]: pandoc -F pandoc-crossref --citeproc --template eisvogel 2021-protocolo-curva-recurso-potencia.txt -o 2021-protocolo-curva-recurso-potencia.pdf
+
+# Introducción
+
+
+
+# Protocolo
+
+
+
+# Referencias
+

@@ -1,0 +1,42 @@
+---
+title: Protocolo para el cálculo de la CEN de plantas solares fotovoltaicas antes de su entrada en operación
+subtitle: "Andrés González Mancera, Ph.D., Nelson Salazar Peña, M.Sc."
+author:
+  - Universidad de los Andes - Consejo Nacional de Operación
+date: Octubre de 2021
+documentclass: article
+bibliography: zotero.bib
+csl: ieee.csl
+geometry:
+- margin=3cm
+papersize: letter
+numbersections: true
+titlepage: true
+titlepage-text-color: '002d62'
+titlepage-rule-color: 'FF9f00'
+titlepage-rule-height: 4
+logo: "Uniandes-CNO.png"
+logo-width: 380pt
+lang: es-CO
+---
+
+[//]: pandoc -F pandoc-crossref --citeproc --template eisvogel 2021-protocolo-cen-solar-modelo.txt -o 2021-protocolo-cen-solar-modelo.pdf
+
+# Definición Capacidad Efectiva Neta (CEN) {#sec:def_CEN}
+
+De acuerdo con la resolución CREG 116 de 1996 [@CREG116_96], la adición
+realizada a la misma en la resolución CREG 074 de 1999 [@CREG074_99] y
+las modificaciones subsecuentes CREG 059 de 1999 [@CREG059_99], CREG 081
+del 2000 [@CREG081_00] y CREG 074 de 2002 [@CREG074_02], la Capacidad
+Efectiva Neta - CEN está definida como la: *"Máxima capacidad de
+potencia neta (expresada en valor entero en MW) que puede suministrar
+una planta y/o unidad de generación en condiciones normales de operación
+medida **en la frontera comercial**. Se calcula como la Capacidad
+Nominal menos el Consumo Propio de la planta y/o unidad de generación."*
+
+# Protocolo
+
+
+
+# Referencias
+
