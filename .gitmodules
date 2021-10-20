@@ -1,0 +1,3 @@
+[submodule "pvsyst_tools"]
+	path = pvsyst_tools
+	url = https://github.com/frivollier/pvsyst_tools
