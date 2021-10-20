@@ -1,3 +1,6 @@
 [submodule "pvsyst_tools"]
 	path = pvsyst_tools
 	url = https://github.com/frivollier/pvsyst_tools
+[submodule "cnosolar/pvsyst_tools"]
+	path = cnosolar/pvsyst_tools
+	url = https://github.com/frivollier/pvsyst_tools
