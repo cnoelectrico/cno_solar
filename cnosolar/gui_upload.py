@@ -2,27 +2,29 @@
 #      UPLOAD  GUI      #
 #########################
 
-#####
-import sys  
-sys.path.insert(0, './cnosolar')
-
-import __init__
-from IPython import get_ipython
-get_ipython().run_line_magic('run', "-i './cnosolar/__init__.py'")
-get_ipython().run_line_magic('matplotlib', 'inline')
-import matplotlib.pyplot as plt
-
-import pandas as pd
-import numpy as np
+from cnosolar import __init__
 
 #####
+# import sys  
+# sys.path.insert(0, './cnosolar')
+
+# import __init__
+# from IPython import get_ipython
+# get_ipython().run_line_magic('run', "-i './cnosolar/__init__.py'")
+# get_ipython().run_line_magic('matplotlib', 'inline')
+# import matplotlib.pyplot as plt
+
+# import pandas as pd
+# import numpy as np
+
+# #####
 
 
-import json
-import traitlets
-import ipywidgets as widgets
-from tkinter import Tk, filedialog
-from IPython.display import display
+# import json
+# import traitlets
+# import ipywidgets as widgets
+# from tkinter import Tk, filedialog
+# from IPython.display import display
 
 gui_layout = widgets.Layout(display='flex', flex_flow='row', justify_content='space-between')
 

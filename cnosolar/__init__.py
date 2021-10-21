@@ -14,6 +14,7 @@ import glob
 import pytz
 import random
 import warnings
+import traitlets
 from calendar import monthrange
 warnings.filterwarnings(action='ignore')
 
@@ -44,7 +45,7 @@ from cnosolar import data
 from cnosolar import irradiance_models
 from cnosolar import def_pvsystem
 from cnosolar import energia_firme
-# from cnosolar import gui_config
+from cnosolar import gui_config
 # from cnosolar import gui_test
 # from cnosolar import gui_upload
 from cnosolar import components
@@ -55,6 +56,7 @@ from cnosolar import complements
 from cnosolar import production
 from cnosolar import recurso_potencia
 from cnosolar import test
+from cnosolar.pvsyst_tools import pvsyst
 
 if __name__ == '__main__':
     print(f'Successfully executed from {__name__}.')
