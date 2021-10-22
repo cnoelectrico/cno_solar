@@ -1,21 +1,10 @@
-# import sys  
-# sys.path.insert(0, './cnosolar')
-
-# import __init__
-# from IPython import get_ipython
-# get_ipython().run_line_magic('run', "-i './cnosolar/__init__.py'")
-
-# from cnosolar import location_data
-# from cnosolar import irradiance_models
-# from cnosolar import components
-# from cnosolar import mount_tracker
-# from cnosolar import def_pvsystem
-# from cnosolar import cell_temperature
-# from cnosolar import production
-
 import cnosolar as cno
+from functools import reduce
 
 def run(system_configuration, data, num_subarrays, resolution, energy_units):
+    '''
+    Docstrings
+    '''
     sc = system_configuration
     
     bus_pipeline = {}
@@ -105,23 +94,60 @@ def run(system_configuration, data, num_subarrays, resolution, energy_units):
                                                             ac_model=sc['ac_model'], 
                                                             loss=sc['loss'], 
                                                             resolution=resolution, 
-                                                            num_inverter=sc['num_inverter'][i],
+                                                            num_inverter=sc['num_inverter'],
                                                             per_mppt=sc['per_mppt'][i],
                                                             energy_units=energy_units)
 
-        bus_pipeline[f'subarray_{i+1}'] = {'location': location, 
-                                           'solpos': solpos, 
-                                           'airmass': airmass, 
-                                           'etr_nrel': etr_nrel,
-                                           'disc': disc,
-                                           'tracker': tracker, 
-                                           'mount': mount,
-                                           'poa': poa,
-                                           'string_array': string_array,
-                                           'system': system,
-                                           'temp_cell': temp_cell,
-                                           'dc': dc, 
-                                           'ac': ac, 
-                                           'energy': energy}
+        if num_subarrays > 1:
+            key = f'subarray_{i+1}'
+        else:
+            key = 'system'
+            
+        bus_pipeline[key] = {'location': location, 
+                             'solpos': solpos, 
+                             'airmass': airmass, 
+                             'etr_nrel': etr_nrel,
+                             'disc': disc,
+                             'tracker': tracker, 
+                             'mount': mount,
+                             'poa': poa,
+                             'string_array': string_array,
+                             'system': system,
+                             'temp_cell': temp_cell,
+                             'dc': dc, 
+                             'ac': ac, 
+                             'energy': energy}
+    
+    # AC and Energy Adition for Full System
+    if num_subarrays > 1:
+        ac_string = []
+        denergy_string = []
+        wenergy_string = []
+        menergy_string = []
+        for i in range(len(bus_pipeline.keys())):
+            ac_string.append(bus_pipeline[f'subarray_{i+1}']['ac'])
+            denergy_string.append(bus_pipeline[f'subarray_{i+1}']['energy']['day'].energy)
+            wenergy_string.append(bus_pipeline[f'subarray_{i+1}']['energy']['week'].energy)
+            menergy_string.append(bus_pipeline[f'subarray_{i+1}']['energy']['month'].energy)
+
+        sys_ac = reduce(lambda a, b: a.add(b, fill_value=0), ac_string)
+        sys_denergy = reduce(lambda a, b: a.add(b, fill_value=0), denergy_string)
+        sys_wenergy = reduce(lambda a, b: a.add(b, fill_value=0), wenergy_string)
+        sys_menergy = reduce(lambda a, b: a.add(b, fill_value=0), menergy_string)
+
+        bus_pipeline['system'] = {'location': location, 
+                                  'solpos': solpos, 
+                                  'airmass': airmass, 
+                                  'etr_nrel': etr_nrel,
+                                  'disc': disc,
+                                  'tracker': tracker, 
+                                  'mount': mount,
+                                  'poa': poa,
+                                  'temp_cell': temp_cell,
+                                  'dc': dc, 
+                                  'ac': sys_ac, 
+                                  'energy': {'day': sys_denergy,
+                                             'week': sys_wenergy,
+                                             'month': sys_menergy}}
     
     return bus_pipeline

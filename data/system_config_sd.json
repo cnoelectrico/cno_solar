@@ -75,12 +75,10 @@
   "strings_per_inverter": [
     8
   ],
-  "num_inverter": [
-    1
-  ],
   "per_mppt": [
     1.0
   ],
+  "num_inverter": 1,
   "loss": 26.9,
   "availability": 100.0,
   "name": "sd"

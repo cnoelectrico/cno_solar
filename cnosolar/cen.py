@@ -4,21 +4,24 @@ import matplotlib.pyplot as plt
 import numpy as np
 from cnosolar import complements
 
-units = {'kW': 1000, 'MW': 1000000}
-
-def get_cen(ac, perc, decimals, curve=True):
+def get_cen(ac, perc, curve=True):
     '''
     Docstrings
     '''
     pac = np.sort(ac)
     pac_max = np.max(ac)
+    
+    if pac_max >= 1000000:
+        decimals = 0
+    else:
+        decimals = 4
 
     # Calculate the proportional values of samples
     p = 1. * np.arange(len(ac)) / (len(ac) - 1)
 
     # CEN
-    cen_per = np.round(np.percentile(ac, perc) / units['MW'], decimals) # MW
-    cen_pmax = np.round(np.max(ac) / units['MW'], decimals) # MW
+    cen_per = np.round(np.percentile(ac, perc) / 1000000, decimals) # MW
+    cen_pmax = np.round(np.max(ac) / 1000000, decimals) # MW
 
     print(f'Pac Max. = {cen_pmax} MW\nCEN ({perc} %) = {cen_per} MW')
 
@@ -33,7 +36,7 @@ def get_cen(ac, perc, decimals, curve=True):
                                ylim_min=0, ylim_max=None, 
                                xlim_min=None, xlim_max=None, 
                                loc='best')
-        plt.legend(loc='best', bbox_to_anchor=(1,1), fontsize=10);
+        plt.legend(loc='lower right', fontsize=10);
         plt.show()
         
     return cen_per, cen_pmax

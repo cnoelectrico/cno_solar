@@ -4,6 +4,9 @@ from functools import reduce
 
 # DC Production
 def dc_production(poa, cell_temperature, module, system):
+    '''
+    Docstrings
+    '''
     # Single Diode Parameters
     IL, I0, Rs, Rsh, nNsVth = pvlib.pvsystem.calcparams_cec(effective_irradiance=poa,
                                                             temp_cell=cell_temperature,
@@ -45,37 +48,16 @@ def dc_production(poa, cell_temperature, module, system):
     results_general = results_general.set_index(poa.index)
     
     # DC Production Dataframe
-#     results = []
-#     for i in range(num_arrays):
-#         results.append(results_general)
-
-#     dc = system.scale_voltage_current_power(tuple(results))
-#     dc = system.scale_voltage_current_power(tuple(results_general))
-    
     dc = system.scale_voltage_current_power(results_general)
-
-    #     if num_arrays == 1:
-#         dc = [dc]
-#     else:
-#         dc = list(dc)
     
     return dc
 
-#     results = []
-#     for i in range(num_arrays):
-#         results.append(system.scale_voltage_current_power(results_general[i]))
-#     dc = tuple(results)
-    
-#     return list(dc)
-
 # Losses
 def losses(dc, loss=26.9):
-
+    '''
+    Docstrings
+    '''
     losses = loss/100 #According to the paper Performance Parameters for Grid-Connected PV Systems by NREL
-
-#     for i in range(len(dc)):
-#         dc[i]['i_mp'] = dc[i]['i_mp'] - dc[i]['i_mp']*losses
-#         dc[i]['p_mp'] = dc[i]['p_mp'] - dc[i]['p_mp']*losses
 
     dc['i_mp'] = dc['i_mp'] - dc['i_mp']*losses
     dc['p_mp'] = dc['p_mp'] - dc['p_mp']*losses
@@ -85,13 +67,9 @@ def losses(dc, loss=26.9):
 # AC Power
 ## SAPM
 def ac_production_sandia(dc, inverter, num_inverter=1, per_mppt=1):
-    
-#     ac_string = []
-#     for i in range(len(dc)):
-#         ac_string.append(pvlib.inverter.sandia(dc[i]['v_mp'], dc[i]['p_mp'], inverter))
-    
-#     ac = reduce(lambda a, b: a.add(b, fill_value=0), ac_string) * num_inverter
-
+    '''
+    Docstrings
+    '''
     ac = pvlib.inverter.sandia(dc['v_mp'], dc['p_mp'], inverter)
     ac = ac * num_inverter * per_mppt
     
@@ -103,16 +81,9 @@ def ac_production_sandia(dc, inverter, num_inverter=1, per_mppt=1):
 
 ## PVWatts
 def ac_production_pvwatts(dc, inverter, num_inverter=1, per_mppt=1):
-    
-#     ac_string = []
-#     for i in range(len(dc)):
-#         ac_string.append(pvlib.inverter.pvwatts(pdc=dc[i]['p_mp'], 
-#                                                 pdc0=inverter['pdc0'],
-#                                                 eta_inv_nom=inverter['eta_inv_nom'],
-#                                                 eta_inv_ref=0.9637).fillna(0))
-    
-#     ac = reduce(lambda a, b: a.add(b, fill_value=0), ac_string) * num_inverter
-
+    '''
+    Docstrings
+    '''
     ac = pvlib.inverter.pvwatts(pdc=dc['p_mp'], 
                                 pdc0=inverter['pdc0'],
                                 eta_inv_nom=inverter['eta_inv_nom'],
@@ -123,7 +94,10 @@ def ac_production_pvwatts(dc, inverter, num_inverter=1, per_mppt=1):
     return ac
 
 # Daily, Weekly, Monthly Energy
-def get_energy(ac, resolution, energy_units='Wh'):    
+def get_energy(ac, resolution, energy_units='Wh'):
+    '''
+    Docstrings
+    '''
     min_to_hour = resolution/60 #res is data resolution (1h, i.e. 60 min); 60 minutes equivalent to hour
 
     #Resampling Simulated Daily Energy
@@ -146,12 +120,15 @@ def get_energy(ac, resolution, energy_units='Wh'):
     month_energy.columns = ['energy']
     
     #Energy Dataframes in Dictionary
-    energy = {'daily': day_energy, 'week': week_energy, 'month': month_energy} 
+    energy = {'day': day_energy, 'week': week_energy, 'month': month_energy} 
         
     return energy
 
 # Production Pipeline
 def production_pipeline(poa, cell_temperature, module, inverter, system, ac_model, loss, resolution, num_inverter=1, per_mppt=1, energy_units='Wh'):
+    '''
+    Docstrings
+    '''
     # DC Production
     dc = dc_production(poa, cell_temperature, module, system)
 

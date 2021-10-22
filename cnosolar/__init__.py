@@ -46,6 +46,7 @@ from cnosolar import irradiance_models
 from cnosolar import def_pvsystem
 from cnosolar import energia_firme
 from cnosolar import gui_config
+from cnosolar import gui_protocols
 # from cnosolar import gui_test
 # from cnosolar import gui_upload
 from cnosolar import components

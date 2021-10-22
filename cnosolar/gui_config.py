@@ -526,8 +526,8 @@ def execute():
     # ELECTRICAL CONFIGURATION
     w_mps = widgets.Text(value=None, description='', style={'description_width': 'initial'})
     w_spi = widgets.Text(value=None, description='', style={'description_width': 'initial'})
-    w_numinv = widgets.Text(value=None, description='', style={'description_width': 'initial'})
     w_mppt = widgets.Text(value=None, description='', style={'description_width': 'initial'})
+    w_numinv = widgets.Text(value=None, description='', style={'description_width': 'initial'})
 
     def handle_mppt(change):
         if change['new'] == 1:
@@ -543,8 +543,8 @@ def execute():
     conf_elec = widgets.VBox([widgets.Box([widgets.HTML('<h4>Configuración Eléctrica</h4>', layout=widgets.Layout(height='auto'))]),
                               widgets.Box([widgets.Label('Módulos por String'), w_mps], layout=gui_layout),
                               widgets.Box([widgets.Label('Strings por Inversor'), w_spi], layout=gui_layout),
-                              widgets.Box([widgets.Label('Número Inversores'), w_numinv], layout=gui_layout),
-                              widgets.Box([widgets.Label('Porcentaje MPPT'), w_mppt], layout=gui_layout)])
+                              widgets.Box([widgets.Label('Porcentaje Entradas'), w_mppt], layout=gui_layout),
+                              widgets.Box([widgets.Label('Número Inversores'), w_numinv], layout=gui_layout)])
 
     # TRACKING AND ORIENTATION CONFIGURATION
     header_TO = widgets.HTML("<h4>Seguidores y Orientación</h4>", layout=widgets.Layout(height='auto'))
@@ -589,7 +589,7 @@ def execute():
     tracker_btn.observe(handle_toggle, 'value')
 
     # GLOBAL PARAMETERS
-    w_loss = widgets.BoundedFloatText(value=26.9, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
+    w_loss = widgets.BoundedFloatText(value=14.6, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
     w_dispon = widgets.BoundedFloatText(value=100, min=0, max=100, step=1, description='', style={'description_width': 'initial'})
     w_name = widgets.Text(value='', placeholder='Sufijo extensión .JSON', description='', style={'description_width': 'initial'})
 
@@ -766,19 +766,18 @@ def execute():
 
     ## Electric Configuration
     def check_econfig(num_arrays):
+        num_inverters = int(w_numinv.value)
         if num_arrays == 1:
             modules_per_string = [int(w_mps.value)] #Modules Per String
             strings_per_inverter = [int(w_spi.value)] #Strings Per Inverter
-            num_inverters = [int(w_numinv.value)]
             per_mppt = [float(w_mppt.value)]
 
         elif num_arrays > 1:
             modules_per_string = str_to_list(w_mps.value) #Modules Per String
             strings_per_inverter = str_to_list(w_spi.value) #Strings Per Inverter
-            num_inverters = str_to_list(w_numinv.value)
             per_mppt = str_to_list(w_mppt.value)
 
-        return [modules_per_string, strings_per_inverter, num_inverters, per_mppt]
+        return [modules_per_string, strings_per_inverter, per_mppt, num_inverters]
 
     ## System Configuration
     def sys_config(inverter_status, module_status, mount_status, econfig_status):
@@ -816,8 +815,8 @@ def execute():
                                 'num_arrays': w_subarrays.value,
                                 'modules_per_string': econfig_status[0],
                                 'strings_per_inverter': econfig_status[1],
-                                'num_inverter': econfig_status[2],
-                                'per_mppt': econfig_status[3],
+                                'per_mppt': econfig_status[2],
+                                'num_inverter': econfig_status[3],
 
                                 # Global Parameters
                                 'loss': w_loss.value,
