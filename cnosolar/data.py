@@ -18,7 +18,7 @@ def psm3_to_df(file_name, prefix, start_year, end_year, tz, sort_index=False):
 
     return df
 
-def load_csv(file_name, tz):
+def test_load_csv(file_name, tz):
     '''
     Docstring
     '''
@@ -34,7 +34,7 @@ def load_csv(file_name, tz):
 
     return df
 
-def tk_load_csv(file_name, tz):
+def load_csv(file_name, tz):
     '''
     Docstring
     '''

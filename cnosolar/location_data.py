@@ -1,6 +1,9 @@
 import pvlib
 
 def get_parameters(latitude, longitude, tz, altitude, datetime):
+    '''
+    Docstring
+    '''
     # Geographic Location
     location = pvlib.location.Location(latitude, longitude, tz, altitude)
     

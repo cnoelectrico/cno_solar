@@ -563,9 +563,11 @@ def execute():
         if change['new'] == 'Sin Seguidor':
             w_Azimuth = widgets.Text(value=None, description='', style={'description_width': 'initial'})
             w_Tilt = widgets.Text(value=None, description='', style={'description_width': 'initial'})
-
+            w_Racking = widgets.Dropdown(options=['', 'open_rack', 'close_mount', 'insulated_back'], value=None, description='', style={'description_width': 'initial'})
+            
             no_tracker = widgets.VBox([widgets.Box([widgets.Label('Azimutal [º]'), w_Azimuth], layout=gui_layout),
-                                       widgets.Box([widgets.Label('Elevación [º]'), w_Tilt], layout=gui_layout)])
+                                       widgets.Box([widgets.Label('Elevación [º]'), w_Tilt], layout=gui_layout),
+                                       widgets.Box([widgets.Label('Racking'), w_Racking], layout=gui_layout)])
 
             sysconfig_vbox.children = [header_TO, tracker_btn, no_tracker]
 
@@ -714,17 +716,25 @@ def execute():
             axis_tilt = None
             axis_azimuth = None
             max_angle = None
-            module_type = None
-            racking_model = None
+            racking_model = sysconfig_vbox.children[2].children[2].children[1].value
             module_height = None
 
             if num_arrays == 1:
-                surface_azimuth = float(sysconfig_vbox.children[2].children[0].children[1].value)
-                surface_tilt = float(sysconfig_vbox.children[2].children[1].children[1].value)
+                surface_azimuth = [float(sysconfig_vbox.children[2].children[0].children[1].value)]
+                surface_tilt = [float(sysconfig_vbox.children[2].children[1].children[1].value)]
 
             elif num_arrays > 1:
                 surface_azimuth = str_to_list(sysconfig_vbox.children[2].children[0].children[1].value)
                 surface_tilt = str_to_list(sysconfig_vbox.children[2].children[1].children[1].value)
+                
+            if racking_model == 'open_rack':
+                module_type = 'open_rack_glass_glass'
+
+            elif racking_model == 'close_mount':
+                module_type = 'close_mount_glass_glass'
+
+            elif racking_model == 'insulated_back':
+                module_type = 'insulated_back_glass_polymer'
 
         elif tracker_btn.value == 'Seguidor 1-Eje':
             with_tracker = True
@@ -734,9 +744,9 @@ def execute():
             module_height = sysconfig_vbox.children[2].children[4].children[1].value
 
             if num_arrays == 1:
-                axis_tilt = float(sysconfig_vbox.children[2].children[0].children[1].value)
-                axis_azimuth = float(sysconfig_vbox.children[2].children[1].children[1].value)
-                max_angle = float(sysconfig_vbox.children[2].children[2].children[1].value)
+                axis_tilt = [float(sysconfig_vbox.children[2].children[0].children[1].value)]
+                axis_azimuth = [float(sysconfig_vbox.children[2].children[1].children[1].value)]
+                max_angle = [float(sysconfig_vbox.children[2].children[2].children[1].value)]
 
             elif num_arrays > 1:
                 axis_tilt = str_to_list(sysconfig_vbox.children[2].children[0].children[1].value)
@@ -757,10 +767,10 @@ def execute():
     ## Electric Configuration
     def check_econfig(num_arrays):
         if num_arrays == 1:
-            modules_per_string = int(w_mps.value) #Modules Per String
-            strings_per_inverter = int(w_spi.value) #Strings Per Inverter
-            num_inverters = int(w_numinv.value)
-            per_mppt = float(w_mppt.value)
+            modules_per_string = [int(w_mps.value)] #Modules Per String
+            strings_per_inverter = [int(w_spi.value)] #Strings Per Inverter
+            num_inverters = [int(w_numinv.value)]
+            per_mppt = [float(w_mppt.value)]
 
         elif num_arrays > 1:
             modules_per_string = str_to_list(w_mps.value) #Modules Per String
@@ -892,4 +902,3 @@ def execute():
 
     dashboard = widgets.VBox([tab, btns, out_btns])
     display(dashboard)
-

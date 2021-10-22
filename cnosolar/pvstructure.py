@@ -1,12 +1,12 @@
 import pvlib
 
-def get_mount_tracker(with_tracker, surface_tilt, surface_azimuth, solpos, axis_tilt, axis_azimuth, max_angle, tracker_axis, racking_model='open_rack', module_height=None):
+def get_mount_tracker(with_tracker, surface_tilt, surface_azimuth, solpos, axis_tilt, axis_azimuth, max_angle, racking_model='open_rack', module_height=None):
     '''
     Docstring
     '''
-
-    # Mount and 
+    # Mount and Tracker
     if with_tracker == False:
+        
         mount = pvlib.pvsystem.FixedMount(surface_tilt=surface_tilt, 
                                           surface_azimuth=surface_azimuth, 
                                           racking_model=racking_model, 
@@ -27,21 +27,5 @@ def get_mount_tracker(with_tracker, surface_tilt, surface_azimuth, solpos, axis_
                                         solar_azimuth=solpos.azimuth)
         
         tracker = tracker.fillna(0)
-
-#     # Tracker
-#     if with_tracker == False:
-#         tracker_axis = 0
-#         tracker = None
-    
-#     if tracker_axis == 1:
-#         tracker = pvlib.tracking.singleaxis(apparent_zenith=solpos.apparent_zenith, 
-#                                             apparent_azimuth=solpos.azimuth, 
-#                                             axis_tilt=axis_tilt,
-#                                             axis_azimuth=axis_azimuth, #Heading south
-#                                             max_angle=max_angle, 
-#                                             backtrack=True, 
-#                                             gcr=0.2857142857142857)
-
-#         tracker = tracker.fillna(0) 
     
     return mount, tracker

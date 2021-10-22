@@ -1,55 +1,49 @@
+'''
+EN UN SOLO TAB DEJAR 
+    TAB 1 - UPLOAD DATA
+    TAB 2 - CEN
+    TAB 3 - ENFICC
+    TAB 4 - RECU-POTEN
+    
+Así me evito el return btn.files (que contiene los archivos .JSON y .CSV cargados) 
+'''
+
 #########################
 #      UPLOAD  GUI      #
 #########################
 
-from cnosolar import __init__
+import json
+import traitlets
+import numpy as np
+import pandas as pd
+import ipywidgets as widgets
+import matplotlib.pyplot as plt
+from tkinter import Tk, filedialog
+from IPython.display import display
+get_ipython().run_line_magic('matplotlib', 'inline')
 
-#####
-# import sys  
-# sys.path.insert(0, './cnosolar')
-
-# import __init__
-# from IPython import get_ipython
-# get_ipython().run_line_magic('run', "-i './cnosolar/__init__.py'")
-# get_ipython().run_line_magic('matplotlib', 'inline')
-# import matplotlib.pyplot as plt
-
-# import pandas as pd
-# import numpy as np
-
-# #####
-
-
-# import json
-# import traitlets
-# import ipywidgets as widgets
-# from tkinter import Tk, filedialog
-# from IPython.display import display
+import cnosolar as cno
 
 gui_layout = widgets.Layout(display='flex', flex_flow='row', justify_content='space-between')
 
-header = widgets.HTML('<h4>Configuración Inicial</h4>', layout=widgets.Layout(height='auto'))
-
-# JSON system configuration file
-upload_config = widgets.FileUpload(accept='.json', multiple=False)
-
-# CSV historical data series file
 ## GUI adapted from https://codereview.stackexchange.com/questions/162920/file-selection-button-for-jupyter-notebook
 class SelectFilesButton(widgets.Button):
     '''A file widget that leverages tkinter.filedialog'''
-    def __init__(self):
+    def __init__(self, file_to_open):
         super(SelectFilesButton, self).__init__()
 
         # Add the selected_files trait
         self.add_traits(files=traitlets.traitlets.Any()) # List()
 
         # Create the button
-        self.description = 'Select File'
+        self.description = 'Seleccionar'
         self.icon = 'square-o'
         #self.style.button_color = 'orange'
 
         # Set on click behavior
         self.on_click(self.select_files)
+
+        self.file_to_open = file_to_open
 
     @staticmethod
     def select_files(b):
@@ -64,25 +58,30 @@ class SelectFilesButton(widgets.Button):
         root.call('wm', 'attributes', '.', '-topmost', True)
 
         # List of selected fileswill be set to b.value
-        b.files = filedialog.askopenfilename(filetypes=(('CSV Files', '.csv'),), 
-                                             multiple=False,
-                                             title='Select CSV Data File')
+        if b.file_to_open == 'JSON':
+            b.files = filedialog.askopenfilename(filetypes=(('JSON Files', '.json'),), 
+                                                 multiple=False,
+                                                 title='Select JSON Data File')
 
-        b.description = 'File Selected'
+        elif b.file_to_open == 'CSV':
+            b.files = filedialog.askopenfilename(filetypes=(('CSV Files', '.csv'),), 
+                                                 multiple=False,
+                                                 title='Select CSV Data File')
+
+        b.description = 'Seleccionado'
         b.icon = 'check-square-o'
         #b.style.button_color = 'lightgreen'
 
-upload_data = SelectFilesButton()
+upload_config = SelectFilesButton(file_to_open='JSON')
+upload_data = SelectFilesButton(file_to_open='CSV')
 
-#################
-header2 = widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))
-
+# BUTTONS
 btn = widgets.Button(value=False,
                      description='Cargar Archivos',
                      disabled=False,
                      button_style='', # 'success', 'info', 'warning', 'danger' or ''
                      tooltip='Cargar los archivos JSON y CSV',
-                     icon='',
+                     icon='upload',
                      layout=widgets.Layout(width='100%', height='auto'))
 
 btn.add_traits(files=traitlets.traitlets.Dict())
@@ -91,28 +90,25 @@ output = widgets.Output()
 
 def on_button_clicked(obj):
     btn.description = 'Archivos Cargados'
-    btn.icon = 'check-circle'
+    btn.icon = 'check'
+
     with output:
         output.clear_output()
-
-        file_route = './data/' + list(upload_config.value.values())[0]['metadata']['name']
-        with open(file_route) as f:
+        with open(upload_config.files) as f:
             system_config = json.load(f)
 
-        import data
-        df = data.tk_load_csv(file_name=upload_data.files, tz=system_config['tz'])
+        df = cno.data.load_csv(file_name=upload_data.files, tz=system_config['tz'])
 
         btn.files = {'system_configuration': system_config, 'df': df}
 
 btn.on_click(on_button_clicked)
 
-#################
-
-widget_init = [widgets.Box([header]),
-               widgets.Box([widgets.Label('Configuración Sistema (JSON)'), upload_config], layout=gui_layout),
-               widgets.Box([widgets.Label('Serie Histórica de Datos (CSV)'), upload_data], layout=gui_layout),
-               widgets.Box([header2]),
-               widgets.Box([widgets.Label(''), btn], layout=gui_layout)]
+# TAB
+widget_init = [widgets.Box([widgets.HTML('<h4>Información Inicial</h4>', layout=widgets.Layout(height='auto'))]),
+               widgets.Box([widgets.Label('Configuración Sistema (.JSON)'), upload_config], layout=gui_layout),
+               widgets.Box([widgets.Label('Serie Histórica de Datos (.CSV)'), upload_data], layout=gui_layout),
+               widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
+               widgets.Box([widgets.Label(''), btn, output], layout=gui_layout)]
 
 tab_init = widgets.Box(widget_init, 
                        layout=widgets.Layout(display='flex',
@@ -122,38 +118,6 @@ tab_init = widgets.Box(widget_init,
                                              width='50%'))
 
 display(tab_init)
-'''
-def aaa():
-    to_return = {'system_config': None, 'df': None}
-    if upload_config.data != []:
-#         to_return['upload_config'] = list(upload_config.value.values())[0]['metadata']['name']
-
-        file_route = './data/' + list(upload_config.value.values())[0]['metadata']['name']
-        with open(file_route) as f:
-            to_return['system_config'] = json.load(f)
-
-    if upload_data.description != 'Select File':
-#       to_return['df'] = upload_data.files
-        import cno_data
-        to_return['df'] = cno_data.tk_load_csv(file_name=upload_data.files, tz=to_return['system_config']['tz'])
-
-    return to_return
-
-
-# To return a DICT from the uploaded JSON file
-def get_config():
-    file_route = './data/' + list(upload_config.value.values())[0]['metadata']['name']
-
-    with open(file_route) as f:
-        system_config = json.load(f)
-
-    return(system_config)
-
-# To return the ROUTE of the uploaded CSV file
-def get_data_route():
-    return(upload_data.files)
-
-'''
 
 def test_tab():
     system_config = btn.files['system_configuration']

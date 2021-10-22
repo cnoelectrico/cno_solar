@@ -1,5 +1,4 @@
 import pvlib
-from pvlib import irradiance
 import numpy as np
 
 # Decomposition Model: DISC
@@ -20,7 +19,7 @@ def decomposition(ghi, solpos, datetime):
     return disc
 
 # Transposition Model: Perez-Ineichen 1990
-def transposition(with_tracker, tracker, surface_tilt, surface_azimuth, solpos, disc, ghi, etr_nrel, airmass, surface_type):
+def transposition(with_tracker, tracker, surface_tilt, surface_azimuth, solpos, disc, ghi, etr_nrel, airmass, surface_albedo, surface_type):
     '''
     Docstring
     '''
@@ -34,7 +33,7 @@ def transposition(with_tracker, tracker, surface_tilt, surface_azimuth, solpos, 
                                                     dhi=disc.dhi, 
                                                     dni_extra=etr_nrel, 
                                                     airmass=airmass.airmass_relative, 
-                                                    albedo=irradiance.SURFACE_ALBEDOS[surface_type], 
+                                                    albedo=surface_albedo, 
                                                     surface_type=surface_type, 
                                                     model='perez', 
                                                     model_perez='allsitescomposite1990')
@@ -49,7 +48,7 @@ def transposition(with_tracker, tracker, surface_tilt, surface_azimuth, solpos, 
                                                     dhi=disc.dhi, 
                                                     dni_extra=etr_nrel, 
                                                     airmass=airmass.airmass_relative, 
-                                                    albedo=irradiance.SURFACE_ALBEDOS[surface_type], 
+                                                    albedo=surface_albedo, 
                                                     surface_type=surface_type, 
                                                     model='perez', 
                                                     model_perez='allsitescomposite1990')

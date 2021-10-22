@@ -50,7 +50,7 @@ from cnosolar import gui_config
 # from cnosolar import gui_upload
 from cnosolar import components
 from cnosolar import location_data
-from cnosolar import mount_tracker
+from cnosolar import pvstructure
 from cnosolar import pipeline
 from cnosolar import complements
 from cnosolar import production
