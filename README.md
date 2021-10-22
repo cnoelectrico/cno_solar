@@ -42,5 +42,11 @@ Por ejemplo, si queremos que el ambiente se llame pvlib. Ahora se activa dicho a
 conda activate pvlib
 ```
 
+Después del comando anterior se debe estar en el ambiente correspondiente, en este caso denotado por `(pvlib)`. Ahora se pueden instalar las librearías requeridas para correr los cuadernos así:
 
+```
+conda install 
+```
+
+Para clonar el repositorio se recomiendo usar el software [GitHub Desktop](https://desktop.github.com/). La url del repositorio es: [andresgm/cno_solar](https://github.com/andresgm/cno_solar).
 
