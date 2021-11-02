@@ -619,7 +619,7 @@ def execute():
                                                     w_rp.files['bus_pipeline'][superkey][key]['energy']['month'].round(2)], axis=1)
 
                         rp_to_download.columns = cols_to_download
-                        rp_to_download.to_csv(f'./downloads/pipeline_{superkey}_{key}.csv')
+                        rp_to_download.to_csv(f'./downloads/recursopotencia_{superkey}_{key}.csv')
 
                 else:
                     rp_to_download = pd.concat([w_rp.files['bus_pipeline'][superkey]['solpos'][['zenith', 'elevation', 'azimuth']].round(2), 
@@ -656,6 +656,7 @@ def execute():
                 title = 'Comportamiento Potencia DC'
                 xlab = 'Tiempo'
                 ylab = f'Potencia, ${w_units.value}$'
+                rot = 30
                 down_label = 'dc_power'
 
                 plt.plot(yy, marker='.', ms=6.5, linewidth=0.5, color=w_emincolor.value)
@@ -666,6 +667,7 @@ def execute():
                 title = 'Comportamiento Potencia AC'
                 xlab = 'Tiempo'
                 ylab = f'Potencia, ${w_units.value}$'
+                rot = 30
                 down_label = 'ac_power'
 
                 plt.plot(yy, marker='.', ms=6.5, linewidth=0.5, color=w_emincolor.value)
@@ -676,6 +678,7 @@ def execute():
                 title = 'Comportamiento Energía Diaria'
                 xlab = 'Tiempo'
                 ylab = f'Energía, ${w_units.value}$'
+                rot = 30
                 down_label = 'daily_energy'
 
                 plt.plot(yy, marker='.', ms=6.5, linewidth=0.5, color=w_emincolor.value)
@@ -686,6 +689,7 @@ def execute():
                 title = 'Comportamiento Energía Semanal'
                 xlab = 'Tiempo'
                 ylab = f'Energía, ${w_units.value}$'
+                rot = 30
                 down_label = 'weekly_energy'
 
                 plt.plot(yy, marker='.', ms=6.5, linewidth=0.5, color=w_emincolor.value)
@@ -696,6 +700,7 @@ def execute():
                 title = 'Comportamiento Energía Mensual'
                 xlab = 'Tiempo'
                 ylab = f'Energía, ${w_units.value}$'
+                rot = 30
                 down_label = 'monthly_energy'
 
                 plt.plot(yy, marker='.', ms=6.5, linewidth=0.5, color=w_emincolor.value)
@@ -707,6 +712,7 @@ def execute():
                 title = 'Relación Irradiancia vs. Potencia DC'
                 xlab = 'Irradiancia POA, W/m2'
                 ylab = f'Potencia, ${w_units.value}$'
+                rot = 0
                 down_label = 'irradiance_dcpower'
 
                 plt.plot(xx, yy, ls='', marker='.', ms=0.5, fillstyle='none', color=w_plotcolor.value)
@@ -718,6 +724,7 @@ def execute():
                 title = 'Relación Irradiancia vs. Potencia AC'
                 xlab = 'Irradiancia POA, W/m2'
                 ylab = f'Potencia, ${w_units.value}$'
+                rot = 0
                 down_label = 'irradiance_acpower'
 
                 plt.plot(xx, yy, ls='', marker='.', ms=0.5, fillstyle='none', color=w_plotcolor.value)
@@ -730,9 +737,9 @@ def execute():
             plt.xlabel(xlab, fontsize=13);
 
             plt.tick_params(direction='out', length=5, width=0.75, grid_alpha=0.3)
-            plt.xticks(rotation=30)
+            plt.xticks(rotation=rot)
             plt.ylim(0, None)
-            plt.xlim(None, None)
+            plt.xlim(w_startdate.value, None)
             plt.grid(True)
             plt.tight_layout
 
@@ -751,7 +758,7 @@ def execute():
                  widgets.Box([btn_rp, output_upload], layout=gui_layout),
                  widgets.Box([widgets.HTML('<h4>Recurso-Potencia</h4>', layout=widgets.Layout(height='auto'))]),
                  widgets.Box([widgets.Label('Disponibilidad [%]'), w_availability], layout=gui_layout),
-                 widgets.Box([widgets.HTML('<h5>Gráfica</h5>', layout=widgets.Layout(height='auto'))]),
+                 widgets.Box([widgets.HTML('<h4>Gráfica</h4>', layout=widgets.Layout(height='auto'))]),
                  widgets.Box([widgets.Label('Relación'), w_relation], layout=gui_layout),
                  widgets.Box([widgets.Label('Magnitud'), w_units], layout=gui_layout),
                  widgets.Box([widgets.Label('Fecha Inicial'), w_startdate], layout=gui_layout),
@@ -759,8 +766,8 @@ def execute():
                  widgets.Box([widgets.Label('Color'), w_plotcolor], layout=gui_layout),
                  widgets.Box([widgets.Label('Descargar'), w_downloadplot], layout=gui_layout),
                  widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
-                 widgets.Box([w_rp, plot_btn, download_rp], layout=gui_layout),
-                 widgets.Box([rp_output, plot_output, downloadrp_output], layout=gui_layout)]
+                 widgets.Box([w_rp, download_rp, plot_btn], layout=gui_layout),
+                 widgets.Box([rp_output, downloadrp_output, plot_output], layout=gui_layout)]
 
     tab_rp = widgets.Box(widget_rp, layout=widgets.Layout(display='flex',
                                                           flex_flow='column',
