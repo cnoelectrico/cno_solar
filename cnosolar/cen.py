@@ -2,12 +2,13 @@ from IPython import get_ipython
 get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
 import numpy as np
-from cnosolar import complements
 
-def get_cen(ac, perc, curve=True):
+def get_cen(ac, perc, color='#1580E4', mag='W', dwnld=False):
     '''
     Docstrings
     '''
+    punits = {'W':1, 'kW': 1000, 'MW': 1000000}
+    
     pac = np.sort(ac)
     pac_max = np.max(ac)
     
@@ -26,17 +27,25 @@ def get_cen(ac, perc, curve=True):
     print(f'Pac Max. = {cen_pmax} MW\nCEN ({perc} %) = {cen_per} MW')
 
     # Curve plot
-    if curve == True:
-        plt.plot(pac, p, label=f'Pac Max. = {cen_pmax} MW\nCEN ({perc} %) = {cen_per} MW')
+    plt.plot(pac/punits[mag], p, label=f'Pac Max. = {cen_pmax} MW\nCEN ({perc}%) = {cen_per} MW', linewidth=1.25, color=color)
 
-        complements.plot_specs(title='Capacidad Efectiva Neta',
-                               ylabel=f'Percentil',
-                               xlabel='Potencia AC, $W$',
-                               rot=0, 
-                               ylim_min=0, ylim_max=None, 
-                               xlim_min=None, xlim_max=None, 
-                               loc='best')
-        plt.legend(loc='lower right', fontsize=10);
-        plt.show()
+    plt.rcParams['axes.axisbelow'] = True;
+
+    plt.title('Capacidad Efectiva Neta', fontsize=15);
+    plt.ylabel('Percentil', fontsize=13);
+    plt.xlabel(f'Potencia AC, ${mag}$', fontsize=13);
+
+    plt.tick_params(direction='out', length=5, width=0.75, grid_alpha=0.3)
+    plt.xticks(rotation=0)
+    plt.ylim(0, None)
+    plt.xlim(None, None)
+    plt.grid(True)
+    plt.legend(loc='lower right', fontsize=10)
+    plt.tight_layout
+    
+    if dwnld == True:
+        plt.savefig('./downloads/cen.pdf', bbox_inches='tight')
         
+    plt.show()
+    
     return cen_per, cen_pmax

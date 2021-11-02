@@ -5,7 +5,7 @@ from setuptools import find_packages
 with open(file='README.md', mode='r') as readme_handle:
     long_description = readme_handle.read()
 
-# Load the __version__.
+# Load the __version__ script.
 with open('./cnosolar/version.py', mode='r') as f:
     exec(f.read()) 
     

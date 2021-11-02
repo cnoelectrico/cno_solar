@@ -25,8 +25,8 @@ def get_inverter(inverters_database, inverter_name, inv=None):
         inverter = pvlib.pvsystem.retrieve_sam(inverters_database)[inverter_name]
     
     # PVWatts Required Parameters
-#     inverter['pdc0'] = inverter['Pdco']
-#     inverter['eta_inv_nom'] = eta_inv_nom
+    inverter['pdc0'] = inverter['Pdco']
+    inverter['eta_inv_nom'] = eta_inv_nom
     
     return inverter
 

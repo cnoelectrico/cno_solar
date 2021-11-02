@@ -32,11 +32,11 @@ def enficc_creg(df, Kinc, IHF, CEN, a, b, c, d, Kmedt):
     
     # Step 5: Use factor of actual irradiance and degradation measurements
     enficc_t = np.round(enficc * Kmedt, 2) # kWh/day
-    print('ENFICC [kWh/día] =', enficc_t)
+    print(f'ENFICC = {enficc_t} kWh/día')
     
     return efirme, enficc_t
 
-def efirme_pvlib_prom(energy):
+def pvlib_prom(energy):
     '''
     Docstring
     '''
@@ -56,12 +56,12 @@ def efirme_pvlib_prom(energy):
     efirme['En'] = En
     
     # Step 2: Energía Firme
-    enficc = np.round(np.min(efirme['En']), 2) # kWh/day
-    print('ENFI [kWh/día] -- Mín(Energía Mes PVlib / # Días) =', enficc)
+    e_min = np.round(np.min(efirme['En']), 2) # kWh/day
+    print(f'Energía Mínima = {e_min} kWh/día')
     
-    return efirme, enficc
+    return efirme, e_min
 
-def efirme_pvlib_min(energy):
+def pvlib_min(energy):
     '''
     Docstring
     '''
@@ -70,11 +70,11 @@ def efirme_pvlib_min(energy):
     1. Energía *diaria* de PVlib
     2. Energía Firme como valor mínimo de energía diaria
     '''
-    enficc = np.round(np.min(energy['daily']['energy'].loc[energy['daily']['energy'] != 0]) / 1000, 2) # kWh
-    print('ENFI [kWh/día] -- Mín(Energía Día PVlib) =', enficc)
-    return enficc
+    e_min = np.round(np.min(energy['day']['energy'].loc[energy['day']['energy'] != 0]) / 1000, 2) # kWh
+    print(f'Energía Mínima = {e_min} kWh/día')
+    return e_min
 
-def efirme_pvlib_percentile(energy, percentile):
+def pvlib_percentile(energy, percentile):
     '''
     Docstring
     '''
@@ -83,6 +83,6 @@ def efirme_pvlib_percentile(energy, percentile):
     1. Energía diaria de PVlib
     2. Energía Firme como percentil de energía diaria
     '''
-    enficc = np.round(np.percentile(energy['daily']['energy'].loc[energy['daily']['energy'] != 0], percentile) / 1000, 2) # kWh
-    print('ENFI [kWh/día] -- Percentil(Energía Día PVlib) =', enficc)
-    return enficc
+    e_min = np.round(np.percentile(energy['day']['energy'].loc[energy['day']['energy'] != 0], percentile) / 1000, 2) # kWh
+    print(f'Energía Mínima = {e_min} kWh/día')
+    return e_min
