@@ -143,7 +143,7 @@ def execute():
     btn = widgets.Button(value=False,
                          description='Cargar Archivos',
                          disabled=False,
-                         button_style='', # 'success', 'info', 'warning', 'danger' or ''
+                         button_style='',
                          tooltip='Cargar los archivos JSON y CSV',
                          icon='upload',
                          layout=widgets.Layout(width='100%', height='auto'))

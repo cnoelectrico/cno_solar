@@ -1048,7 +1048,7 @@ def execute():
     download_btn = widgets.Button(value=False,
                                   description='Descargar Configuración',
                                   disabled=False,
-                                  button_style='', # 'success', 'info', 'warning', 'danger' or ''
+                                  button_style='',
                                   tooltip='Descarga JSON de la Configuración del Sistema',
                                   icon='download',
                                   layout=widgets.Layout(width='25%', height='auto'))

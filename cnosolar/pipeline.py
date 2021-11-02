@@ -23,7 +23,7 @@ def run(system_configuration, data, availability, energy_units):
         num_subarrays = sc['num_arrays']
         
         if num_systems > 1:
-            superkey = f'inverter_{j+1}'
+            superkey = f'inverter{j+1}'
         else:
             superkey = 'plant'
             
@@ -128,11 +128,11 @@ def run(system_configuration, data, availability, energy_units):
                                                                 resolution=resolution, 
                                                                 num_inverter=sc['num_inverter'],
                                                                 per_mppt=sc['per_mppt'][i],
-                                                                availability=inv_availability[i],
+                                                                availability=inv_availability[j],
                                                                 energy_units=energy_units)
 
             if num_subarrays > 1:
-                key = f'subarray_{i+1}'
+                key = f'subarray{i+1}'
             else:
                 key = 'system'
             
@@ -159,10 +159,10 @@ def run(system_configuration, data, availability, energy_units):
             menergy_string = []
             
             for i in range(num_subarrays):
-                ac_string.append(bus_pipeline[superkey][f'subarray_{i+1}']['ac'])
-                denergy_string.append(bus_pipeline[superkey][f'subarray_{i+1}']['energy']['day'].energy)
-                wenergy_string.append(bus_pipeline[superkey][f'subarray_{i+1}']['energy']['week'].energy)
-                menergy_string.append(bus_pipeline[superkey][f'subarray_{i+1}']['energy']['month'].energy)
+                ac_string.append(bus_pipeline[superkey][f'subarray{i+1}']['ac'])
+                denergy_string.append(bus_pipeline[superkey][f'subarray{i+1}']['energy']['day'].energy)
+                wenergy_string.append(bus_pipeline[superkey][f'subarray{i+1}']['energy']['week'].energy)
+                menergy_string.append(bus_pipeline[superkey][f'subarray{i+1}']['energy']['month'].energy)
 
             sys_ac = reduce(lambda a, b: a.add(b, fill_value=0), ac_string)
             sys_denergy = reduce(lambda a, b: a.add(b, fill_value=0), denergy_string)
@@ -193,10 +193,10 @@ def run(system_configuration, data, availability, energy_units):
         menergy_inv = []
 
         for i in range(len(system_configuration)):
-            ac_inv.append(bus_pipeline[f'inverter_{i+1}']['system']['ac'])
-            denergy_inv.append(bus_pipeline[f'inverter_{i+1}']['system']['energy']['day'])
-            wenergy_inv.append(bus_pipeline[f'inverter_{i+1}']['system']['energy']['week'])
-            menergy_inv.append(bus_pipeline[f'inverter_{i+1}']['system']['energy']['month'])
+            ac_inv.append(bus_pipeline[f'inverter{i+1}']['system']['ac'])
+            denergy_inv.append(bus_pipeline[f'inverter{i+1}']['system']['energy']['day'])
+            wenergy_inv.append(bus_pipeline[f'inverter{i+1}']['system']['energy']['week'])
+            menergy_inv.append(bus_pipeline[f'inverter{i+1}']['system']['energy']['month'])
 
         sys_ac = reduce(lambda a, b: a.add(b, fill_value=0), ac_inv)
         sys_denergy = reduce(lambda a, b: a.add(b, fill_value=0), denergy_inv)

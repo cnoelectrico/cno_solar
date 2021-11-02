@@ -58,6 +58,7 @@ from cnosolar import pvstructure
 from cnosolar import pipeline
 from cnosolar import complements
 from cnosolar import production
+from cnosolar import recurso_potencia
 from cnosolar.pvsyst_tools import pvsyst
 
 if __name__ == '__main__':

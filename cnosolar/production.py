@@ -79,7 +79,7 @@ def ac_production_sandia(dc, inverter, num_inverter=1, per_mppt=1, availability=
     return ac
 
 ## PVWatts
-def ac_production_pvwatts(dc, inverter, num_inverter=1, per_mppt=1):
+def ac_production_pvwatts(dc, inverter, num_inverter=1, per_mppt=1, availability=1):
     '''
     Docstrings
     '''
@@ -88,7 +88,7 @@ def ac_production_pvwatts(dc, inverter, num_inverter=1, per_mppt=1):
                                 eta_inv_nom=inverter['eta_inv_nom'],
                                 eta_inv_ref=0.9637).fillna(0)
     
-    ac = ac * num_inverter * per_mppt
+    ac = ac * num_inverter * per_mppt * availability
 
     return ac
 
