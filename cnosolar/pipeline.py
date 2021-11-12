@@ -1,10 +1,11 @@
+import pvlib
 import numpy as np
 import pandas as pd
 import cnosolar as cno
 from tqdm.auto import tqdm
 from functools import reduce
 
-def run(system_configuration, data, availability, energy_units):
+def run(system_configuration, data, irrad_instrument, availability, energy_units):
     '''
     Docstrings
     '''
@@ -60,11 +61,54 @@ def run(system_configuration, data, availability, energy_units):
                                                                max_angle=m_angle,
                                                                racking_model=sc['racking_model'])
             
-            # POA Irradiance
-            if list(data.columns)[0] == 'POA':
-                
+            # Spectral Mismatch
+            if sc['with_tracker'] == False:
+                st = list(np.repeat(sur_tilt, len(data)))
+                sa = list(np.repeat(sur_azimuth, len(data)))
+                aoi = pvlib.irradiance.aoi(surface_tilt=st,
+                                           surface_azimuth=sa, 
+                                           solar_zenith=solpos.apparent_zenith, 
+                                           solar_azimuth=solpos.azimuth)
+            else:
+                st = tracker.surface_tilt
+                sa = tracker.surface_azimuth
+                aoi = tracker.aoi
+
+            iam = pvlib.iam.physical(aoi=aoi, n=1.526, K=4.0, L=0.002)
+            
+            ## Precipitable Water
+            pw = pvlib.atmosphere.gueymard94_pw(temp_air=data['Tamb'], 
+                                                relative_humidity=sc['relative_humidity'])
+
+            t = sc['module']['Technology']
+            if t in ['Mono-c-Si', 'mc-Si', 'c-Si', 'monoSi', 'monosi', 'xsi', 'Thin Film', 'Si-Film', 'HIT-Si', 'EFG mc-Si']:
+                module_tec = 'monosi'
+            elif t in ['Multi-c-Si', 'multiSi', 'polySi', 'multisi', 'polysi']:
+                module_tec = 'multisi'
+            elif t in ['CIGS', 'CIS', 'cis', 'cigs']:
+                module_tec = 'cigs'
+            elif t in ['CdTe', 'CdTe', 'cdte', 'GaAs']:
+                module_tec = 'cdte'
+            elif t in ['asi', 'amorphous', 'a-Si / mono-Si', '2-a-Si', '3-a-Si']:
+                module_tec = 'asi'
+            else:
+                module_tec = None
+            
+            ## Spectral Mismatch Modifier
+            sm = pvlib.atmosphere.first_solar_spectral_correction(pw=pw, 
+                                                                  airmass_absolute=airmass.airmass_absolute, 
+                                                                  module_type=module_tec,
+                                                                  coefficients=None)
+            spectral_mismatch = sm.fillna(1)
+            
+            # POA/Effective Irradiance
+            if 'POA' in list(data.columns):
                 disc = pd.DataFrame(data={'disc': list(np.repeat(0, len(data)))}, index=data.index)
-                poa = data['POA']
+                poa = data['POA'] # Assumed as effective irradiance if irrad_instrument == 'Celda de Referencia'
+
+                # Effective Irradiance
+                if irrad_instrument == 'Piranómetro':
+                    poa = spectral_mismatch * (abs(poa['poa_direct'] * np.cos(aoi) * iam + poa['poa_diffuse']))
             
             else:
                 # Decomposition
@@ -75,8 +119,8 @@ def run(system_configuration, data, availability, energy_units):
                 # Transposition
                 poa = cno.irradiance_models.transposition(with_tracker=sc['with_tracker'], 
                                                           tracker=tracker, 
-                                                          surface_tilt=sur_tilt, 
-                                                          surface_azimuth=sur_azimuth, 
+                                                          surface_tilt=sur_tilt,
+                                                          surface_azimuth=sur_azimuth,
                                                           solpos=solpos, 
                                                           disc=disc, 
                                                           ghi=data['GHI'],
@@ -84,8 +128,63 @@ def run(system_configuration, data, availability, energy_units):
                                                           airmass=airmass,
                                                           surface_albedo=sc['surface_albedo'],
                                                           surface_type=sc['surface_type'])
-                poa = poa.poa_global
+                
+                # Effective Irradiance
+                poa = spectral_mismatch * (abs(poa['poa_direct'] * np.cos(aoi) * iam + poa['poa_diffuse']))
 
+            # Total Bifacial Effective Irradiance
+            if sc['bifacial'] == True:
+                # Irradiance Components
+                if 'POA' in list(data.columns):
+                    irrad_components = cno.irradiance_models.decomposition(ghi=data['GHI'], 
+                                                                           solpos=solpos, 
+                                                                           datetime=data.index) 
+
+                    bifacial_dni = irrad_components.dni
+                    bifacial_dhi = irrad_components.dhi
+                else:
+                    bifacial_dni = disc.dni
+                    bifacial_dhi = disc.dhi            
+                
+                # Axis Azimuth Parameter
+                if sc['with_tracker'] == False:
+                    axis_azimuth = sur_azimuth + 90
+                else:
+                    axis_azimuth = ax_azimuth
+
+                # Bifacial Irradiance
+                bifacial_irrad = pvlib.bifacial.pvfactors_timeseries(solar_azimuth=solpos.azimuth, 
+                                                                     solar_zenith=solpos.apparent_zenith, 
+                                                                     surface_azimuth=sa, 
+                                                                     surface_tilt=st, 
+                                                                     axis_azimuth=axis_azimuth, 
+                                                                     timestamps=data.index, 
+                                                                     dni=bifacial_dni, 
+                                                                     dhi=bifacial_dhi, 
+                                                                     gcr=2.0/7.0,
+                                                                     pvrow_height=sc['row_height'],
+                                                                     pvrow_width=sc['row_width'],
+                                                                     albedo=sc['surface_albedo'], 
+                                                                     n_pvrows=3,
+                                                                     index_observed_pvrow=1,
+                                                                     rho_front_pvrow=0.03,
+                                                                     rho_back_pvrow=0.05,
+                                                                     horizon_band_angle=15.0)
+                
+                total_incident_front = bifacial_irrad[0]
+                total_incident_back = bifacial_irrad[1]
+                total_absorbed_front = bifacial_irrad[2]
+                total_absorbed_back = bifacial_irrad[3]
+                
+                # Total Effective Irradiance
+                poa = spectral_mismatch * (poa + (sc['bifaciality']*bifacial_irrad[3])) # bifacial_irrad[2] instead of (poa + )
+            
+            else:
+                total_incident_front = None
+                total_incident_back = None
+                total_absorbed_front = None
+                total_absorbed_back = None
+            
             # Arrays
             string_array = cno.def_pvsystem.get_arrays(mount=mount,
                                                        surface_albedo=sc['surface_albedo'],
@@ -109,7 +208,7 @@ def run(system_configuration, data, availability, energy_units):
                                                    racking_model=sc['racking_model'])
             
             # Cell Temperature
-            if list(data.columns)[1] == 'Tmod':
+            if 'Tmod' in list(data.columns):
                 temp_cell = data['Tmod']
             
             else:
@@ -130,7 +229,7 @@ def run(system_configuration, data, availability, energy_units):
                                                                 per_mppt=sc['per_mppt'][i],
                                                                 availability=inv_availability[j],
                                                                 energy_units=energy_units)
-
+            # Bus Pipeline Dataframe
             if num_subarrays > 1:
                 key = f'subarray{i+1}'
             else:
@@ -143,6 +242,10 @@ def run(system_configuration, data, availability, energy_units):
                                            'disc': disc,
                                            'tracker': tracker, 
                                            'mount': mount,
+                                           'total_incident_front': total_incident_front,
+                                           'total_incident_back': total_incident_back,
+                                           'total_absorbed_front': total_absorbed_front,
+                                           'total_absorbed_back': total_absorbed_back,
                                            'poa': poa,
                                            'string_array': string_array,
                                            'system': system,
@@ -176,6 +279,10 @@ def run(system_configuration, data, availability, energy_units):
                                                 'disc': disc,
                                                 'tracker': tracker, 
                                                 'mount': mount,
+                                                'total_incident_front': total_incident_front,
+                                                'total_incident_back': total_incident_back,
+                                                'total_absorbed_front': total_absorbed_front,
+                                                'total_absorbed_back': total_absorbed_back,
                                                 'poa': poa,
                                                 'temp_cell': temp_cell,
                                                 'dc': dc, 
@@ -186,13 +293,13 @@ def run(system_configuration, data, availability, energy_units):
             
             
     # AC and Energy Adition for System
-    if len(system_configuration) > 1:
+    if num_systems > 1:
         ac_inv = []
         denergy_inv = []
         wenergy_inv = []
         menergy_inv = []
 
-        for i in range(len(system_configuration)):
+        for i in range(num_systems):
             ac_inv.append(bus_pipeline[f'inverter{i+1}']['system']['ac'])
             denergy_inv.append(bus_pipeline[f'inverter{i+1}']['system']['energy']['day'])
             wenergy_inv.append(bus_pipeline[f'inverter{i+1}']['system']['energy']['week'])
@@ -210,6 +317,10 @@ def run(system_configuration, data, availability, energy_units):
                                  'disc': disc,
                                  'tracker': tracker, 
                                  'mount': mount,
+                                 'total_incident_front': total_incident_front,
+                                 'total_incident_back': total_incident_back,
+                                 'total_absorbed_front': total_absorbed_front,
+                                 'total_absorbed_back': total_absorbed_back,
                                  'poa': poa,
                                  'temp_cell': temp_cell,
                                  'dc': dc, 
@@ -219,4 +330,3 @@ def run(system_configuration, data, availability, energy_units):
                                             'month': sys_menergy}}
     
     return bus_pipeline
-    

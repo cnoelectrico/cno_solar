@@ -42,7 +42,6 @@ setup(
 
     # These are the dependencies the library needs in order to run.
     install_requires=['cftime==1.4.0',
-                      'conda==4.7.12',
                       'ipython==7.8.0',
                       'ipywidgets==7.5.1',
                       'jupyter==1.0.0',
@@ -51,6 +50,7 @@ setup(
                       'numpy==1.19.2',
                       'openpyxl==3.0.0',
                       'pandas==0.25.1',
+                      'pvfactors==1.5.1',
                       'pvlib==0.9.0',
                       'pytest==5.2.1',
                       'pytz==2019.3',

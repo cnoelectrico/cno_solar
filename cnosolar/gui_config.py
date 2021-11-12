@@ -29,11 +29,13 @@ def execute():
                                   <li> <b>Latitud:</b> Utilice la notación de grados decimales.</li>
                                   <li> <b>Longitud:</b> Utilice la notación de grados decimales.</li>
                                   <li> <b>Altitud:</b> Altitud desde el nivel del mar en metros (m.s.n.m).</li>
+                                  <li> <b>Humedad Relativa:</b> Humedad relativa en la superficie en valor porcentual.</li>
+                                  <li> <b>Presión Atmosférica:</b> Presión atmosférica según la altitud del sitio en Pascales (Pa).</li>
                                   <li> <b>Huso Horario:</b> Con referencia a UTC. Por defecto: América/Bogotá (UTC-5).</li>
                                   <li> <b>Superficie:</b> Tipo de superficie para determinar albedo. <span style='color:red'>Opcional si desconoce el albedo</span>.</li>
                                   <li> <b>Albedo:</b> Utilice un valor porcentual en escala entre 0 y 1.</li>
                                 </ul>''', layout=widgets.Layout(height='auto'))
-
+    
     doc_inverter = widgets.HTMLMath('''
                                     <h5>Método de Configuración: Repositorio</h5>
                                     <ul>
@@ -109,6 +111,14 @@ def execute():
                                     <li> <b>Coef. Temp. $V_{OC}$:</b> Coeficiente de temperatura de voltaje de circuito abierto en V/ºC. </li>
                                     <li> <b>Coef. Temp. $P_{MP}$:</b> Coeficiente de temperatura de la potencia en el punto máximo en %/ºC. </li>
                                     <li> <b>$P_{Nominal}$ en STC:</b> Potencia nominal del módulo fotovoltaico en condiciones STC en W.</li>
+                                  </ul>
+                                  
+                                  <h5>Parámetros Bifacialidad</h5>
+                                  <ul>
+                                    <li> <b>Panel Bifacial:</b> Si el panel fotovoltaico es bifacial o no. </li>
+                                    <li> <b>Bifacialidad:</b> Relación entre la eficiencia del lado frontal y posterior del módulo fotovoltaico, medida en condiciones STC. Utilice un valor porcentual en escala entre 0 y 1. </li>
+                                    <li> <b>Alto Fila Paneles:</b> Altura de las filas de paneles fotovoltaicos medida en su centro en unidades de metros. </li>
+                                    <li> <b>Ancho Fila Paneles:</b> Ancho de las filas de paneles fotovoltaicos en el plano 2D considerado en unidades de metros. </li>
                                   </ul>
                                 ''', layout=widgets.Layout(height='auto'))
 
@@ -228,6 +238,20 @@ def execute():
                                         disabled=False,
                                         style={'description_width': 'initial'})
 
+    w_humidity = widgets.BoundedFloatText(value=0,
+                                          min=0,
+                                          max=100,
+                                          step=1,
+                                          description='',
+                                          disabled=False,
+                                          style={'description_width': 'initial'})
+    
+    w_pressure = widgets.FloatText(value=101325,
+                                   step=1,
+                                   description='',
+                                   disabled=False,
+                                   style={'description_width': 'initial'})
+    
     def handle_surface_change(change):
         if change.new != None:
             w_albedo.value = pvlib.irradiance.SURFACE_ALBEDOS[change.new]
@@ -237,11 +261,12 @@ def execute():
     widget_location = [widgets.Box([widgets.HTML('<h4>Información Geográfica</h4>', layout=widgets.Layout(height='auto'))]),
                        widgets.Box([widgets.Label('Latitud'), w_latitude], layout=gui_layout),
                        widgets.Box([widgets.Label('Longitud'), w_longitude], layout=gui_layout),
-                       widgets.Box([widgets.Label('Altitud'), w_altitude], layout=gui_layout),
+                       widgets.Box([widgets.Label('Altitud [m.s.n.m]'), w_altitude], layout=gui_layout),
+                       widgets.Box([widgets.Label('Humedad Relativa [%]'), w_humidity], layout=gui_layout),
+                       widgets.Box([widgets.Label('Presión Atmosférica  [Pa]'), w_pressure], layout=gui_layout),
                        widgets.Box([widgets.Label('Huso Horario'), w_timezone], layout=gui_layout),
                        widgets.Box([widgets.Label('Superficie'), w_surface], layout=gui_layout),
-                       widgets.Box([widgets.Label('Albedo'), w_albedo], layout=gui_layout)]
-
+                       widgets.Box([widgets.Label('Albedo [%]'), w_albedo], layout=gui_layout)]
 
     tab_location = widgets.Box(widget_location, layout=widgets.Layout(display='flex',
                                                                       flex_flow='column',
@@ -559,6 +584,15 @@ def execute():
                                           description='Método',
                                           style={'description_width': 'initial'})
 
+    # BIFACIAL PARAMETERS
+    dropdown_bifacial = widgets.Dropdown(options=[('Sí', True), ('No', False)],
+                                          value=False,
+                                          description='',
+                                          style={'description_width': 'initial'})
+
+    w_dropbrifacial = widgets.VBox([widgets.Box([widgets.Label('Panel Bifacial'), dropdown_bifacial], layout=gui_layout)])
+    bifacial_vbox = widgets.VBox([w_dropbrifacial])
+    
     def handle_modtoggle(change):
         if change['new'] == 'Repositorio':
             module_vbox.children = [module_btn, w_dropmodrepo]
@@ -650,16 +684,35 @@ def execute():
             module['Adjust'] = 0
             module['IAM'] = module['IAM'].tolist()
             modbtn.files = {'mod': module}
+    
+    # BIFACIAL 
+    def handle_dropdown_bifacial(change):
+        if change['new'] == True:
+            w_bifaciality = widgets.BoundedFloatText(value=None, min=0, max=1, step=0.1, description='', style={'description_width': 'initial'})
+            w_rowheight = widgets.FloatText(value=None, description='', style={'description_width': 'initial'})
+            w_rowwidth = widgets.FloatText(value=None, description='', style={'description_width': 'initial'})
 
+            bif_conf = widgets.VBox([widgets.Box([widgets.Label('Bifacialidad [%]'), w_bifaciality], layout=gui_layout),
+                                     widgets.Box([widgets.Label('Alto Fila Paneles [m]'), w_rowheight], layout=gui_layout),
+                                     widgets.Box([widgets.Label('Ancho Fila Paneles [m]'), w_rowwidth], layout=gui_layout)])
+
+            bifacial_vbox.children = [w_dropbrifacial, bif_conf]
+
+        else:
+            bifacial_vbox.children = [w_dropbrifacial]
+        
     # OBSERVE
     module_btn.observe(handle_modtoggle, 'value')
     dropdown_modrepo.observe(handle_dropdown_modmanuf, 'value')
     dropdown_modmanu.observe(handle_dropdown_modrepo, 'value')
-    modbtn.on_click(on_modbutton_clicked)  
+    modbtn.on_click(on_modbutton_clicked)
+    dropdown_bifacial.observe(handle_dropdown_bifacial, 'value')
 
     # TAB
-    tab_module = widgets.Box([widgets.HTML("<h4>Método de Configuración</h4>", layout=widgets.Layout(height='auto')), 
-                              module_vbox], 
+    tab_module = widgets.Box([widgets.HTML('<h4>Método de Configuración</h4>', layout=widgets.Layout(height='auto')), 
+                              module_vbox,
+                              widgets.HTML('<h4>Parámetros Bifacialidad</h4>', layout=widgets.Layout(height='auto')),
+                              bifacial_vbox], 
                               layout=widgets.Layout(display='flex',
                                                     flex_flow='column',
                                                     border='solid 0px',
@@ -671,7 +724,7 @@ def execute():
     ###############################
 
     # SUBARRAYS
-    w_subarrays = widgets.IntText(value=1, description='', style={'description_width': 'initial'})
+    w_subarrays = widgets.IntText(value=0, description='', style={'description_width': 'initial'})
 
     conf_subarrays = widgets.VBox([widgets.Box([widgets.HTML('<h4>Subarrays</h4>', layout=widgets.Layout(height='auto'))]),
                                    widgets.Box([widgets.Label('Cantidad Subarrays'), w_subarrays], layout=gui_layout)])
@@ -732,8 +785,8 @@ def execute():
             w_Azimuth.value = v_angles
             w_Tilt.value = v_angles
             
-            no_tracker = widgets.VBox([widgets.Box([widgets.Label('Azimutal [º]'), w_Azimuth], layout=gui_layout),
-                                       widgets.Box([widgets.Label('Elevación [º]'), w_Tilt], layout=gui_layout),
+            no_tracker = widgets.VBox([widgets.Box([widgets.Label('Elevación [º]'), w_Tilt], layout=gui_layout),
+                                       widgets.Box([widgets.Label('Azimutal [º]'), w_Azimuth], layout=gui_layout),
                                        widgets.Box([widgets.Label('Racking'), w_Racking], layout=gui_layout)])
 
             sysconfig_vbox.children = [header_TO, tracker_btn, no_tracker]
@@ -799,7 +852,7 @@ def execute():
     def check_inverter():
         if inverter_btn.value == 'Repositorio':
             inverters_database = dropdown_invrepo.value
-            inverter_name = inverter_vbox.children[3].value
+            inverter_name = inverter_vbox.children[3].children[0].children[1].value
             inverter = dict(pvlib.pvsystem.retrieve_sam(inverters_database)[inverter_name])
             inverter['Vac'] = float(inverter['Vac'])
             ac_model = 'sandia'
@@ -842,7 +895,7 @@ def execute():
         if module_btn.value == 'Repositorio':
             if dropdown_modrepo.value != 'PVFree':
                 modules_database = dropdown_modrepo.value
-                modules_name = module_vbox.children[3].value
+                modules_name = module_vbox.children[3].children[0].children[1].value
                 module = dict(pvlib.pvsystem.retrieve_sam(modules_database)[modules_name])
 
             else:
@@ -859,7 +912,7 @@ def execute():
 
         if module_btn.value == 'Manual':
             module = {'T_NOCT': module_vbox.children[1].children[1].children[1].value,
-                      'cell_type': module_vbox.children[1].children[2].children[1].value,
+                      'Technology': module_vbox.children[1].children[2].children[1].value,
                       'N_s': module_vbox.children[1].children[3].children[1].value,
                       'I_sc_ref': module_vbox.children[1].children[4].children[1].value,
                       'V_oc_ref': module_vbox.children[1].children[5].children[1].value,
@@ -870,7 +923,7 @@ def execute():
                       'gamma_r': module_vbox.children[1].children[10].children[1].value,
                       'STC': module_vbox.children[1].children[11].children[1].value}
             
-            I_L_ref, I_o_ref, R_s, R_sh_ref, a_ref, Adjust = pvlib.ivtools.sdm.fit_cec_sam(celltype=module['cell_type'], 
+            I_L_ref, I_o_ref, R_s, R_sh_ref, a_ref, Adjust = pvlib.ivtools.sdm.fit_cec_sam(celltype=module['Technology'], 
                                                                                            v_mp=module['V_mp_ref'], 
                                                                                            i_mp=module['I_mp_ref'], 
                                                                                            v_oc=module['V_oc_ref'], 
@@ -890,8 +943,19 @@ def execute():
 
             modules_database = None
             modules_name = None
-
-        return [modules_database, modules_name, module]
+            
+        if bifacial_vbox.children[0].children[0].children[1].value == False:
+            bifacial = False
+            bifaciality = 0
+            row_height = 0
+            row_width = 0
+        else:
+            bifacial = True
+            bifaciality = bifacial_vbox.children[1].children[0].children[1].value
+            row_height = bifacial_vbox.children[1].children[1].children[1].value
+            row_width = bifacial_vbox.children[1].children[2].children[1].value
+        
+        return [modules_database, modules_name, module, bifacial, bifaciality, row_height, row_width]
 
     ## Mount
     def check_mount(num_arrays):
@@ -903,12 +967,12 @@ def execute():
             racking_model = sysconfig_vbox.children[2].children[2].children[1].value
 
             if num_arrays == 1:
-                surface_azimuth = [float(sysconfig_vbox.children[2].children[0].children[1].value)]
-                surface_tilt = [float(sysconfig_vbox.children[2].children[1].children[1].value)]
+                surface_tilt = [float(sysconfig_vbox.children[2].children[0].children[1].value)]
+                surface_azimuth = [float(sysconfig_vbox.children[2].children[1].children[1].value)]
 
             elif num_arrays > 1:
-                surface_azimuth = str_to_list(sysconfig_vbox.children[2].children[0].children[1].value)
-                surface_tilt = str_to_list(sysconfig_vbox.children[2].children[1].children[1].value)
+                surface_tilt = str_to_list(sysconfig_vbox.children[2].children[0].children[1].value)
+                surface_azimuth = str_to_list(sysconfig_vbox.children[2].children[1].children[1].value)
                 
             if racking_model == 'open_rack':
                 module_type = 'open_rack_glass_glass'
@@ -970,6 +1034,8 @@ def execute():
                                 'altitude': w_altitude.value,
                                 'surface_type': w_surface.value,
                                 'surface_albedo': w_albedo.value,
+                                'relative_humidity': w_humidity.value,
+                                'pressure': w_pressure.value,
 
                                 # Inverter
                                 'inverters_database': inverter_status[0],
@@ -981,7 +1047,11 @@ def execute():
                                 'modules_database': module_status[0],
                                 'module_name': module_status[1],
                                 'module': dict(module_status[2]),
-
+                                'bifacial': module_status[3],
+                                'bifaciality': module_status[4],
+                                'row_height': module_status[5],
+                                'row_width': module_status[6],
+            
                                 # Mount
                                 'with_tracker': mount_status[0],
                                 'surface_azimuth': mount_status[1],

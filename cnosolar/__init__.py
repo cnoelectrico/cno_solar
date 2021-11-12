@@ -46,18 +46,19 @@ logging.getLogger('numexpr').setLevel(logging.WARNING)
 # Scripts
 from cnosolar import cell_temperature
 from cnosolar import cen
+from cnosolar import complements
+from cnosolar import components
 from cnosolar import data
-from cnosolar import irradiance_models
 from cnosolar import def_pvsystem
 from cnosolar import energia_minima
 from cnosolar import gui_config
 from cnosolar import gui_protocols
-from cnosolar import components
+from cnosolar import irradiance_models
 from cnosolar import location_data
-from cnosolar import pvstructure
 from cnosolar import pipeline
-from cnosolar import complements
 from cnosolar import production
+from cnosolar import pvstructure
+from cnosolar import recurso_potencia
 from cnosolar.pvsyst_tools import pvsyst
 
 if __name__ == '__main__':
