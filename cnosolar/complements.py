@@ -132,9 +132,6 @@ def corr_plot(measured_data, modeled_data, title, units):
     
     # Metrics
     metrics(r2=r_value, measured=x_value, modeled=y_value)
-    
-def energy_plot():
-    pass
 
 def behaviour_plot(data, label, title, ylabel, xlabel, rot, ylim_min, ylim_max, xlim_min, xlim_max, loc):
     '''

@@ -118,7 +118,7 @@ def execute():
                                     <li> <b>Panel Bifacial:</b> Si el panel fotovoltaico es bifacial o no. </li>
                                     <li> <b>Bifacialidad:</b> Relación entre la eficiencia del lado frontal y posterior del módulo fotovoltaico, medida en condiciones STC. Utilice un valor porcentual en escala entre 0 y 1. </li>
                                     <li> <b>Alto Fila Paneles:</b> Altura de las filas de paneles fotovoltaicos medida en su centro en unidades de metros. </li>
-                                    <li> <b>Ancho Fila Paneles:</b> Ancho de las filas de paneles fotovoltaicos en el plano 2D considerado en unidades de metros. </li>
+                                    <li> <b>Ancho Fila Paneles:</b> Ancho de las filas de paneles fotovoltaicos en el plano 2D considerado en unidades de metros (e.g., 1P, 2P, 4L). </li>
                                   </ul>
                                 ''', layout=widgets.Layout(height='auto'))
 
@@ -567,7 +567,7 @@ def execute():
     modbtn = widgets.Button(value=False,
                             description='Cargar PAN',
                             disabled=False,
-                            button_style='', # 'success', 'info', 'warning', 'danger' or ''
+                            button_style='',
                             tooltip='Cargar los archivos .PAN',
                             icon='circle',
                             layout=widgets.Layout(width='34%', height='auto'))
@@ -899,8 +899,8 @@ def execute():
                 module = dict(pvlib.pvsystem.retrieve_sam(modules_database)[modules_name])
 
             else:
-                modules_database = dropdown_modrepo.value
-                module = dict(requests.get(f'https://pvfree.herokuapp.com/api/v1/{module_vbox.children[2].value}/{module_vbox.children[3].children[0].value}/').json())
+                modules_database = dropdown_modrepo.value # AAA
+                module = dict(requests.get(f'https://pvfree.herokuapp.com/api/v1/{module_vbox.children[2].children[0].children[1].value}/{module_vbox.children[3].children[0].children[1].children[0].value}/').json())
                 modules_name = module['Name']        
 
         if module_btn.value == 'PVsyst':

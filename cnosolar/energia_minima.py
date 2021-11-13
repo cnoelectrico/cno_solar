@@ -70,7 +70,11 @@ def pvlib_min(energy):
     1. Energía *diaria* de PVlib
     2. Energía Firme como valor mínimo de energía diaria
     '''
-    e_min = np.round(np.min(energy['day']['energy'].loc[energy['day']['energy'] != 0]) / 1000, 2) # kWh
+    e = energy['day']
+    if isinstance(e, pd.Series):
+        e = pd.DataFrame({'energy': e})
+    
+    e_min = np.round(np.min(e['energy'].loc[e['energy'] != 0]) / 1000, 2) # kWh
     print(f'Energía Mínima = {e_min} kWh/día')
     return e_min
 
@@ -83,6 +87,10 @@ def pvlib_percentile(energy, percentile):
     1. Energía diaria de PVlib
     2. Energía Firme como percentil de energía diaria
     '''
-    e_min = np.round(np.percentile(energy['day']['energy'].loc[energy['day']['energy'] != 0], percentile) / 1000, 2) # kWh
+    e = energy['day']
+    if isinstance(e, pd.Series):
+        e = pd.DataFrame({'energy': e})
+    
+    e_min = np.round(np.percentile(e['energy'].loc[e['energy'] != 0], percentile) / 1000, 2) # kWh
     print(f'Energía Mínima = {e_min} kWh/día')
     return e_min

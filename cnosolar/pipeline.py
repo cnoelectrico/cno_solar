@@ -18,7 +18,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
         inv_availability = list(np.repeat(1, num_systems))
     else:
         inv_availability = availability
-    
+
     for j in tqdm(range(num_systems), desc='Sistema/Inversor (.JSON)', leave=False):
         sc = system_configuration[j]
         num_subarrays = sc['num_arrays']
@@ -108,7 +108,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
 
                 # Effective Irradiance
                 if irrad_instrument == 'Piranómetro':
-                    poa = spectral_mismatch * (abs(poa['poa_direct'] * np.cos(aoi) * iam + poa['poa_diffuse']))
+                    poa = spectral_mismatch * abs(poa * np.cos(aoi) * iam)
             
             else:
                 # Decomposition
@@ -263,9 +263,9 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
             
             for i in range(num_subarrays):
                 ac_string.append(bus_pipeline[superkey][f'subarray{i+1}']['ac'])
-                denergy_string.append(bus_pipeline[superkey][f'subarray{i+1}']['energy']['day'].energy)
-                wenergy_string.append(bus_pipeline[superkey][f'subarray{i+1}']['energy']['week'].energy)
-                menergy_string.append(bus_pipeline[superkey][f'subarray{i+1}']['energy']['month'].energy)
+                denergy_string.append(pd.DataFrame(bus_pipeline[superkey][f'subarray{i+1}']['energy']['day']).energy)
+                wenergy_string.append(pd.DataFrame(bus_pipeline[superkey][f'subarray{i+1}']['energy']['week']).energy)
+                menergy_string.append(pd.DataFrame(bus_pipeline[superkey][f'subarray{i+1}']['energy']['month']).energy)
 
             sys_ac = reduce(lambda a, b: a.add(b, fill_value=0), ac_string)
             sys_denergy = reduce(lambda a, b: a.add(b, fill_value=0), denergy_string)
@@ -301,9 +301,9 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
 
         for i in range(num_systems):
             ac_inv.append(bus_pipeline[f'inverter{i+1}']['system']['ac'])
-            denergy_inv.append(bus_pipeline[f'inverter{i+1}']['system']['energy']['day'])
-            wenergy_inv.append(bus_pipeline[f'inverter{i+1}']['system']['energy']['week'])
-            menergy_inv.append(bus_pipeline[f'inverter{i+1}']['system']['energy']['month'])
+            denergy_inv.append(pd.DataFrame(bus_pipeline[f'inverter{i+1}']['system']['energy']['day']).energy)
+            wenergy_inv.append(pd.DataFrame(bus_pipeline[f'inverter{i+1}']['system']['energy']['week']).energy)
+            menergy_inv.append(pd.DataFrame(bus_pipeline[f'inverter{i+1}']['system']['energy']['month']).energy)
 
         sys_ac = reduce(lambda a, b: a.add(b, fill_value=0), ac_inv)
         sys_denergy = reduce(lambda a, b: a.add(b, fill_value=0), denergy_inv)

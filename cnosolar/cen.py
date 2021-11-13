@@ -7,7 +7,7 @@ def get_cen(ac, perc, color='#1580E4', mag='W', dwnld=False):
     '''
     Docstrings
     '''
-    punits = {'W':1, 'kW': 1000, 'MW': 1000000}
+    punits = {'W': 1, 'kW': 1000, 'MW': 1000000}
     
     pac = np.sort(ac)
     pac_max = np.max(ac)
