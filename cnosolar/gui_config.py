@@ -163,6 +163,12 @@ def execute():
                                    <li> <b>Pérdidas:</b> Porcentaje de pérdidas globales del sistema. Por defecto: 14.6%.</li>
                                    <li> <b>Nombre Planta:</b> Sufijo al nombre del archivo de configuración (system_config_<i>sufijo</i>). Por defecto: system_config.</li>
                                  </ul>
+                                 
+                                 <h5>Archivo Configuración</h5>
+                                 <ul>
+                                   <li> <b>Generar Configuración:</b> Dé clic en este botón para que el algoritmo genere internamente el archivo de configuración con los parámetros previamente asignados. El ícono y la descripción del botón cambiarán para notificar la ejecución de la configuración.</li>
+                                   <li> <b>Descargar Configuración:</b> Dé clic en este botón para descargar el archivo de configuración genererado con el botón 'Generar Configuración' (una vez este haya notificado su ejecución). Se descargará un archivo .JSON que se alojarán en la carpeta <i>cno_solar/configurations/<span style='color:blue'>system_config.csv</span></i>. El ícono y la descripción del botón cambiarán para notificar la descarga del archivo.</li>
+                                 </ul>
                                  ''', layout=widgets.Layout(height='auto'))
 
     ac_documentation = widgets.Accordion(children=[doc_location, doc_inverter, doc_module, doc_sysdesign])
@@ -824,11 +830,78 @@ def execute():
                                       widgets.Box([widgets.Label('Pérdidas [%]'), w_loss], layout=gui_layout),
                                       widgets.Box([widgets.Label('Nombre Planta'), w_name], layout=gui_layout)])
 
+    # CONFIGURATION FILE
+    
+    # Config Button
+    genconfig_btn = widgets.Button(value=False,
+                                   description='Generar Configuración',
+                                   disabled=False,
+                                   button_style='', # 'success', 'info', 'warning', 'danger' or ''
+                                   tooltip='Generar Configuración del Sistema',
+                                   icon='gear',
+                                   layout=widgets.Layout(width='50%', height='auto'))
+
+    genconfig_output = widgets.Output()
+
+    def on_genconfig_clicked(obj):    
+        with genconfig_output:
+            genconfig_output.clear_output()
+
+            inverter_status = check_inverter()
+            module_status = check_module()
+            mount_status = check_mount(num_arrays=w_subarrays.value)
+            econfig_status = check_econfig(num_arrays=w_subarrays.value)
+
+            system_configuration = sys_config(inverter_status, module_status, mount_status, econfig_status)
+
+            genconfig_btn.description = 'Configuración Generada'
+            genconfig_btn.icon = 'check'
+
+    genconfig_btn.on_click(on_genconfig_clicked)
+
+    # Download Button
+    download_btn = widgets.Button(value=False,
+                                  description='Descargar Configuración',
+                                  disabled=False,
+                                  button_style='',
+                                  tooltip='Descarga JSON de la Configuración del Sistema',
+                                  icon='download',
+                                  layout=widgets.Layout(width='50%', height='auto'))
+    output = widgets.Output()
+
+    def on_button_clicked(obj):
+        with output:
+            output.clear_output()
+
+            inverter_status = check_inverter()
+            module_status = check_module()
+            mount_status = check_mount(num_arrays=w_subarrays.value)
+            econfig_status = check_econfig(num_arrays=w_subarrays.value)
+            system_configuration = sys_config(inverter_status, module_status, mount_status, econfig_status)
+
+            if w_name.value != '':
+                json_file = f'./configurations/system_config_{w_name.value}.json'
+            else:
+                json_file = './configurations/system_config.json'
+
+            with open(json_file, 'w') as f:
+                json.dump(system_configuration, f, indent=2)
+
+            download_btn.description = 'Configuración Descargada'
+            download_btn.icon = 'check'
+
+    download_btn.on_click(on_button_clicked)
+    
+    conf_json = widgets.VBox([widgets.Box([widgets.HTML('<h4>Archivo Configuración</h4>', layout=widgets.Layout(height='auto'))]),
+                              widgets.HBox([genconfig_btn, download_btn]),
+                              widgets.HBox([genconfig_output, output])])
+    
     # TAB
     tab_sysconfig = widgets.Box([conf_subarrays,
                                  conf_elec,
                                  sysconfig_vbox,
-                                 conf_globalparams], 
+                                 conf_globalparams,
+                                 conf_json], 
                                  layout=widgets.Layout(display='flex',
                                                        flex_flow='column',
                                                        border='solid 0px',
@@ -1087,68 +1160,5 @@ def execute():
     tab.set_title(3, 'Módulo')
     tab.set_title(4, 'Diseño Planta')
 
-    # Config Button
-    genconfig_btn = widgets.Button(value=False,
-                                   description='Generar Configuración',
-                                   disabled=False,
-                                   button_style='', # 'success', 'info', 'warning', 'danger' or ''
-                                   tooltip='Generar Configuración del Sistema',
-                                   icon='gear',
-                                   layout=widgets.Layout(width='25%', height='auto'))
-
-    genconfig_output = widgets.Output()
-
-    def on_genconfig_clicked(obj):    
-        with genconfig_output:
-            genconfig_output.clear_output()
-
-            inverter_status = check_inverter()
-            module_status = check_module()
-            mount_status = check_mount(num_arrays=w_subarrays.value)
-            econfig_status = check_econfig(num_arrays=w_subarrays.value)
-
-            system_configuration = sys_config(inverter_status, module_status, mount_status, econfig_status)
-
-            genconfig_btn.description = 'Configuración Generada'
-            genconfig_btn.icon = 'check'
-
-    genconfig_btn.on_click(on_genconfig_clicked)
-
-    # Download Button
-    download_btn = widgets.Button(value=False,
-                                  description='Descargar Configuración',
-                                  disabled=False,
-                                  button_style='',
-                                  tooltip='Descarga JSON de la Configuración del Sistema',
-                                  icon='download',
-                                  layout=widgets.Layout(width='25%', height='auto'))
-    output = widgets.Output()
-
-    def on_button_clicked(obj):
-        with output:
-            output.clear_output()
-
-            inverter_status = check_inverter()
-            module_status = check_module()
-            mount_status = check_mount(num_arrays=w_subarrays.value)
-            econfig_status = check_econfig(num_arrays=w_subarrays.value)
-            system_configuration = sys_config(inverter_status, module_status, mount_status, econfig_status)
-
-            if w_name.value != '':
-                json_file = f'system_config_{w_name.value}.json'
-            else:
-                json_file = 'system_config.json'
-
-            with open(json_file, 'w') as f:
-                json.dump(system_configuration, f, indent=2)
-
-            download_btn.description = 'Configuración Descargada'
-            download_btn.icon = 'check'
-
-    download_btn.on_click(on_button_clicked)
-
-    btns = widgets.HBox([genconfig_btn, download_btn])
-    out_btns = widgets.HBox([genconfig_output, output])
-
-    dashboard = widgets.VBox([tab, btns, out_btns])
+    dashboard = widgets.VBox([tab])
     display(dashboard)

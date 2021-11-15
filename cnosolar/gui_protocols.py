@@ -23,54 +23,64 @@ def execute():
                                 flex_flow='row',
                                 justify_content='space-between')
     
-    doc_cen = widgets.HTML('''
-                                <h5>Información Geográfica</h5>
+    doc_cen = widgets.HTMLMath('''
+                                <h5>Información Inicial</h5>
                                 <ul>
-                                  <li> <b>Latitud:</b> Utilice la notación de grados decimales.</li>
-                                  <li> <b>Longitud:</b> Utilice la notación de grados decimales.</li>
-                                  <li> <b>Altitud:</b> Altitud desde el nivel del mar en metros (m.s.n.m).</li>
-                                  <li> <b>Huso Horario:</b> Con referencia a UTC. Por defecto: América/Bogotá (UTC-5).</li>
-                                  <li> <b>Superficie:</b> Tipo de superficie para determinar albedo. <span style='color:red'>Opcional si desconoce el albedo</span>.</li>
-                                  <li> <b>Albedo:</b> Utilice un valor porcentual en escala entre 0 y 1.</li>
-                                </ul>''', layout=widgets.Layout(height='auto'))
+                                  <li> <b>Configuración Sistema (.JSON):</b> Seleccione el archivo .JSON de configuración del sistema. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, selecciónelos de forma simultánea (estos se cargarán en orden alfabético).</li>
+                                  <li> <b>Serie Histórica de Datos (.CSV):</b> Seleccione el archivo .CSV de la serie histórica de datos meteorológicos. La estructura de datos sigue lo establecido por la CREG 060 de 2019, es decir, estampa temporal, $~GHI~$ y $~T_{amb}$.</li>
+                                  <li> <b>Cargar Archivos:</b> Una vez seleccionados los archivos requeridos, dé clic en 'Cargar Archivos'. El ícono y la descripción del botón cambiarán para notificar la carga de los archivos.</li>
+                                </ul>
+
+                                <h5>Capacidad Efectiva Neta</h5>
+                                <ul>
+                                  <li> <b>Percentil [%]:</b> Valor del percentil con el que se estimará la CEN. Por defecto se tiene el percentil 99 para filtrar posibles datos atípicos.</li>
+                                  <li> <b>Gráfica - Color:</b> Color de la curva generada en el gráfico de la CEN (Percentil vs. $P_{AC}$). <span style='color:red'>No se requiere para el cálculo de la CEN</span>.</li>
+                                  <li> <b>Gráfica - Magnitud $P_{AC}$:</b> Para facilitar la visualización del gráfico, seleccione la magnitud en que desea presentar la Potencia AC. <span style='color:red'>No se requiere para el cálculo de la CEN</span>.</li>
+                                  <li> <b>Gráfica - Descargar:</b> Seleccione la opción 'Sí' para descargar el gráfico de la CEN (se alojará en la carpeta <i>cno_solar/downloads/<span style='color:blue'>cen.pdf</span></i>). <span style='color:red'>No se requiere para el cálculo de la CEN</span>.</li>
+                                  <li> <b>Calcular CEN:</b> Dé clic en el botón 'Calcular CEN' para ejecutar el algoritmo que estimará la CEN según los archivos de configuración del sistema y serie histórica de datos, además del percentil indicado. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
+                                  <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) requeridos para calcular la CEN. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por subarreglos, por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>pipeline_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
+                                </ul>
+
+                                <h5>Energía Mínima Diaria</h5>
+                                Sección opcional que permite al usuario estimar la energía mínima diaria (unidades de kWh/día).
+                                <ul>
+                                  <li> <b>Percentil [%]:</b> Valor del percentil con el que se estimará la energía mínima. Por defecto se tiene el percentil 1 para filtrar posibles datos atípicos.</li>
+                                  <li> <b>Gráfica - Color:</b> Color de la curva del comportamiento de la energía a lo largo del periodo de tiempo de la serie histórica de datos.
+                                  <li> <b>Gráfica - Magnitud Energía:</b> Para facilitar la visualización del gráfico, seleccione la magnitud en que desea presentar la Energía.
+                                  <li> <b>Gráfica - Descargar:</b> Seleccione la opción 'Sí' para descargar el gráfico del comportamiento de la energía a lo largo del periodo de tiempo de la serie histórica de datos (se alojará en la carpeta <i>cno_solar/downloads/<span style='color:blue'>daily_energy.pdf</span></i>).</li>
+                                  <li> <b>Calcular Energía Mínima Diaria:</b> Al dar clic en este botón se ejecuta el algoritmo que estimará la energía mínima diaria según percentil indicado. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
+                                  <li> <b>Graficar Energía Diaria:</b> Dé clic en este botón para visualizar la curva del comportamiento de la energía a lo largo del periodo de tiempo de la serie histórica de datos. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
+                                </ul>
+                                ''', layout=widgets.Layout(height='auto'))
 
     doc_rp = widgets.HTMLMath('''
-                                    <h5>Método de Configuración: Repositorio</h5>
-                                    <ul>
-                                      <li> <b>Repositorio:</b> Repositorio de inversores dispuestos por PVlib. Archivos CSV disponibles en cno_solar/repositorios.</li>
-                                      <li> <b>Fabricantes:</b> Lista de fabricantes del repositorio seleccionado.</li>
-                                      <li> <b>Inversores:</b> Lista de equipos disponibles en el repositorio según el fabricante escogido.</li>
-                                    </ul>
+                              <h5>Información Inicial</h5>
+                              <ul>
+                                <li> <b>Configuración Sistema (.JSON):</b> Seleccione el archivo .JSON de configuración del sistema. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, selecciónelos de forma simultánea (estos se cargarán en orden alfabético).</li>
+                                <li> <b>Serie Histórica de Datos (.CSV):</b> Seleccione el archivo .CSV de la serie histórica de datos meteorológicos. La estructura de datos sigue lo establecido por la CREG 060 de 2019, es decir, estampa temporal, $~GHI~$ y $~T_{amb}$; si se añaden los parámetros $~POA~$ y $~T_{mod}$, estos priman para los cálculos de los algoritmos (e.g., no se utilizan modelos de descomposición y transposición para determinar $~POA~$ ni modelos de temperatura para determinar $~T_{mod}$).</li>
+                                <li> <b>Cargar Archivos:</b> Una vez seleccionados los archivos requeridos, dé clic en 'Cargar Archivos'. El ícono y la descripción del botón cambiarán para notificar la carga de los archivos.</li>
+                              </ul>
 
-                                    <h5>Método de Configuración: PVsyst</h5>
-                                    <ul>
-                                      <li> Seleccione el archivo del inversor generado por PVsyst (extensión .OND) y dé clic en 'Cargar OND'.</li>
-                                    </ul>
+                                <h5>Recurso-Potencia</h5>
+                                <ul>
+                                  <li> <b>Disponibilidad [%]:</b> Valor porcentual de la disponibilidad por conjunto inversores con configuración eléctrica exactamente igual (i.e. por archivo .JSON de configuración del sistema).Para múltiples inversores (i.e., múltiples archivos .JSON de configuración), separe los valores con una coma de manera ordenada.</li>
+                                  <li> <b>Instrumento Irradiancia:</b> Indique el instrumento con el cual se obtuvieron las mediciones de irradiancia $~POA~$ (se asume piranómetro para $~GHI~$). Este parámetro se usa para la estimación de la irradiancia efectiva.</li>
+                                  <li> <b>Ejecutar:</b> Dé clic en este botón para ejecutar el algoritmo que estimará la producción de la planta fotovoltaica según el recurso indicado en los archivos de configuración del sistema y serie histórica de datos. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
+                                  <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) estimados por el algoritmo. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por subarreglos, por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>rp_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
+                                </ul>
 
-                                    <h5>Método de Configuración: Manual</h5>
-                                    <ul>
-                                      <li> <b>SNL PVlib</b> 
-                                       <ul class='square'>
-                                         <li> <b>$P_{AC}$ Nominal:</b> Potencia AC nominal del inversor en W.</li>
-                                         <li> <b>$P_{DC}$ Nominal:</b> Potencia DC nominal del inversor en W.</li>
-                                         <li> <b>$V_{DC}$ Nominal:</b> Voltaje DC al que se alcanza la Potencia AC nominal con la entrada de Potencia DC en V.</li>
-                                         <li> <b>$P_{DC}$ de Arraque:</b> Potencia DC necesaria para iniciar el proceso de inversión en W.</li>
-                                         <li> <b>$C_0$:</b> Parámetro que define la curvatura de la relación entre la Potencia AC y Potencia DC en condición STC en 1/W.</li>
-                                         <li> <b>$C_1$:</b> Coeficiente empírico que permite que la Potencia DC Nominal varíe linealmente con la el Voltaje DC en 1/V.</li>
-                                         <li> <b>$C_2$:</b> Coeficiente empírico que permite que la Potencia DC de Arranque varíe linealmente con la el Voltaje DC en 1/V.</li>
-                                         <li> <b>$C_3$:</b> Coeficiente empírico que permite que $C_0$ varíe linealmente con la el Voltaje DC en 1/V.</li>
-                                         <li> <b>$P_{AC}$ Consumo Nocturno:</b> Potencia AC consumida por el inversor durante la noche en W.</li>
-                                       </ul>
-                                      </li>
-
-                                      <li> <b>NREL PVWatts</b> 
-                                       <ul class='square'>
-                                         <li> <b>$P_{DC}$ Nominal:</b> Potencia DC nominal del inversor en W.</li>
-                                         <li> <b>Eficiencia Nominal:</b> Eficiencia nominal del inversor en magnitud adimensional.</li>
-                                       </ul>
-                                      </li>
-                                    </ul>
-                                ''', layout=widgets.Layout(height='auto'))
+                                <h5>Gráfica</h5>
+                                Sección opcional que permite al usuario visualizar diferentes relaciones entre parámetros. <span style='color:red'>No se requiere para el cálculo de la producción a partir del recurso</span>.
+                                <ul>
+                                  <li> <b>Relación:</b> Gráfica a visualizar.</li>
+                                  <li> <b>Magnitud:</b> Para facilitar la visualización del gráfico, seleccione la magnitud en que desea presentar Potencia o la Energía.</li>
+                                  <li> <b>Fecha Inicial:</b> El algoritmo inicialmente toma en cuenta el periodo de tiempo de la serie histórica de datos. Sin embargo, el usuario puede indicar el periodo inicial en que desea generar la gráfica según la relación seleccionada.</li>
+                                  <li> <b>Fecha Final:</b> El algoritmo inicialmente toma en cuenta el periodo de tiempo de la serie histórica de datos. Sin embargo, el usuario puede indicar el periodo final hasta donde desea generar la gráfica según la relación seleccionada.</li>
+                                  <li> <b>Color:</b> Color de la curva de la gráfica según la relación seleccionada.</li>
+                                  <li> <b>Descargar:</b> Seleccione la opción 'Sí' para descargar la gráfica según la relación seleccionada (se alojará en la carpeta <i>cno_solar/downloads/<span style='color:blue'>rp_xxx.pdf</span></i>).</li>
+                                  <li> <b>Graficar:</b> Dé clic en este botón para visualizar la relación seleccionada. El usuario puede cambiar los parámetros de la relación a graficar y volver a dar clic sobre este botón para refrescar la visualización. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
+                                </ul>
+                            ''', layout=widgets.Layout(height='auto'))
 
 
     ac_documentation = widgets.Accordion(children=[doc_cen, doc_rp])
@@ -592,7 +602,7 @@ def execute():
                           tooltip='Cálculo de la Producción según Recurso',
                           icon='fire',
                           style={'description_width': 'initial'},
-                          layout=widgets.Layout(width='33%', height='auto'))
+                          layout=widgets.Layout(width='50%', height='auto'))
 
     w_rp.add_traits(files=traitlets.traitlets.Dict())
     rp_output = widgets.Output()
@@ -604,18 +614,18 @@ def execute():
                               tooltip='Gráfica de la Producción',
                               icon='area-chart',
                               style={'description_width': 'initial'},
-                              layout=widgets.Layout(width='33%', height='auto'))
+                              layout=widgets.Layout(width='100%', height='auto'))
 
     plot_output = widgets.Output()
 
     # Download Button
     download_rp = widgets.Button(value=False,
-                                 description='Descargar',
+                                 description='Descargar Producción',
                                  disabled=False,
                                  button_style='',
                                  tooltip='Descarga CSV de la Producción del Sistema',
                                  icon='download',
-                                 layout=widgets.Layout(width='33%', height='auto'))
+                                 layout=widgets.Layout(width='50%', height='auto'))
 
     downloadrp_output = widgets.Output()
 
@@ -738,7 +748,7 @@ def execute():
                                                         rp_energy_month], axis=1)
 
                             rp_to_download.columns = cols_to_download
-                            rp_to_download.to_csv(f'./downloads/recursopotencia_{sk}_{k}.csv')
+                            rp_to_download.to_csv(f'./downloads/rp_{sk}_{k}.csv')
                 
                     else:
                         if btn_rp.files['system_configuration'][0]['bifacial'] == True:
@@ -776,7 +786,7 @@ def execute():
                                                     rp_energy_month], axis=1)
 
                         rp_to_download.columns = cols_to_download
-                        rp_to_download.to_csv(f'./downloads/recursopotencia_{sk}.csv')
+                        rp_to_download.to_csv(f'./downloads/rp_{sk}.csv')
                 
                 else:
                     for k in w_rp.files['bus_pipeline'][sk].keys(): 
@@ -815,7 +825,7 @@ def execute():
                                                      rp_energy_month], axis=1)
 
                         rp_to_download.columns = cols_to_download
-                        rp_to_download.to_csv(f'./downloads/recursopotencia_{sk}_{k}.csv')
+                        rp_to_download.to_csv(f'./downloads/rp_{sk}_{k}.csv')
                     
             download_rp.description = 'Descargado'
             download_rp.icon = 'check'
@@ -925,7 +935,7 @@ def execute():
             plt.tight_layout
 
             if w_downloadplot.value == True:
-                plt.savefig(f'./downloads/recursopotencia_{down_label}.pdf', bbox_inches='tight')
+                plt.savefig(f'./downloads/rp_{down_label}.pdf', bbox_inches='tight')
 
             plt.show()
 
@@ -940,6 +950,9 @@ def execute():
                  widgets.Box([widgets.HTML('<h4>Recurso-Potencia</h4>', layout=widgets.Layout(height='auto'))]),
                  widgets.Box([widgets.Label('Disponibilidad [%]'), w_availability], layout=gui_layout),
                  widgets.Box([widgets.Label('Instrumento Irradiancia'), w_instrument], layout=gui_layout),
+                 widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
+                 widgets.Box([w_rp, download_rp], layout=gui_layout),
+                 widgets.Box([rp_output, downloadrp_output], layout=gui_layout),
                  widgets.Box([widgets.HTML('<h4>Gráfica</h4>', layout=widgets.Layout(height='auto'))]),
                  widgets.Box([widgets.Label('Relación'), w_relation], layout=gui_layout),
                  widgets.Box([widgets.Label('Magnitud'), w_units], layout=gui_layout),
@@ -948,8 +961,8 @@ def execute():
                  widgets.Box([widgets.Label('Color'), w_plotcolor], layout=gui_layout),
                  widgets.Box([widgets.Label('Descargar'), w_downloadplot], layout=gui_layout),
                  widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
-                 widgets.Box([w_rp, download_rp, plot_btn], layout=gui_layout),
-                 widgets.Box([rp_output, downloadrp_output, plot_output], layout=gui_layout)]
+                 widgets.Box([plot_btn], layout=gui_layout),
+                 widgets.Box([plot_output], layout=gui_layout)]
 
     tab_rp = widgets.Box(widget_rp, layout=widgets.Layout(display='flex',
                                                           flex_flow='column',
