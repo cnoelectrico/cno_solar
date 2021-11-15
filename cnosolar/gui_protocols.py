@@ -37,8 +37,8 @@ def execute():
                                   <li> <b>Gráfica - Color:</b> Color de la curva generada en el gráfico de la CEN (Percentil vs. $P_{AC}$). <span style='color:red'>No se requiere para el cálculo de la CEN</span>.</li>
                                   <li> <b>Gráfica - Magnitud $P_{AC}$:</b> Para facilitar la visualización del gráfico, seleccione la magnitud en que desea presentar la Potencia AC. <span style='color:red'>No se requiere para el cálculo de la CEN</span>.</li>
                                   <li> <b>Gráfica - Descargar:</b> Seleccione la opción 'Sí' para descargar el gráfico de la CEN (se alojará en la carpeta <i>cno_solar/downloads/<span style='color:blue'>cen.pdf</span></i>). <span style='color:red'>No se requiere para el cálculo de la CEN</span>.</li>
-                                  <li> <b>Calcular CEN:</b> Dé clic en el botón 'Calcular CEN' para ejecutar el algoritmo que estimará la CEN según los archivos de configuración del sistema y serie histórica de datos, además del percentil indicado. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
-                                  <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) requeridos para calcular la CEN. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por subarreglos, por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>pipeline_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
+                                  <li> <b>Calcular CEN:</b> Dé clic en el botón 'Calcular CEN' para ejecutar el algoritmo que estimará la CEN según los archivos de configuración del sistema y serie histórica de datos, además del percentil indicado.</li>
+                                  <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) empleados para calcular la CEN. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por subarreglos, por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>pipeline_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
                                 </ul>
 
                                 <h5>Energía Mínima Diaria</h5>
@@ -48,8 +48,8 @@ def execute():
                                   <li> <b>Gráfica - Color:</b> Color de la curva del comportamiento de la energía a lo largo del periodo de tiempo de la serie histórica de datos.
                                   <li> <b>Gráfica - Magnitud Energía:</b> Para facilitar la visualización del gráfico, seleccione la magnitud en que desea presentar la Energía.
                                   <li> <b>Gráfica - Descargar:</b> Seleccione la opción 'Sí' para descargar el gráfico del comportamiento de la energía a lo largo del periodo de tiempo de la serie histórica de datos (se alojará en la carpeta <i>cno_solar/downloads/<span style='color:blue'>daily_energy.pdf</span></i>).</li>
-                                  <li> <b>Calcular Energía Mínima Diaria:</b> Al dar clic en este botón se ejecuta el algoritmo que estimará la energía mínima diaria según percentil indicado. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
-                                  <li> <b>Graficar Energía Diaria:</b> Dé clic en este botón para visualizar la curva del comportamiento de la energía a lo largo del periodo de tiempo de la serie histórica de datos. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
+                                  <li> <b>Calcular Energía Mínima Diaria:</b> Al dar clic en este botón se ejecuta el algoritmo que estimará la energía mínima diaria según percentil indicado.</li>
+                                  <li> <b>Graficar Energía Diaria:</b> Dé clic en este botón para visualizar la curva del comportamiento de la energía a lo largo del periodo de tiempo de la serie histórica de datos.</li>
                                 </ul>
                                 ''', layout=widgets.Layout(height='auto'))
 
@@ -948,7 +948,7 @@ def execute():
                  widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
                  widgets.Box([btn_rp, output_upload], layout=gui_layout),
                  widgets.Box([widgets.HTML('<h4>Recurso-Potencia</h4>', layout=widgets.Layout(height='auto'))]),
-                 widgets.Box([widgets.Label('Disponibilidad [%]'), w_availability], layout=gui_layout),
+                 widgets.Box([widgets.Label('Disponibilidad [ad.]'), w_availability], layout=gui_layout),
                  widgets.Box([widgets.Label('Instrumento Irradiancia'), w_instrument], layout=gui_layout),
                  widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
                  widgets.Box([w_rp, download_rp], layout=gui_layout),

@@ -167,7 +167,7 @@ def execute():
                                  <h5>Archivo Configuración</h5>
                                  <ul>
                                    <li> <b>Generar Configuración:</b> Dé clic en este botón para que el algoritmo genere internamente el archivo de configuración con los parámetros previamente asignados. El ícono y la descripción del botón cambiarán para notificar la ejecución de la configuración.</li>
-                                   <li> <b>Descargar Configuración:</b> Dé clic en este botón para descargar el archivo de configuración genererado con el botón 'Generar Configuración' (una vez este haya notificado su ejecución). Se descargará un archivo .JSON que se alojarán en la carpeta <i>cno_solar/configurations/<span style='color:blue'>system_config.csv</span></i>. El ícono y la descripción del botón cambiarán para notificar la descarga del archivo.</li>
+                                   <li> <b>Descargar Configuración:</b> Dé clic en este botón para descargar el archivo de configuración genererado con el botón 'Generar Configuración' (una vez este haya notificado su ejecución). Se descargará un archivo .JSON que se alojarán en la carpeta <i>cno_solar/configurations/<span style='color:blue'>system_config.json</span></i>. El ícono y la descripción del botón cambiarán para notificar la descarga del archivo.</li>
                                  </ul>
                                  ''', layout=widgets.Layout(height='auto'))
 
