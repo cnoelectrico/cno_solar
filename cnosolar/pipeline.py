@@ -83,7 +83,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
             t = sc['module']['Technology']
             if t in ['Mono-c-Si', 'mc-Si', 'c-Si', 'monoSi', 'monosi', 'xsi', 'Thin Film', 'Si-Film', 'HIT-Si', 'EFG mc-Si']:
                 module_tec = 'monosi'
-            elif t in ['Multi-c-Si', 'multiSi', 'polySi', 'multisi', 'polysi']:
+            elif t in ['Multi-c-Si', 'multiSi', 'polySi', 'multisi', 'polysi', 'mtSiPoly']:
                 module_tec = 'multisi'
             elif t in ['CIGS', 'CIS', 'cis', 'cigs']:
                 module_tec = 'cigs'
@@ -175,6 +175,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                 total_incident_back = bifacial_irrad[1]
                 total_absorbed_front = bifacial_irrad[2]
                 total_absorbed_back = bifacial_irrad[3]
+                is_bifacial = True
                 
                 # Total Effective Irradiance
                 poa = spectral_mismatch * (poa + (sc['bifaciality']*bifacial_irrad[3])) # bifacial_irrad[2] instead of (poa + )
@@ -184,6 +185,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                 total_incident_back = None
                 total_absorbed_front = None
                 total_absorbed_back = None
+                is_bifacial = False
             
             # Arrays
             string_array = cno.def_pvsystem.get_arrays(mount=mount,
@@ -242,6 +244,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                            'disc': disc,
                                            'tracker': tracker, 
                                            'mount': mount,
+                                           'bifacial': is_bifacial,
                                            'total_incident_front': total_incident_front,
                                            'total_incident_back': total_incident_back,
                                            'total_absorbed_front': total_absorbed_front,
@@ -279,6 +282,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                                 'disc': disc,
                                                 'tracker': tracker, 
                                                 'mount': mount,
+                                                'bifacial': is_bifacial,
                                                 'total_incident_front': total_incident_front,
                                                 'total_incident_back': total_incident_back,
                                                 'total_absorbed_front': total_absorbed_front,
@@ -317,6 +321,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                  'disc': disc,
                                  'tracker': tracker, 
                                  'mount': mount,
+                                 'bifacial': is_bifacial,
                                  'total_incident_front': total_incident_front,
                                  'total_incident_back': total_incident_back,
                                  'total_absorbed_front': total_absorbed_front,

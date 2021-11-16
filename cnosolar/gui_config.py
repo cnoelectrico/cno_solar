@@ -150,9 +150,9 @@ def execute():
                                     El ángulo de rotación se determina en un sistema de coordenadas diestro. El seguidor define el eje-y positivo, el eje-x positivo está a 90º en sentido horario desde el eje-y y es paralelo a la superficie, y el eje-z positivo es normal a ambos ejes (-x y -y), y está orientado hacia el cielo. El ángulo de rotación es una rotación hacia la derecha alrededor del eje-y en el sistema de coordenadas e indica la posición del seguidor en relación con la horizontal. Por ejemplo, si Azimutal Eje es 180º (orientado al sur) y Elevación Eje es 0º, entonces un ángulo del seguidor de 0º es horizontal, de 30º es una rotación hacia el oeste, y -90º es una rotación al plano vertical hacia el este.
 
                                      <ul class='square'>
-                                       <li> <b>Elevación Eje:</b> Elevación del eje de rotación con respecto a la horizontal en grados decimales. Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación del eje es la misma).</li>
-                                       <li> <b>Azimutal Eje:</b> Ángulo perpendicular al eje de rotación en grados decimales (e.g. un valor de 180º indica una rotación de este a oeste). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal del eje es el mismo).</li>
-                                       <li> <b>Ángulo Máximo:</b> Ángulo de rotación máximo del seguidor desde su posición horizontal en grados decimales (e.g. un valor de 90º permite que el seguidor gire hasta una posición vertical en la que el panel mira hacia el horizonte). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el ángulo máximo es el mismo).</li>
+                                       <li> <b>Elevación Eje:</b> Elevación del eje de rotación con respecto a la horizontal en grados decimales (e.g. un valor de 0º indica que el eje de soporte de los paneles fotovoltaicos está horizontal). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación del eje es la misma).</li>
+                                       <li> <b>Azimutal Eje:</b> Ángulo perpendicular por regla de la mano derecha al eje de rotación en grados decimales (e.g. un valor de 180º --i.e., dirección sur-- indica una rotación de este a oeste). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal del eje es el mismo).</li>
+                                       <li> <b>Ángulo Máximo:</b> Ángulo de rotación máximo del seguidor desde su posición horizontal en grados decimales (e.g. un valor de 90º permite que el seguidor gire desde y hasta una posición vertical en la que el panel mira hacia el horizonte). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el ángulo máximo es el mismo).</li>
                                        <li> <b>Racking:</b> Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.</li>
                                      </ul>
                                     </li>
@@ -429,7 +429,7 @@ def execute():
                         'Pso': float(ond['pvGInverter']['TConverter']['PLim1']), # Pthresh
                         'Paco': float(ond['pvGInverter']['TConverter']['PNomConv'])*1000, # Potencia CA máxima
                         'Pdco': float(ond['pvGInverter']['TConverter']['PNomDC'])*1000, # Potencia FV nominal
-                        'Pdc0': float(ond['pvGInverter']['TConverter']['PNomDC'])*1000,
+                        'pdc0': float(ond['pvGInverter']['TConverter']['PNomDC'])*1000,
                         'Vdco': float(ond['pvGInverter']['TConverter']['VNomEff'].split(',')[1]), # Voltaje medio
                         'Pnt': float(ond['pvGInverter']['Night_Loss']), # Night Loss
                         'Vdcmax': float(ond['pvGInverter']['TConverter']['VAbsMax']), # Alto voltaje -- Voltaje de entrada (Curva de eficiencia)
@@ -437,6 +437,7 @@ def execute():
                         'Mppt_low': float(ond['pvGInverter']['TConverter']['VMppMin']), # Vmín@Pnom
                         'Mppt_high': float(ond['pvGInverter']['TConverter']['VMPPMax']), # Alto Voltaje
                         'eta_inv_nom': float(ond['pvGInverter']['TConverter']['EfficEuro']),
+                        'eta_inv_ref': 0.9637,
                         'Name': ond['pvGInverter']['pvCommercial']['Model']}
             btn.files = {'inv': inverter}
 
@@ -688,6 +689,8 @@ def execute():
             modbtn_output.clear_output()
             module = pvsyst.pan_to_module_param(path=upload_modbtn.files)
             module['Adjust'] = 0
+            module['Technology'] = module['Technol']
+            module['T_NOCT'] = module['TRef'] + 20
             module['IAM'] = module['IAM'].tolist()
             modbtn.files = {'mod': module}
     

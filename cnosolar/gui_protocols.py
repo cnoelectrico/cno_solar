@@ -254,14 +254,15 @@ def execute():
 
     def on_downloadcen_clicked(obj):
         with downloadcen_output:
-            cols_to_download = ['Zenith, degree', 'Elevation, degree', 'Azimuth, degree', 'Airmass Relative, ad',  'Airmass Absolute, ad', 'Extraterrestrial Radiation, W/m2', 'Effective POA, W/m2', 'Tmod, C', 'Isc, A', 'Voc, V', 'Idc, A', 'Vdc, V', 'Pdc, W', 'Pac, W', 'Daily Energy, Wh', 'Weekly Energy, Wh', 'Monthly Energy, Wh']
 
             for sk in w_cen.files['bus_pipeline'].keys():
+                main_cols = ['Zenith, degree', 'Elevation, degree', 'Azimuth, degree', 'Airmass Relative, ad',  'Airmass Absolute, ad', 'Extraterrestrial Radiation, W/m2', 'Effective POA, W/m2', 'Tmod, C', 'Isc, A', 'Voc, V', 'Idc, A', 'Vdc, V', 'Pdc, W', 'Pac, W', 'Daily Energy, Wh', 'Weekly Energy, Wh', 'Monthly Energy, Wh']
+
                 if len(upload_config.files) > 1:
                     if sk != 'plant': 
                         for k in w_cen.files['bus_pipeline'][sk].keys():
-
-                            if btn.files['system_configuration'][0]['bifacial'] == True:
+                            cols_to_download = main_cols.copy()
+                            if w_cen.files['bus_pipeline'][sk][k]['bifacial'] == True:
                                 cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
 
                                 w_cen.files['bus_pipeline'][sk][k]['total_incident_front'].round(2)
@@ -299,7 +300,8 @@ def execute():
                             cen_to_download.to_csv(f'./downloads/pipeline_{sk}_{k}.csv')
                 
                     else:
-                        if btn.files['system_configuration'][0]['bifacial'] == True:
+                        cols_to_download = main_cols.copy()
+                        if w_cen.files['bus_pipeline'][sk]['bifacial'] == True:
                             cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
                             
                             w_cen.files['bus_pipeline'][sk]['total_incident_front'].round(2)
@@ -337,8 +339,9 @@ def execute():
                         cen_to_download.to_csv(f'./downloads/pipeline_{sk}.csv')
                 
                 else:
-                    for k in w_cen.files['bus_pipeline'][sk].keys(): 
-                        if btn.files['system_configuration'][0]['bifacial'] == True:
+                    for k in w_cen.files['bus_pipeline'][sk].keys():
+                        cols_to_download = main_cols.copy()
+                        if w_cen.files['bus_pipeline'][sk][k]['bifacial'] == True:
                             cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
 
                             w_cen.files['bus_pipeline'][sk][k]['total_incident_front'].round(2)
@@ -704,15 +707,15 @@ def execute():
     w_rp.on_click(on_button_clicked_bus)
 
     def on_downloadrp_clicked(obj):
-        with downloadrp_output:  
-                    
-            cols_to_download = ['Zenith, degree', 'Elevation, degree', 'Azimuth, degree', 'Airmass Relative, ad',  'Airmass Absolute, ad', 'Extraterrestrial Radiation, W/m2', 'Effective POA, W/m2', 'Tmod, C', 'Isc, A', 'Voc, V', 'Idc, A', 'Vdc, V', 'Pdc, W', 'Pac, W', 'Daily Energy, Wh', 'Weekly Energy, Wh', 'Monthly Energy, Wh']
+        with downloadrp_output:
 
             for sk in w_rp.files['bus_pipeline'].keys():
+                main_cols = ['Zenith, degree', 'Elevation, degree', 'Azimuth, degree', 'Airmass Relative, ad',  'Airmass Absolute, ad', 'Extraterrestrial Radiation, W/m2', 'Effective POA, W/m2', 'Tmod, C', 'Isc, A', 'Voc, V', 'Idc, A', 'Vdc, V', 'Pdc, W', 'Pac, W', 'Daily Energy, Wh', 'Weekly Energy, Wh', 'Monthly Energy, Wh']
+                
                 if len(upload_config_rp.files) > 1:
                     if sk != 'plant': 
                         for k in w_rp.files['bus_pipeline'][sk].keys():
-
+                            cols_to_download = main_cols.copy()
                             if btn_rp.files['system_configuration'][0]['bifacial'] == True:
                                 cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
 
@@ -751,6 +754,7 @@ def execute():
                             rp_to_download.to_csv(f'./downloads/rp_{sk}_{k}.csv')
                 
                     else:
+                        cols_to_download = main_cols.copy()
                         if btn_rp.files['system_configuration'][0]['bifacial'] == True:
                             cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
                             
@@ -789,7 +793,8 @@ def execute():
                         rp_to_download.to_csv(f'./downloads/rp_{sk}.csv')
                 
                 else:
-                    for k in w_rp.files['bus_pipeline'][sk].keys(): 
+                    for k in w_rp.files['bus_pipeline'][sk].keys():
+                        cols_to_download = main_cols.copy()
                         if btn_rp.files['system_configuration'][0]['bifacial'] == True:
                             cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
 
