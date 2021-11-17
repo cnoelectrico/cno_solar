@@ -34,9 +34,9 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 # Módulos Sandia PVLIB-Python
 import pvlib
-from pvlib import solarposition, irradiance, atmosphere, pvsystem
-from pvlib.location import Location
-from pvlib.pvsystem import PVSystem, retrieve_sam
+# from pvlib import solarposition, irradiance, atmosphere, pvsystem
+# from pvlib.location import Location
+# from pvlib.pvsystem import PVSystem, retrieve_sam
 
 # Warnings
 import logging
@@ -46,7 +46,7 @@ logging.getLogger('numexpr').setLevel(logging.WARNING)
 # Scripts
 from cnosolar import cell_temperature
 from cnosolar import cen
-from cnosolar import complements
+# from cnosolar import complements
 from cnosolar import data
 from cnosolar import def_pvsystem
 from cnosolar import energia_minima

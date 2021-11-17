@@ -16,6 +16,10 @@ from IPython.display import display
 from cnosolar.pvsyst_tools import pvsyst
 
 def execute():
+    '''
+    Graphical user interface for the configuration of the PV plant 
+    and download of the corresponding .JSON file.
+    '''
     ###############################
     #      DOCUMENTATION TAB      #
     ###############################
@@ -132,7 +136,7 @@ def execute():
                                  <ul>
                                    <li> <b>Módulos por String:</b> Cantidad de módulos en serie por string en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
                                    <li> <b>Strings por Inversor:</b> Cantidad de strings en paralelo en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
-                                   <li> <b>Porcentaje Entradas:</b> Fracción de potencia manejada por cada entrada (e.g. 1/Número de Entradas o 1/Número MPPT). Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
+                                   <li> <b>Porcentaje Entradas:</b> Fracción de potencia manejada por cada entrada (e.g., 1/Número de Entradas o 1/Número MPPT). Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
                                    <li> <b>Número de Inversores:</b> Cantidad de inversores con configuración eléctrica exactamente igual a la definida. Permite escalar los cálculos de producción.</li>
                                  </ul>
 
@@ -150,9 +154,9 @@ def execute():
                                     El ángulo de rotación se determina en un sistema de coordenadas diestro. El seguidor define el eje-y positivo, el eje-x positivo está a 90º en sentido horario desde el eje-y y es paralelo a la superficie, y el eje-z positivo es normal a ambos ejes (-x y -y), y está orientado hacia el cielo. El ángulo de rotación es una rotación hacia la derecha alrededor del eje-y en el sistema de coordenadas e indica la posición del seguidor en relación con la horizontal. Por ejemplo, si Azimutal Eje es 180º (orientado al sur) y Elevación Eje es 0º, entonces un ángulo del seguidor de 0º es horizontal, de 30º es una rotación hacia el oeste, y -90º es una rotación al plano vertical hacia el este.
 
                                      <ul class='square'>
-                                       <li> <b>Elevación Eje:</b> Elevación del eje de rotación con respecto a la horizontal en grados decimales (e.g. un valor de 0º indica que el eje de soporte de los paneles fotovoltaicos está horizontal). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación del eje es la misma).</li>
-                                       <li> <b>Azimutal Eje:</b> Ángulo perpendicular por regla de la mano derecha al eje de rotación en grados decimales (e.g. un valor de 180º --i.e., dirección sur-- indica una rotación de este a oeste). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal del eje es el mismo).</li>
-                                       <li> <b>Ángulo Máximo:</b> Ángulo de rotación máximo del seguidor desde su posición horizontal en grados decimales (e.g. un valor de 90º permite que el seguidor gire desde y hasta una posición vertical en la que el panel mira hacia el horizonte). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el ángulo máximo es el mismo).</li>
+                                       <li> <b>Elevación Eje:</b> Elevación del eje de rotación con respecto a la horizontal en grados decimales (e.g., un valor de 0º indica que el eje de soporte de los paneles fotovoltaicos está horizontal). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación del eje es la misma).</li>
+                                       <li> <b>Azimutal Eje:</b> Ángulo perpendicular por regla de la mano derecha al eje de rotación en grados decimales (e.g., un valor de 180º --i.e., dirección sur-- indica una rotación de este a oeste). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal del eje es el mismo).</li>
+                                       <li> <b>Ángulo Máximo:</b> Ángulo de rotación máximo del seguidor desde su posición horizontal en grados decimales (e.g., un valor de 90º permite que el seguidor gire desde y hasta una posición vertical en la que el panel mira hacia el horizonte). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el ángulo máximo es el mismo).</li>
                                        <li> <b>Racking:</b> Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.</li>
                                      </ul>
                                     </li>

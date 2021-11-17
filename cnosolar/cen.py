@@ -5,7 +5,58 @@ import numpy as np
 
 def get_cen(ac, perc, color='#1580E4', mag='W', dwnld=False):
     '''
-    Docstrings
+    Calculate the CEN (Capacidad Efectiva Neta, in spanish). According to
+    CREG-081 of 2000, it is the maximum net power capacity (expressed as 
+    an integer value in MW) that a plant and/or generation unit can supply 
+    under normal operating conditions, measured at the commercial frontier. 
+    It is calculated as the Nominal Capacity minus the Own Consumption of 
+    the plant and/or generation unit.
+
+    Parameters
+    ----------
+    ac : numeric
+        AC power in [W].
+
+    perc : float, optional
+        Percentile value with which the minimum energy will be estimated 
+        in [%]. By default, the 1st percentile is used to filter out 
+        possible outliers.
+        Default = 99.0
+
+    color : string, optional
+        Color of the curve generated in the CEN plot (i.e., Percentile 
+        vs. AC Power).
+        Default = #1580E4
+        
+    mag : string, optional
+        To make the CEN plot easier to analyze, select the desired AC
+        power magnitude to display.
+        Default = W
+        
+    dwnld : bool, optional
+        To download the displayed CEN plot.
+        Default = False
+
+    Returns
+    -------
+    cen_per : float 
+        CEN as percentile of AC power in [MW].
+        
+    cen_pmax : float
+        CEN as maximum AC power in [MW].
+
+    Notes
+    -----
+    The calculation procedure is:
+        1. Sort the AC power in ascending order.
+        2. Calculate the proportional values of the sorted AC power.
+        3. Calculate the CEN by the percentile of the sorted AC power.
+        4. Calculate the CEN as the maximum AC power of the samples sorted.
+        
+    References
+    ----------
+    Comisión de Regulación de Energía y Gas (2000). Resolución No. 081 de 2000. 
+    http://apolo.creg.gov.co/
     '''
     punits = {'W': 1, 'kW': 1000, 'MW': 1000000}
     

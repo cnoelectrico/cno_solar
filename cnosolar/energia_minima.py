@@ -4,47 +4,31 @@ from calendar import monthrange
 
 units = {'kWh': 1000, 'MWh': 1000000}
 
-def enficc_creg(df, Kinc, IHF, CEN, a, b, c, d, Kmedt):
-    '''
-    Docstring
-    '''
-    efirme = df.copy()
-    
-    Istc = 1 # kW/m2
-    Kc = 0.9139
-    Fcu = 1000
-    
-    # Step 1: Losses due to ambient temperature
-    efirme['Vmt_TAmt'] = 1 - (a*efirme['Temperature']**3 + b*efirme['Temperature']**2 + c*efirme['Temperature'] + d)
-    
-    # Step 2: Monthly energy estimate
-    efirme['ENmt'] = (1/Istc) * Kc * Kinc * efirme['Vmt_TAmt'] * efirme['Insolation'] * (1 - IHF) * CEN * Fcu # kWh/month
-    
-    # Step 3: Daily energy estimate
-    En = []
-    for i in range(len(efirme)):
-        En.append(efirme['ENmt'][i] / monthrange(efirme.index[i].year, efirme.index[i].month)[1])
-
-    efirme['En'] = En # kWh/day
-
-    # Step 4: ENFICC
-    enficc = np.min(efirme['En']) # kWh/day
-    
-    # Step 5: Use factor of actual irradiance and degradation measurements
-    enficc_t = np.round(enficc * Kmedt, 2) # kWh/day
-    print(f'ENFICC = {enficc_t} kWh/día')
-    
-    return efirme, enficc_t
-
 def pvlib_prom(energy):
     '''
-    Docstring
-    '''
-    
-    '''
-    1. Energía **mensual** de PVlib
-    2. Energía diaria según CREG 201 de 2017
-    3. Energía Firme según CREG 201 de 2017 sin incluir Kmedt
+    Calculate the daily minimum energy.
+
+    Parameters
+    ----------
+    energy : dict
+        Parameter that contains daily, weekly and monthly energy in [Wh].
+
+    Returns
+    -------
+    e_min : float
+        Daily minimum energy in [kWh/day].
+
+    Notes
+    -----
+    The calculation procedure is:
+        1. Monthly energy from PVlib simulation.
+        2. Daily energy using CREG-201 of 2017 method.
+        3. Daily minimum energy as the minimum value of daily energy samples.
+        
+    References
+    ----------
+    Comisión de Regulación de Energía y Gas (2017).Resolución No. 201 de 2017. 
+    http://apolo.creg.gov.co/
     '''
     # Step 1: Daily energy estimate
     En = []
@@ -59,16 +43,27 @@ def pvlib_prom(energy):
     e_min = np.round(np.min(efirme['En']), 2) # kWh/day
     print(f'Energía Mínima = {e_min} kWh/día')
     
-    return efirme, e_min
+    return e_min
 
 def pvlib_min(energy):
     '''
-    Docstring
-    '''
-    
-    '''
-    1. Energía *diaria* de PVlib
-    2. Energía Firme como valor mínimo de energía diaria
+    Calculate the daily minimum energy.
+
+    Parameters
+    ----------
+    energy : dict
+        Parameter that contains daily, weekly and monthly energy in [Wh].
+
+    Returns
+    -------
+    e_min : float
+        Daily minimum energy in [kWh/day].
+
+    Notes
+    -----
+    The calculation procedure is:
+        1. Daily energy from PVlib simulation.
+        3. Daily minimum energy as the minimum value of daily energy samples.
     '''
     e = energy['day']
     if isinstance(e, pd.Series):
@@ -80,12 +75,27 @@ def pvlib_min(energy):
 
 def pvlib_percentile(energy, percentile):
     '''
-    Docstring
-    '''
-    
-    '''
-    1. Energía diaria de PVlib
-    2. Energía Firme como percentil de energía diaria
+    Calculate the daily minimum energy.
+
+    Parameters
+    ----------
+    energy : dict
+        Parameter that contains daily, weekly and monthly energy in [Wh].
+        
+    percentile : float
+        Percentile value with which the daily minimum energy will be 
+        estimated in [%].
+
+    Returns
+    -------
+    e_min : float
+        Daily minimum energy in [kWh/day].
+
+    Notes
+    -----
+    The calculation procedure is:
+        1. Daily energy from PVlib simulation.
+        3. Daily minimum energy as a percentile value of daily energy samples.
     '''
     e = energy['day']
     if isinstance(e, pd.Series):
