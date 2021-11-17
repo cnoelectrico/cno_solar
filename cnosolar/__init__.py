@@ -9,7 +9,6 @@ logging.getLogger('numexpr').setLevel(logging.WARNING)
 # Scripts
 from cnosolar import cell_temperature
 from cnosolar import cen
-# from cnosolar import complements
 from cnosolar import data
 from cnosolar import def_pvsystem
 from cnosolar import energia_minima
