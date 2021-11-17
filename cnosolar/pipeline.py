@@ -7,7 +7,131 @@ from functools import reduce
 
 def run(system_configuration, data, irrad_instrument, availability, energy_units):
     '''
-    Docstrings
+    Wrapper that executes the production stages of the PV system, 
+    including system losses.
+    
+    Parameters
+    ----------
+    system_configuration : list
+        List of system configuration .JSON files in dict format. If the PV 
+        plant consists of multiple configuration .JSON files in dict format, 
+        they are arranged alphabetically.
+
+    data : pandas.DataFrame
+        Historical series of meteorological data. The data structure follows 
+        the established one by CREG 060 of 2019, i.e., time stamp, :math:`GHI` 
+        and :math:`Tamb` if the parameters :math:`POA` and :math:`Tmod` are added, 
+        they prevail for the calculations of the algorithms (e.g., decomposition 
+        and transposition models are not used to determine :math:`POA` or 
+        temperature models to determine :math:`Tmod`).
+        
+    irrad_instrument : string
+        Indicate the instrument with which the POA irradiance measurements were obtained. 
+        This parameter is used to estimate the effective irradiance. Valid options are
+        'Piranómetro' and 'Celda de Referencia'.
+
+    availability : list
+        Percentage value of availability per inverter set with the exact 
+        same electrical configuration.
+        Default = 1.0
+
+    energy_units : string
+        Energy units to scale the calculations. Used to allow adaptation 
+        of the energy results report.
+
+    Returns
+    -------
+    bus_pipeline : dict
+        Data structure that contains the following parameters:
+        1. location - PVlib Location defined class.
+        2. solpos - Data structure that contains solar zenith and solar azimuth in [degrees].
+        3. airmass - Data structure that contains unitless relative and absolute airmass.
+        4. etr_nrel - Extraterrestrial radiation from time stamps of the historical 
+                      data series in [W/m2].
+        5. disc - Data structure that contains the following parameters:
+                      1. dni - Modeled direct normal irradiance provided by the Direct 
+                               Insolation Simulation Code (DISC) model in [W/m2].
+                      2. kt - Ratio of global to extraterrestrial irradiance on a 
+                              horizontal plane.
+                      3. airmass - Airmass.
+                      4. dhi - Diffuse horizontal irradiance calculated by the fraction
+                               of the difference of GHI and DNI, and the cosine of 
+                               solar zenith in [W/m2].
+        6. tracker - Data structure that contains the following parameters:
+                         1. tracker_theta - Rotation angle of the tracker (zero is horizontal, and 
+                                            positive rotation angles are clockwise) in [degrees].
+                         2. aoi - Angle-of-incidence of DNI onto the rotated panel surface 
+                                  in [degrees].
+                         3. surface_tilt - Angle between the panel surface and the earth 
+                                           surface, accounting for panel rotation in [degrees].
+                         4. surface_azimuth - Azimuth of the rotated panel, determined by 
+                                              projecting the vector normal to the panel’s surface 
+                                              to the earth’s surface, in [degrees].
+        7. mount - PVlib Mount defined class.
+        8. bifacial - Parameter that checks if the PV modules are bifacial.
+        9. total_incident_front - Total incident front irradiance if PV module is bifacial
+                                  in [W/m2]. 
+        10. total_incident_back - Total incident rear irradiance if PV module is bifacial
+                                  in [W/m2].
+        11. total_absorbed_front - Total absorbed front irradiance if PV module is bifacial,
+                                   taking into account spectral and mismatch losses, in [W/m2].
+        12. total_absorbed_back - Total absorbed rear irradiance if PV module is bifacial,
+                                  taking into account spectral and mismatch losses, in [W/m2].
+        13. poa - Effective plane-of-array irradiance, taking into account spectral and 
+                  mismatch losses, in [W/m2].
+        14. temp_cell - Average cell temperature of cells within a module in [ºC].
+        15. dc - Data structure that contains the following parameters:
+                     1. i_sc - Short circuit current in [A].
+                     2. v_oc - Open circuit voltage in [V].
+                     3. i_mp -Current at maximum power point in [A].
+                     4. v_mp -Voltage at maximum power point in [V].
+                     5. p_mp -Power at maximum power point in [W].
+                     6. i_x -Current at V=0.5·Voc in [A].
+                     7. i_xx -Current at V=0.5·(Voc+Vmp) in [A].
+        16. ac - AC power output in [W].
+        17. energy - Data structure that contains the following parameters:
+                         1. Daily energy in selected units. Default units in [Wh].
+                         2. Weekly energy in selected units. Default units in [Wh].
+                         3. Monthly energy in selected units. Default units in [Wh].
+
+    Notes
+    -----
+    The calculation procedure is:
+        1. Define a pvlib.location Location class and estimate the solar position 
+           parameters, airmass and extraterrestrial DNI.
+        2. Define a pvlib.pvsystem Mount class and determine the surface orientation
+           if mount is in a fixed tilt or module orientation if the mount is in a 
+           single axis tracker.
+        3. Determine the POA irradiance using DISC decomposition and Perez-Ineichen 1990
+           transposition models if GHI is provided or leaving the supplied values in the 
+           historical series of meteorological data if POA is provided.
+        3. Determine the Spectral Mismatch Modifier to calculate the effective irradiance.
+        4. Calculate effective POA irradiance as the product of Spectral Mismatch Modifier,
+           POA irradiance, cosine of angle-of-incidence (AOI) and incidence angle modifier
+           (IAM). Does not apply if POA is provided in the historical series of meteorological
+           data and the irrad_instrument is 'Celda de Referencia'.
+        5. Calculate total and absorbed front, and total and absorbed back irradiance if
+           the module is bifacial.
+        6. Define a pvlib.pvsystem Array class.
+        7. Define a pvlib.pvsystem PVSystem class.
+        8. Determine the average cell temperature of cells within a module using TNOCT model
+           if :math:`Tmod` is not provided in the historical series of meteorological data.
+        9. Calculate the PV system production, including system losses.
+        10. Generate a full simulation results report per PV system subarrays and for 
+            the inverter, by adding the subarrays production.
+      
+    See also
+    --------
+    cno.location_data.get_parameters
+    cno.irradiance_models.decomposition
+    cno.irradiance_models.transposition
+    cno.pvstructure.get_mount_tracker
+    cno.cell_temperature.from_tnoct
+    cno.production.dc_production
+    cno.production.losses
+    cno.production.ac_production_sandia
+    cno.production.ac_production_pvwatts
+    cno.production.get_energy
     '''
     bus_pipeline = {}
     num_systems = len(system_configuration)

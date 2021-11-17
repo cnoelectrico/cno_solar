@@ -38,7 +38,7 @@ def from_sandia(poa, temp_air, wind_speed, temp_params):
     
     return temp_cell
 
-def from_tnoct(poa, temp_air, tnoct, mount_temp=None):
+def from_tnoct(poa, temp_air, tnoct, mount_temp=0):
     '''
     Calculate the cell temperature using a simplified steady state model. A linear
     relationship between the solar irradiance and the difference between the cell 
@@ -57,7 +57,7 @@ def from_tnoct(poa, temp_air, tnoct, mount_temp=None):
         
     mount_temp : float, optional
         Installed nominal operating cell temperature (INOCT) in [ºC].
-        Default = None
+        Default = 0
 
     Returns
     -------
@@ -70,7 +70,7 @@ def from_tnoct(poa, temp_air, tnoct, mount_temp=None):
     The physics and engineering of photovoltaic conversion, technologies and systems, 
     1st Edition, pp.54. Netherlands and Germany: UIT Cambridge.
     '''
-    if mount_temp != None:
+    if mount_temp != 0:
         temp_cell = temp_air + ((tnoct - 20)/800)*poa
     else:
         tinoct = tnoct - mount_temp

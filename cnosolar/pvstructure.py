@@ -3,7 +3,7 @@ import pvlib
 def get_mount_tracker(with_tracker, surface_tilt, surface_azimuth, solpos, axis_tilt, axis_azimuth, max_angle, racking_model='open_rack'):
     '''
     Wrapper that defines a pvlib.pvsystem Mount class and determines
-    the module orientation if the mount is in a single axis tracker. 
+    the module orientation if the mount is in a single axis tracker.
     
     Parameters
     ----------
@@ -49,8 +49,16 @@ def get_mount_tracker(with_tracker, surface_tilt, surface_azimuth, solpos, axis_
         PVlib Mount defined class.
         
     tracker : pandas.DataFrame
-        Data structure that contains the surface tilt and azimuth values
-        according to the single axis tracking rotation.
+        Data structure that contains the following parameters:
+            1. tracker_theta - Rotation angle of the tracker (zero is horizontal, and 
+                               positive rotation angles are clockwise) in [degrees].
+            2. aoi - Angle-of-incidence of DNI onto the rotated panel surface 
+                     in [degrees].
+            3. surface_tilt - Angle between the panel surface and the earth 
+                              surface, accounting for panel rotation in [degrees].
+            4. surface_azimuth - Azimuth of the rotated panel, determined by 
+                                 projecting the vector normal to the panel’s surface 
+                                 to the earth’s surface, in [degrees].
 
     Notes
     -----

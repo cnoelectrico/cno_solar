@@ -69,7 +69,7 @@ def execute():
 
                                 <h5>Recurso-Potencia</h5>
                                 <ul>
-                                  <li> <b>Disponibilidad [%]:</b> Valor porcentual de la disponibilidad por conjunto inversores con configuración eléctrica exactamente igual (i.e., por archivo .JSON de configuración del sistema).Para múltiples inversores (i.e., múltiples archivos .JSON de configuración), separe los valores con una coma de manera ordenada.</li>
+                                  <li> <b>Disponibilidad [%]:</b> Valor porcentual de la disponibilidad por conjunto inversores con configuración eléctrica exactamente igual (i.e., por archivo .JSON de configuración del sistema). Para múltiples inversores (i.e., múltiples archivos .JSON de configuración), separe los valores con una coma de manera ordenada.</li>
                                   <li> <b>Instrumento Irradiancia:</b> Indique el instrumento con el cual se obtuvieron las mediciones de irradiancia $~POA~$ (se asume piranómetro para $~GHI~$). Este parámetro se usa para la estimación de la irradiancia efectiva.</li>
                                   <li> <b>Ejecutar:</b> Dé clic en este botón para ejecutar el algoritmo que estimará la producción de la planta fotovoltaica según el recurso indicado en los archivos de configuración del sistema y serie histórica de datos. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
                                   <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) estimados por el algoritmo. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por subarreglos, por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>rp_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
@@ -699,7 +699,10 @@ def execute():
     def on_button_clicked_bus(obj):
         with rp_output:
             rp_output.clear_output()
-
+            
+            if 'POA' not in list(btn_rp.files['df'].columns):
+                w_instrument.value = 'Piranómetro'
+            
             bus_pipeline = cno.pipeline.run(system_configuration=btn_rp.files['system_configuration'], 
                                             data=btn_rp.files['df'],
                                             irrad_instrument=w_instrument.value,

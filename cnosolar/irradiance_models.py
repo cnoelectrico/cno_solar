@@ -25,14 +25,14 @@ def decomposition(ghi, solpos, datetime):
     -------
     disc : pandas.DataFrame
         Data structure that contains the following parameters:
-            1. Modeled direct normal irradiance provided by the Direct 
-               Insolation Simulation Code (DISC) model in [W/m2].
-            2. Ratio of global to extraterrestrial irradiance on a 
-               horizontal plane.
-            3. Airmass.
-            4. Diffuse horizontal irradiance calculated by the fraction
-               of the difference of GHI and DNI, and the cosine of 
-               solar zenith in [W/m2].
+            1. dni - Modeled direct normal irradiance provided by the Direct 
+                     Insolation Simulation Code (DISC) model in [W/m2].
+            2. kt - Ratio of global to extraterrestrial irradiance on a 
+                    horizontal plane.
+            3. airmass - Airmass.
+            4. dhi - Diffuse horizontal irradiance calculated by the fraction
+                     of the difference of GHI and DNI, and the cosine of 
+                     solar zenith in [W/m2].
 
     Notes
     -----
@@ -102,11 +102,11 @@ def transposition(with_tracker, tracker, surface_tilt, surface_azimuth, solpos, 
     -------
     poa : pandas.DataFrame
         Data structure that contains the following parameters:
-            1. POA global irradiance in [W/m2].
-            2. POA direct normal irradiance in [W/m2].
-            3. POA diffuse irradiance in [W/m2].
-            4. POA sky diffuse irradiance in [W/m2].
-            5. POA ground diffuse irradiance in [W/m2].
+            1. poa_global - POA global irradiance in [W/m2].
+            2. poa_direct - POA direct normal irradiance in [W/m2].
+            3. poa_diffuse - POA diffuse irradiance in [W/m2].
+            4. poa_sky_diffuse - POA sky diffuse irradiance in [W/m2].
+            5. poa_ground_diffuse - POA ground diffuse irradiance in [W/m2].
 
     Notes
     -----
