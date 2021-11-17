@@ -381,7 +381,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                            'ac': ac, 
                                            'energy': energy}
     
-        # AC and Energy Adition for Inverter
+        # AC and Energy Addition for Inverter
         if num_subarrays > 1:
             ac_string = []
             denergy_string = []
@@ -420,7 +420,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                                            'month': sys_menergy}}
             
             
-    # AC and Energy Adition for System
+    # AC and Energy Addition for System
     if num_systems > 1:
         ac_inv = []
         denergy_inv = []
