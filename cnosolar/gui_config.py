@@ -164,7 +164,7 @@ def execute():
 
                                  <h5>Parámetros Globales</h5>
                                  <ul>
-                                   <li> <b>Pérdidas:</b> Porcentaje de pérdidas globales del sistema. Por defecto: 14.6%.</li>
+                                   <li> <b>Pérdidas:</b> Porcentaje de pérdidas globales del sistema. Por defecto: 13.92%.</li>
                                    <li> <b>Nombre Planta:</b> Sufijo al nombre del archivo de configuración (system_config_<i>sufijo</i>). Por defecto: system_config.</li>
                                  </ul>
                                  
@@ -830,7 +830,7 @@ def execute():
     tracker_btn.observe(handle_toggle, 'value')
 
     # GLOBAL PARAMETERS
-    w_loss = widgets.BoundedFloatText(value=14.6, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
+    w_loss = widgets.BoundedFloatText(value=13.92, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
     w_name = widgets.Text(value='', placeholder='Sufijo extensión .JSON', description='', style={'description_width': 'initial'})
 
     conf_globalparams = widgets.VBox([widgets.Box([widgets.HTML('<h4>Parámetros Globales</h4>', layout=widgets.Layout(height='auto'))]),

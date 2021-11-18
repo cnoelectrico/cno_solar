@@ -114,7 +114,7 @@ def dc_production(poa, cell_temperature, module, system):
     return dc
 
 # Losses
-def losses(dc, loss=14.6):
+def losses(dc, loss=13.92):
     '''
     Add overall system losses to DC production.
     
@@ -132,7 +132,7 @@ def losses(dc, loss=14.6):
 
     loss : float, optional
         Overall system losses in [%].
-        Default = 14.6
+        Default = 13.92
 
     Returns
     -------

@@ -75,7 +75,7 @@ def get_cen(ac, perc, color='#1580E4', mag='W', dwnld=False):
     cen_per = np.round(np.percentile(ac, perc) / 1000000, decimals) # MW
     cen_pmax = np.round(np.max(ac) / 1000000, decimals) # MW
 
-    print(f'Pac Max. = {cen_pmax} MW\nCEN ({perc} %) = {cen_per} MW')
+    print(f'Pac Max. = {cen_pmax} MW\nCEN ({perc}%) = {cen_per} MW')
 
     # Curve plot
     plt.plot(pac/punits[mag], p, label=f'Pac Max. = {cen_pmax} MW\nCEN ({perc}%) = {cen_per} MW', linewidth=1.25, color=color)
