@@ -3,7 +3,6 @@
 <img src='./Protocolos/Uniandes-CNO.png' width='500' />
  
 ## Introducción
----
 
 #### Acuerdo Específico 5: Convenio Marco CNO-Uniandes
 
@@ -15,7 +14,6 @@ Desarrollo de los protocolos para el cálculo de la CEN (Capacidad Efectiva Neta
 3. Protocolo al modelo que relaciona el recurso y la potencia en plantas solares fotovoltaicas. El modelo permitirá obtener la producción de la planta a partir de los parámetros técnicos de la planta (configuración, tecnologías, tipo de seguimiento, entre otros aspectos), la irradiancia y otras variables meteorológicas.
 
 ## Instalación
----
 
 #### Distribución y Ambiente
 Se recomienda instalar [Anaconda](https://www.anaconda.com/products/individual) o [Miniconda](https://docs.conda.io/en/latest/miniconda.html) e instalar las librerías necesarias dentro de un ambiente específico para este software. 
@@ -82,6 +80,5 @@ $ git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
 ```
 
 ## License
----
 
 MIT License, dispuesta en el archivo `LICENSE`.
