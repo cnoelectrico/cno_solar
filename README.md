@@ -79,6 +79,6 @@ Otra opción es desde el terminal con en el ambiente activado; para esto ejecute
 $ git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
 ```
 
-## License
+## Licencia
 
 MIT License, dispuesta en el archivo `LICENSE`.
