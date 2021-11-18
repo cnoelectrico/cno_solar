@@ -232,7 +232,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
 
                 # Effective Irradiance
                 if irrad_instrument == 'Piranómetro':
-                    poa = spectral_mismatch * abs(poa * np.cos(aoi) * iam)
+                    poa = spectral_mismatch * abs(poa * np.cos(np.radians(aoi)) * iam)
             
             else:
                 # Decomposition
@@ -254,7 +254,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                                           surface_type=sc['surface_type'])
                 
                 # Effective Irradiance
-                poa = spectral_mismatch * (abs(poa['poa_direct'] * np.cos(aoi) * iam + poa['poa_diffuse']))
+                poa = spectral_mismatch * (abs(poa['poa_direct'] * np.cos(np.radians(aoi)) * iam + poa['poa_diffuse']))
 
             # Total Bifacial Effective Irradiance
             if sc['bifacial'] == True:
