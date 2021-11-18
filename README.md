@@ -9,13 +9,31 @@
 Desarrollo de los protocolos para el cálculo de la CEN (Capacidad Efectiva Neta) y el modelo que relaciona el recurso y la potencia para plantas solares fotovoltaicas a partir de modelamiento computacional, de acuerdo con la Resolución CREG 201 de 2017, los Acuerdos CNO correspondientes y la demás reglamentación aplicable.
 
 #### Objetivos
+
 1. Metodología para la estimación y modelamiento de la Irradiancia Normal Directa (*Direct Normal Irradiance* – DNI), la Irradiancia Horizontal Difusa (*Diffuse Horizontal Irradiance* – DHI) y la irradiancia sobre el plano del arreglo (*Plane-of-Array* - POA) a partir de la Irradiancia Horizontal Global (*Global Horizontal Irradiance* – GHI).
 2. Protocolo para el cálculo de la CEN de plantas solares fotovoltaicas antes de su entrada en operación.
 3. Protocolo al modelo que relaciona el recurso y la potencia en plantas solares fotovoltaicas. El modelo permitirá obtener la producción de la planta a partir de los parámetros técnicos de la planta (configuración, tecnologías, tipo de seguimiento, entre otros aspectos), la irradiancia y otras variables meteorológicas.
 
+## Documentación
+
+#### Protocolos
+La documentación completa de los protocolos se encuentra en la carpeta `Protocolos`.
+
+#### Memoria de Cálculos
+En la carpeta `Memoria_de_Calculos` se encuentra la documentación correspondiente a las pruebas de concepto de las metodologías recomendadas, validación con datos disponibles de la planta fotovoltaica del Edificio Santo Domingo de la Universidad de los Andes y estimación de los errores e incertidumbres.
+
+#### Ejemplos
+En la carpeta `examples` se encuentra el documento `CNO_Doc_Ejemplos.pdf`. Allí se presentan tres ejemplos de arquitecturas de plantas fotovoltaicas para la ejecución completa del repositorio `cnosolar`. Cada ejemplo dispone de una carpeta en la cual se alojan los archivos necesarios para la ejecución, así como los resultados de la misma.
+
+#### Descargas
+La descarga de los archivos de configuración de la planta fotovoltaica (cuaderno `CNO_Configuracion_Sistema.ipynb`) se alojan en la carpeta `configurations`. 
+
+La descarga de los archivos de producción y de las gráficas (cuaderno `CNO_Protocolos.ipynb`) se alojan en la carpeta `downloads`.
+
 ## Instalación
 
 #### Distribución y Ambiente
+
 Se recomienda instalar [Anaconda](https://www.anaconda.com/products/individual) o [Miniconda](https://docs.conda.io/en/latest/miniconda.html) e instalar las librerías necesarias dentro de un ambiente específico para este software. 
 
 Anaconda es una distribución de Python con muchas librerías necesarias para computación científica o ciencia de datos. Miniconda es una distribución básica y más recomendada en sistemas con limitación de recursos.
