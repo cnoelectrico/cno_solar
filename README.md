@@ -10,7 +10,7 @@ Desarrollo de los protocolos para el cálculo de la CEN (Capacidad Efectiva Neta
 
 #### Objetivos
 
-1. Metodología para la estimación y modelamiento de la Irradiancia Normal Directa (*Direct Normal Irradiance* – DNI), la Irradiancia Horizontal Difusa (*Diffuse Horizontal Irradiance* – DHI) y la irradiancia sobre el plano del arreglo (*Plane-of-Array* - POA) a partir de la Irradiancia Horizontal Global (*Global Horizontal Irradiance* – GHI).
+1. Metodología para la estimación y modelamiento de la Irradiancia Normal Directa (*Direct Normal Irradiance* – DNI), la Irradiancia Horizontal Difusa (*Diffuse Horizontal Irradiance* – DHI) y la irradiancia sobre el plano del arreglo (*Plane-of-Array* – POA) a partir de la Irradiancia Horizontal Global (*Global Horizontal Irradiance* – GHI).
 2. Protocolo para el cálculo de la CEN de plantas solares fotovoltaicas antes de su entrada en operación.
 3. Protocolo al modelo que relaciona el recurso y la potencia en plantas solares fotovoltaicas. El modelo permitirá obtener la producción de la planta a partir de los parámetros técnicos de la planta (configuración, tecnologías, tipo de seguimiento, entre otros aspectos), la irradiancia y otras variables meteorológicas.
 
