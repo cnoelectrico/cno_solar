@@ -1,6 +1,6 @@
 # cnosolar
 
-<img src='./Protocolos/Uniandes-CNO.png' width='500' height='500' />
+<img src='./Protocolos/Uniandes-CNO.png' width='500' />
  
 ## Introducción
 ---
