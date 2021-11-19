@@ -33,8 +33,6 @@ def execute():
                                   <li> <b>Latitud:</b> Utilice la notación de grados decimales.</li>
                                   <li> <b>Longitud:</b> Utilice la notación de grados decimales.</li>
                                   <li> <b>Altitud:</b> Altitud desde el nivel del mar en metros (m.s.n.m).</li>
-                                  <li> <b>Humedad Relativa:</b> Humedad relativa en la superficie en valor porcentual.</li>
-                                  <li> <b>Presión Atmosférica:</b> Presión atmosférica según la altitud del sitio en Pascales (Pa).</li>
                                   <li> <b>Huso Horario:</b> Con referencia a UTC. Por defecto: América/Bogotá (UTC-5).</li>
                                   <li> <b>Superficie:</b> Tipo de superficie para determinar albedo. <span style='color:red'>Opcional si desconoce el albedo</span>.</li>
                                   <li> <b>Albedo:</b> Utilice un valor porcentual en escala entre 0 y 1.</li>
@@ -164,7 +162,7 @@ def execute():
 
                                  <h5>Parámetros Globales</h5>
                                  <ul>
-                                   <li> <b>Pérdidas:</b> Porcentaje de pérdidas globales del sistema. Por defecto: 13.92%.</li>
+                                   <li> <b>Pérdidas:</b> Porcentaje de pérdidas globales del sistema. Por defecto: 14.6%.</li>
                                    <li> <b>Nombre Planta:</b> Sufijo al nombre del archivo de configuración (system_config_<i>sufijo</i>). Por defecto: system_config.</li>
                                  </ul>
                                  
@@ -247,20 +245,6 @@ def execute():
                                         description='',
                                         disabled=False,
                                         style={'description_width': 'initial'})
-
-    w_humidity = widgets.BoundedFloatText(value=0,
-                                          min=0,
-                                          max=100,
-                                          step=1,
-                                          description='',
-                                          disabled=False,
-                                          style={'description_width': 'initial'})
-    
-    w_pressure = widgets.FloatText(value=101325,
-                                   step=1,
-                                   description='',
-                                   disabled=False,
-                                   style={'description_width': 'initial'})
     
     def handle_surface_change(change):
         if change.new != None:
@@ -272,8 +256,6 @@ def execute():
                        widgets.Box([widgets.Label('Latitud'), w_latitude], layout=gui_layout),
                        widgets.Box([widgets.Label('Longitud'), w_longitude], layout=gui_layout),
                        widgets.Box([widgets.Label('Altitud [m.s.n.m]'), w_altitude], layout=gui_layout),
-                       widgets.Box([widgets.Label('Humedad Relativa [%]'), w_humidity], layout=gui_layout),
-                       widgets.Box([widgets.Label('Presión Atmosférica  [Pa]'), w_pressure], layout=gui_layout),
                        widgets.Box([widgets.Label('Huso Horario'), w_timezone], layout=gui_layout),
                        widgets.Box([widgets.Label('Superficie'), w_surface], layout=gui_layout),
                        widgets.Box([widgets.Label('Albedo [%]'), w_albedo], layout=gui_layout)]
@@ -830,7 +812,7 @@ def execute():
     tracker_btn.observe(handle_toggle, 'value')
 
     # GLOBAL PARAMETERS
-    w_loss = widgets.BoundedFloatText(value=13.92, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
+    w_loss = widgets.BoundedFloatText(value=14.6, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
     w_name = widgets.Text(value='', placeholder='Sufijo extensión .JSON', description='', style={'description_width': 'initial'})
 
     conf_globalparams = widgets.VBox([widgets.Box([widgets.HTML('<h4>Parámetros Globales</h4>', layout=widgets.Layout(height='auto'))]),
@@ -1114,8 +1096,6 @@ def execute():
                                 'altitude': w_altitude.value,
                                 'surface_type': w_surface.value,
                                 'surface_albedo': w_albedo.value,
-                                'relative_humidity': w_humidity.value,
-                                'pressure': w_pressure.value,
 
                                 # Inverter
                                 'inverters_database': inverter_status[0],

@@ -5,7 +5,7 @@ import cnosolar as cno
 from tqdm.auto import tqdm
 from functools import reduce
 
-def run(system_configuration, data, irrad_instrument, availability, energy_units):
+def run(system_configuration, data, availability, energy_units):
     '''
     Wrapper that executes the production stages of the PV system, 
     including system losses.
@@ -24,11 +24,6 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
         they prevail for the calculations of the algorithms (e.g., decomposition 
         and transposition models are not used to determine :math:`POA` or 
         temperature models to determine :math:`Tmod`).
-        
-    irrad_instrument : string
-        Indicate the instrument with which the POA irradiance measurements were obtained. 
-        This parameter is used to estimate the effective irradiance. Valid options are
-        'Piranómetro' and 'Celda de Referencia'.
 
     availability : list
         Percentage value of availability per inverter set with the exact 
@@ -77,7 +72,8 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                    taking into account spectral and mismatch losses, in [W/m2].
         12. total_absorbed_back - Total absorbed rear irradiance if PV module is bifacial,
                                   taking into account spectral and mismatch losses, in [W/m2].
-        13. poa - Effective plane-of-array irradiance, taking into account spectral and 
+        13. poa - Plane-of-array irradiance (effective if relative humidity or precitiable
+                  water is provided in data parameter), taking into account spectral and 
                   mismatch losses, in [W/m2].
         14. temp_cell - Average cell temperature of cells within a module in [ºC].
         15. dc - Data structure that contains the following parameters:
@@ -104,12 +100,15 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
            single axis tracker.
         3. Determine the POA irradiance using DISC decomposition and Perez-Ineichen 1990
            transposition models if GHI is provided or leaving the supplied values in the 
-           historical series of meteorological data if POA is provided.
-        3. Determine the Spectral Mismatch Modifier to calculate the effective irradiance.
-        4. Calculate effective POA irradiance as the product of Spectral Mismatch Modifier,
-           POA irradiance, cosine of angle-of-incidence (AOI) and incidence angle modifier
-           (IAM). Does not apply if POA is provided in the historical series of meteorological
-           data and the irrad_instrument is 'Celda de Referencia'.
+           historical series of meteorological data if POA or Effective_Irradiance is provided.
+        3. Determine the Spectral Mismatch Modifier to calculate the effective irradiance
+           if relative humidity or precipitable water is supplied in the historical series 
+           of meteorological data. Otherwise, Spectral Mismatch Modifier is set to 1 (i.e., no effects).
+        4. Calculate effective irradiance as the product of Spectral Mismatch Modifier,
+           POA irradiance and incidence angle modifier if relative humidity or precipitable 
+           water is supplied in the historical series of meteorological data. Does not apply 
+           if Effective_Irradiance is provided in the historical series of meteorological
+           data (assumed as measured by a reference cell).
         5. Calculate total and absorbed front, and total and absorbed back irradiance if
            the module is bifacial.
         6. Define a pvlib.pvsystem Array class.
@@ -185,54 +184,72 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                                                max_angle=m_angle,
                                                                racking_model=sc['racking_model'])
             
-            # Spectral Mismatch
+            # Bifacial Spectral Mismatch
             if sc['with_tracker'] == False:
                 st = list(np.repeat(sur_tilt, len(data)))
                 sa = list(np.repeat(sur_azimuth, len(data)))
                 aoi = pvlib.irradiance.aoi(surface_tilt=st,
-                                           surface_azimuth=sa, 
-                                           solar_zenith=solpos.apparent_zenith, 
-                                           solar_azimuth=solpos.azimuth)
+                                               surface_azimuth=sa, 
+                                               solar_zenith=solpos.apparent_zenith, 
+                                               solar_azimuth=solpos.azimuth)
             else:
                 st = tracker.surface_tilt
                 sa = tracker.surface_azimuth
                 aoi = tracker.aoi
-
-            iam = pvlib.iam.physical(aoi=aoi, n=1.526, K=4.0, L=0.002)
             
-            ## Precipitable Water
-            pw = pvlib.atmosphere.gueymard94_pw(temp_air=data['Tamb'], 
-                                                relative_humidity=sc['relative_humidity'])
+            ## Effective Irradiance Procedure
+            if 'HR' in list(data.columns) or 'PW' in list(data.columns):
+                ## System Losses
+                if sc['loss'] == 14.6:
+                    system_losses = 13.92
+                else:
+                    system_losses = sc['loss']
+                
+                ## Incident Angle Modifier
+                iam = pvlib.iam.physical(aoi=aoi, n=1.526, K=4.0, L=0.002)
+                
+                ## Precipitable Water
+                if 'PW' in list(data.columns):
+                    pw = data['PW']
+                else:
+                    pw = pvlib.atmosphere.gueymard94_pw(temp_air=data['Tamb'], 
+                                                        relative_humidity=data['HR'])
 
-            t = sc['module']['Technology']
-            if t in ['Mono-c-Si', 'mc-Si', 'c-Si', 'monoSi', 'monosi', 'xsi', 'Thin Film', 'Si-Film', 'HIT-Si', 'EFG mc-Si']:
-                module_tec = 'monosi'
-            elif t in ['Multi-c-Si', 'multiSi', 'polySi', 'multisi', 'polysi', 'mtSiPoly']:
-                module_tec = 'multisi'
-            elif t in ['CIGS', 'CIS', 'cis', 'cigs']:
-                module_tec = 'cigs'
-            elif t in ['CdTe', 'CdTe', 'cdte', 'GaAs']:
-                module_tec = 'cdte'
-            elif t in ['asi', 'amorphous', 'a-Si / mono-Si', '2-a-Si', '3-a-Si']:
-                module_tec = 'asi'
+                ## Module Technology
+                t = sc['module']['Technology']
+                if t in ['Mono-c-Si', 'mc-Si', 'c-Si', 'monoSi', 'monosi', 'xsi', 'Thin Film', 'Si-Film', 'HIT-Si', 'EFG mc-Si']:
+                    module_tec = 'monosi'
+                elif t in ['Multi-c-Si', 'multiSi', 'polySi', 'multisi', 'polysi', 'mtSiPoly']:
+                    module_tec = 'multisi'
+                elif t in ['CIGS', 'CIS', 'cis', 'cigs']:
+                    module_tec = 'cigs'
+                elif t in ['CdTe', 'CdTe', 'cdte', 'GaAs']:
+                    module_tec = 'cdte'
+                elif t in ['asi', 'amorphous', 'a-Si / mono-Si', '2-a-Si', '3-a-Si']:
+                    module_tec = 'asi'
+                else:
+                    module_tec = None
+
+                ## Spectral Mismatch Modifier
+                sm = pvlib.atmosphere.first_solar_spectral_correction(pw=pw, 
+                                                                      airmass_absolute=airmass.airmass_absolute, 
+                                                                      module_type=module_tec,
+                                                                      coefficients=None)
+                spectral_mismatch = sm.fillna(1)
+            
             else:
-                module_tec = None
-            
-            ## Spectral Mismatch Modifier
-            sm = pvlib.atmosphere.first_solar_spectral_correction(pw=pw, 
-                                                                  airmass_absolute=airmass.airmass_absolute, 
-                                                                  module_type=module_tec,
-                                                                  coefficients=None)
-            spectral_mismatch = sm.fillna(1)
+                iam = list(np.repeat(1, len(data)))
+                spectral_mismatch = list(np.repeat(1, len(data)))
+                system_losses = sc['loss']
             
             # POA/Effective Irradiance
             if 'POA' in list(data.columns):
                 disc = pd.DataFrame(data={'disc': list(np.repeat(0, len(data)))}, index=data.index)
-                poa = data['POA'] # Assumed as effective irradiance if irrad_instrument == 'Celda de Referencia'
+                irrad = spectral_mismatch * abs(data['POA'] * iam)
 
-                # Effective Irradiance
-                if irrad_instrument == 'Piranómetro':
-                    poa = spectral_mismatch * abs(poa * np.cos(np.radians(aoi)) * iam)
+            elif 'Effective_Irradiance' in list(data.columns):
+                disc = pd.DataFrame(data={'disc': list(np.repeat(0, len(data)))}, index=data.index)
+                irrad = data['Effective_Irradiance']
             
             else:
                 # Decomposition
@@ -254,12 +271,12 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                                           surface_type=sc['surface_type'])
                 
                 # Effective Irradiance
-                poa = spectral_mismatch * (abs(poa['poa_direct'] * np.cos(np.radians(aoi)) * iam + poa['poa_diffuse']))
+                irrad = spectral_mismatch * (abs(poa['poa_direct'] * iam + poa['poa_diffuse']))
 
             # Total Bifacial Effective Irradiance
             if sc['bifacial'] == True:
                 # Irradiance Components
-                if 'POA' in list(data.columns):
+                if 'POA' in list(data.columns) or 'Effective_Irradiance' in list(data.columns): 
                     irrad_components = cno.irradiance_models.decomposition(ghi=data['GHI'], 
                                                                            solpos=solpos, 
                                                                            datetime=data.index) 
@@ -302,7 +319,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                 is_bifacial = True
                 
                 # Total Effective Irradiance
-                poa = spectral_mismatch * (poa + (sc['bifaciality']*bifacial_irrad[3])) # bifacial_irrad[2] instead of (poa + )
+                irrad = spectral_mismatch * (irrad + (sc['bifaciality']*bifacial_irrad[3]))
             
             else:
                 total_incident_front = None
@@ -338,18 +355,18 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                 temp_cell = data['Tmod']
             
             else:
-                temp_cell = cno.cell_temperature.from_tnoct(poa=poa, 
+                temp_cell = cno.cell_temperature.from_tnoct(poa=irrad, 
                                                             temp_air=data['Tamb'], 
                                                             tnoct=sc['module']['T_NOCT'])
 
             # DC Production, AC Power and Energy
-            dc, ac, energy = cno.production.production_pipeline(poa=poa, 
+            dc, ac, energy = cno.production.production_pipeline(poa=irrad, 
                                                                 cell_temperature=temp_cell, 
                                                                 module=sc['module'], 
                                                                 inverter=sc['inverter'], 
                                                                 system=system, 
                                                                 ac_model=sc['ac_model'], 
-                                                                loss=sc['loss'], 
+                                                                loss=system_losses, 
                                                                 resolution=resolution, 
                                                                 num_inverter=sc['num_inverter'],
                                                                 per_mppt=sc['per_mppt'][i],
@@ -373,7 +390,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                            'total_incident_back': total_incident_back,
                                            'total_absorbed_front': total_absorbed_front,
                                            'total_absorbed_back': total_absorbed_back,
-                                           'poa': poa,
+                                           'poa': irrad,
                                            'string_array': string_array,
                                            'system': system,
                                            'temp_cell': temp_cell,
@@ -411,7 +428,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                                 'total_incident_back': total_incident_back,
                                                 'total_absorbed_front': total_absorbed_front,
                                                 'total_absorbed_back': total_absorbed_back,
-                                                'poa': poa,
+                                                'poa': irrad,
                                                 'temp_cell': temp_cell,
                                                 'dc': dc, 
                                                 'ac': sys_ac, 
@@ -450,7 +467,7 @@ def run(system_configuration, data, irrad_instrument, availability, energy_units
                                  'total_incident_back': total_incident_back,
                                  'total_absorbed_front': total_absorbed_front,
                                  'total_absorbed_back': total_absorbed_back,
-                                 'poa': poa,
+                                 'poa': irrad,
                                  'temp_cell': temp_cell,
                                  'dc': dc, 
                                  'ac': sys_ac, 
