@@ -5,8 +5,6 @@
   "altitude": 2632.0,
   "surface_type": "urban",
   "surface_albedo": 0.18,
-  "relative_humidity": 70.0,
-  "pressure": 102300.0,
   "inverters_database": null,
   "inverter_name": null,
   "inverter": {
@@ -61,10 +59,10 @@
   "row_width": 0,
   "with_tracker": false,
   "surface_azimuth": [
-    10.0
+    180.0
   ],
   "surface_tilt": [
-    180.0
+    10.0
   ],
   "axis_tilt": null,
   "axis_azimuth": null,

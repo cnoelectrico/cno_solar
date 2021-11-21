@@ -63,13 +63,13 @@ def execute():
                               <h5>Información Inicial</h5>
                               <ul>
                                 <li> <b>Configuración Sistema (.JSON):</b> Seleccione el archivo .JSON de configuración del sistema. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, selecciónelos de forma simultánea (estos se cargarán en orden alfabético).</li>
-                                <li> <b>Serie Histórica de Datos (.CSV):</b> Seleccione el archivo .CSV de la serie histórica de datos meteorológicos. La estructura de datos sigue lo establecido por la CREG 060 de 2019, es decir, estampa temporal, $~GHI~$ y $~T_{amb}$; si se añaden los parámetros $~POA~$ y $~T_{mod}$, estos priman para los cálculos de los algoritmos (e.g., no se utilizan modelos de descomposición y transposición para determinar $~POA~$ ni modelos de temperatura para determinar $~T_{mod}$).</li>
+                                <li> <b>Serie Histórica de Datos (.CSV):</b> Seleccione el archivo .CSV de la serie histórica de datos meteorológicos. La estructura de datos sigue lo establecido por la CREG 060 de 2019, es decir, estampa temporal, $~GHI~$ y $~T_{amb}$; si se añaden los parámetros $~POA~$ y $~T_{mod}$, estos priman para los cálculos de los algoritmos (e.g., no se utilizan modelos de descomposición y transposición para determinar $~POA~$ ni modelos de temperatura para determinar $~T_{mod}$). Si el instrumento de medición de la irradiancia en el plano del arreglo es una celda de referencia, nombre el encabezado de dicha columna $~Effective\_Irradiance~$ en lugar de $~POA$.</li>
                                 <li> <b>Cargar Archivos:</b> Una vez seleccionados los archivos requeridos, dé clic en 'Cargar Archivos'. El ícono y la descripción del botón cambiarán para notificar la carga de los archivos.</li>
                               </ul>
 
                                 <h5>Recurso-Potencia</h5>
                                 <ul>
-                                  <li> <b>Disponibilidad [%]:</b> Valor porcentual de la disponibilidad por conjunto inversores con configuración eléctrica exactamente igual (i.e., por archivo .JSON de configuración del sistema). Para múltiples inversores (i.e., múltiples archivos .JSON de configuración), separe los valores con una coma de manera ordenada.</li>
+                                  <li> <b>Disponibilidad [%]:</b> Valor porcentual en escala entre 0 y 1 de la disponibilidad por conjunto inversores con configuración eléctrica exactamente igual (i.e., por archivo .JSON de configuración del sistema). Para múltiples inversores (i.e., múltiples archivos .JSON de configuración), separe los valores con una coma de manera ordenada.</li>
                                   <li> <b>Ejecutar:</b> Dé clic en este botón para ejecutar el algoritmo que estimará la producción de la planta fotovoltaica según el recurso indicado en los archivos de configuración del sistema y serie histórica de datos. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
                                   <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) estimados por el algoritmo. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por subarreglos, por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>rp_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
                                 </ul>
@@ -78,9 +78,9 @@ def execute():
                                 Sección opcional que permite al usuario visualizar diferentes relaciones entre parámetros. <span style='color:red'>No se requiere para el cálculo de la producción a partir del recurso</span>.
                                 <ul>
                                   <li> <b>Relación:</b> Gráfica a visualizar.</li>
-                                  <li> <b>Magnitud:</b> Para facilitar la visualización del gráfico, seleccione la magnitud en que desea presentar Potencia o la Energía.</li>
-                                  <li> <b>Fecha Inicial:</b> El algoritmo inicialmente toma en cuenta el periodo de tiempo de la serie histórica de datos. Sin embargo, el usuario puede indicar el periodo inicial en que desea generar la gráfica según la relación seleccionada.</li>
-                                  <li> <b>Fecha Final:</b> El algoritmo inicialmente toma en cuenta el periodo de tiempo de la serie histórica de datos. Sin embargo, el usuario puede indicar el periodo final hasta donde desea generar la gráfica según la relación seleccionada.</li>
+                                  <li> <b>Magnitud:</b> Para facilitar la visualización del gráfico, seleccione la magnitud en que desea presentar la Potencia o la Energía.</li>
+                                  <li> <b>Fecha Inicial:</b> Periodo inicial a partir del cual se desea generar la gráfica según la relación seleccionada. El algoritmo inicialmente toma en cuenta el periodo de tiempo inicial de la serie histórica de datos. </li>
+                                  <li> <b>Fecha Final:</b> Periodo final hasta donde se desea generar la gráfica según la relación seleccionada. El algoritmo inicialmente toma en cuenta el periodo de tiempo final de la serie histórica de datos. </li>
                                   <li> <b>Color:</b> Color de la curva de la gráfica según la relación seleccionada.</li>
                                   <li> <b>Descargar:</b> Seleccione la opción 'Sí' para descargar la gráfica según la relación seleccionada (se alojará en la carpeta <i>cno_solar/downloads/<span style='color:blue'>rp_xxx.pdf</span></i>).</li>
                                   <li> <b>Graficar:</b> Dé clic en este botón para visualizar la relación seleccionada. El usuario puede cambiar los parámetros de la relación a graficar y volver a dar clic sobre este botón para refrescar la visualización. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
@@ -952,7 +952,7 @@ def execute():
                  widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
                  widgets.Box([btn_rp, output_upload], layout=gui_layout),
                  widgets.Box([widgets.HTML('<h4>Recurso-Potencia</h4>', layout=widgets.Layout(height='auto'))]),
-                 widgets.Box([widgets.Label('Disponibilidad [ad.]'), w_availability], layout=gui_layout),
+                 widgets.Box([widgets.Label('Disponibilidad [%]'), w_availability], layout=gui_layout),
                  widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
                  widgets.Box([w_rp, download_rp], layout=gui_layout),
                  widgets.Box([rp_output, downloadrp_output], layout=gui_layout),

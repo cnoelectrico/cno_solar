@@ -245,11 +245,11 @@ def run(system_configuration, data, availability, energy_units):
             # POA/Effective Irradiance
             if 'POA' in list(data.columns):
                 disc = pd.DataFrame(data={'disc': list(np.repeat(0, len(data)))}, index=data.index)
-                irrad = spectral_mismatch * abs(data['POA'] * iam)
+                poa = spectral_mismatch * abs(data['POA'] * iam)
 
             elif 'Effective_Irradiance' in list(data.columns):
                 disc = pd.DataFrame(data={'disc': list(np.repeat(0, len(data)))}, index=data.index)
-                irrad = data['Effective_Irradiance']
+                poa = data['Effective_Irradiance']
             
             else:
                 # Decomposition
@@ -271,7 +271,7 @@ def run(system_configuration, data, availability, energy_units):
                                                           surface_type=sc['surface_type'])
                 
                 # Effective Irradiance
-                irrad = spectral_mismatch * (abs(poa['poa_direct'] * iam + poa['poa_diffuse']))
+                poa = spectral_mismatch * (abs(poa['poa_direct'] * iam + poa['poa_diffuse']))
 
             # Total Bifacial Effective Irradiance
             if sc['bifacial'] == True:
@@ -319,7 +319,7 @@ def run(system_configuration, data, availability, energy_units):
                 is_bifacial = True
                 
                 # Total Effective Irradiance
-                irrad = spectral_mismatch * (irrad + (sc['bifaciality']*bifacial_irrad[3]))
+                poa = spectral_mismatch * (poa + (sc['bifaciality']*bifacial_irrad[3]))
             
             else:
                 total_incident_front = None
@@ -355,12 +355,12 @@ def run(system_configuration, data, availability, energy_units):
                 temp_cell = data['Tmod']
             
             else:
-                temp_cell = cno.cell_temperature.from_tnoct(poa=irrad, 
+                temp_cell = cno.cell_temperature.from_tnoct(poa=poa, 
                                                             temp_air=data['Tamb'], 
                                                             tnoct=sc['module']['T_NOCT'])
 
             # DC Production, AC Power and Energy
-            dc, ac, energy = cno.production.production_pipeline(poa=irrad, 
+            dc, ac, energy = cno.production.production_pipeline(poa=poa, 
                                                                 cell_temperature=temp_cell, 
                                                                 module=sc['module'], 
                                                                 inverter=sc['inverter'], 
@@ -390,7 +390,7 @@ def run(system_configuration, data, availability, energy_units):
                                            'total_incident_back': total_incident_back,
                                            'total_absorbed_front': total_absorbed_front,
                                            'total_absorbed_back': total_absorbed_back,
-                                           'poa': irrad,
+                                           'poa': poa,
                                            'string_array': string_array,
                                            'system': system,
                                            'temp_cell': temp_cell,
@@ -428,7 +428,7 @@ def run(system_configuration, data, availability, energy_units):
                                                 'total_incident_back': total_incident_back,
                                                 'total_absorbed_front': total_absorbed_front,
                                                 'total_absorbed_back': total_absorbed_back,
-                                                'poa': irrad,
+                                                'poa': poa,
                                                 'temp_cell': temp_cell,
                                                 'dc': dc, 
                                                 'ac': sys_ac, 
@@ -467,7 +467,7 @@ def run(system_configuration, data, availability, energy_units):
                                  'total_incident_back': total_incident_back,
                                  'total_absorbed_front': total_absorbed_front,
                                  'total_absorbed_back': total_absorbed_back,
-                                 'poa': irrad,
+                                 'poa': poa,
                                  'temp_cell': temp_cell,
                                  'dc': dc, 
                                  'ac': sys_ac, 

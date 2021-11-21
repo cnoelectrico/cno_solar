@@ -34,16 +34,16 @@ def execute():
                                   <li> <b>Longitud:</b> Utilice la notación de grados decimales.</li>
                                   <li> <b>Altitud:</b> Altitud desde el nivel del mar en metros (m.s.n.m).</li>
                                   <li> <b>Huso Horario:</b> Con referencia a UTC. Por defecto: América/Bogotá (UTC-5).</li>
-                                  <li> <b>Superficie:</b> Tipo de superficie para determinar albedo. <span style='color:red'>Opcional si desconoce el albedo</span>.</li>
+                                  <li> <b>Superficie:</b> Tipo de superficie para determinar el albedo. <span style='color:red'>Opcional si desconoce el albedo</span>.</li>
                                   <li> <b>Albedo:</b> Utilice un valor porcentual en escala entre 0 y 1.</li>
                                 </ul>''', layout=widgets.Layout(height='auto'))
     
     doc_inverter = widgets.HTMLMath('''
                                     <h5>Método de Configuración: Repositorio</h5>
                                     <ul>
-                                      <li> <b>Repositorio:</b> Repositorio de inversores dispuestos por PVlib. Archivos CSV disponibles en cno_solar/repositorios.</li>
+                                      <li> <b>Repositorio:</b> Repositorio de inversores dispuestos por PVlib.</li>
                                       <li> <b>Fabricantes:</b> Lista de fabricantes del repositorio seleccionado.</li>
-                                      <li> <b>Inversores:</b> Lista de equipos disponibles en el repositorio según el fabricante escogido.</li>
+                                      <li> <b>Inversores:</b> Lista de equipos disponibles en el repositorio según el fabricante seleccionado.</li>
                                     </ul>
 
                                     <h5>Método de Configuración: PVsyst</h5>
@@ -60,9 +60,9 @@ def execute():
                                          <li> <b>$V_{DC}$ Nominal:</b> Voltaje DC al que se alcanza la Potencia AC nominal con la entrada de Potencia DC en V.</li>
                                          <li> <b>$P_{DC}$ de Arraque:</b> Potencia DC necesaria para iniciar el proceso de inversión en W.</li>
                                          <li> <b>$C_0$:</b> Parámetro que define la curvatura de la relación entre la Potencia AC y Potencia DC en condición STC en 1/W.</li>
-                                         <li> <b>$C_1$:</b> Coeficiente empírico que permite que la Potencia DC Nominal varíe linealmente con la el Voltaje DC en 1/V.</li>
-                                         <li> <b>$C_2$:</b> Coeficiente empírico que permite que la Potencia DC de Arranque varíe linealmente con la el Voltaje DC en 1/V.</li>
-                                         <li> <b>$C_3$:</b> Coeficiente empírico que permite que $C_0$ varíe linealmente con la el Voltaje DC en 1/V.</li>
+                                         <li> <b>$C_1$:</b> Coeficiente empírico que permite que la Potencia DC Nominal varíe linealmente con el Voltaje DC en 1/V.</li>
+                                         <li> <b>$C_2$:</b> Coeficiente empírico que permite que la Potencia DC de Arranque varíe linealmente con el Voltaje DC en 1/V.</li>
+                                         <li> <b>$C_3$:</b> Coeficiente empírico que permite que $C_0$ varíe linealmente con el Voltaje DC en 1/V.</li>
                                          <li> <b>$P_{AC}$ Consumo Nocturno:</b> Potencia AC consumida por el inversor durante la noche en W.</li>
                                        </ul>
                                       </li>
@@ -79,7 +79,7 @@ def execute():
     doc_module = widgets.HTMLMath('''
                                   <h5>Método de Configuración: Repositorio</h5>
                                   <ul>
-                                    <li> <b>Repositorio:</b> Repositorio de módulos fotovoltaicos dispuestos por PVlib (CEC y Sandia). Archivos CSV disponibles en cno_solar/repositorios.</li>
+                                    <li> <b>Repositorio:</b> Repositorio de módulos fotovoltaicos dispuestos por PVlib (CEC y Sandia).</li>
                                     <li> <b>PVFree</b> 
                                      <ul class='square'>
                                        <li> <b>Base de Datos:</b> Repositorio de módulos fotovoltaicos dispuestos en PVFree.</li>
@@ -90,7 +90,7 @@ def execute():
                                     <li> <b>CEC y Sandia</b> 
                                      <ul class='square'>
                                        <li> <b>Fabricantes:</b> Lista de fabricantes del repositorio seleccionado.</li>
-                                       <li> <b>Módulos:</b> Lista de equipos disponibles en el repositorio según el fabricante escogido.</li>
+                                       <li> <b>Módulos:</b> Lista de equipos disponibles en el repositorio según el fabricante seleccionado.</li>
                                      </ul>
                                     </li>
                                   </ul>
@@ -820,7 +820,6 @@ def execute():
                                       widgets.Box([widgets.Label('Nombre Planta'), w_name], layout=gui_layout)])
 
     # CONFIGURATION FILE
-    
     # Config Button
     genconfig_btn = widgets.Button(value=False,
                                    description='Generar Configuración',
