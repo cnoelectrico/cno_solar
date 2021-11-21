@@ -102,7 +102,7 @@ def run(system_configuration, data, availability, energy_units):
            transposition models if GHI is provided or leaving the supplied values in the 
            historical series of meteorological data if POA or Effective_Irradiance is provided.
         3. Determine the Spectral Mismatch Modifier to calculate the effective irradiance
-           if relative humidity or precipitable water is provided in the historical series 
+           if relative humidity or atmospheric precipitable water is provided in the historical series 
            of meteorological data. Otherwise, Spectral Mismatch Modifier is set to 1 (i.e., no effects).
         4. Calculate effective irradiance as the product of Spectral Mismatch Modifier,
            POA irradiance and incidence angle modifier if relative humidity or precipitable 
