@@ -35,7 +35,7 @@
     "Adjust": 7.636584224489093
   },
   "bifacial": true,
-  "bifaciality": 1.0,
+  "bifaciality": 0.7,
   "row_height": 1.0,
   "row_width": 2.132,
   "with_tracker": true,
