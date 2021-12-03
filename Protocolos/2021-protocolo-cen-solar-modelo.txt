@@ -1,11 +1,11 @@
 ---
 title: Protocolo para el cálculo de la CEN de plantas solares fotovoltaicas antes de su entrada en operación
-subtitle: "Andrés González Mancera, Ph.D., Nelson Salazar Peña, M.Sc."
+subtitle: "autores: Andrés González Mancera, Ph.D., Nelson Salazar Peña, M.Sc."
 author:
   - Universidad de los Andes - Consejo Nacional de Operación
-date: Octubre de 2021
+date: Diciembre de 2021
 documentclass: article
-bibliography: zotero.bib
+bibliography: 2019-cen_solar.bib
 csl: ieee.csl
 geometry:
 - margin=3cm
@@ -22,7 +22,7 @@ lang: es-CO
 
 [//]: pandoc -F pandoc-crossref --citeproc --template eisvogel 2021-protocolo-cen-solar-modelo.txt -o 2021-protocolo-cen-solar-modelo.pdf
 
-# Definición Capacidad Efectiva Neta (CEN) {#sec:def_CEN}
+# Introducción
 
 De acuerdo con la resolución CREG 116 de 1996 [@CREG116_96], la adición
 realizada a la misma en la resolución CREG 074 de 1999 [@CREG074_99] y
@@ -30,13 +30,50 @@ las modificaciones subsecuentes CREG 059 de 1999 [@CREG059_99], CREG 081
 del 2000 [@CREG081_00] y CREG 074 de 2002 [@CREG074_02], la Capacidad
 Efectiva Neta - CEN está definida como la: *"Máxima capacidad de
 potencia neta (expresada en valor entero en MW) que puede suministrar
-una planta y/o unidad de generación en condiciones normales de operación
+una planta y/o unidad de generación en condiciones normales de operación[^1]
 medida **en la frontera comercial**. Se calcula como la Capacidad
 Nominal menos el Consumo Propio de la planta y/o unidad de generación."*
 
+En el caso de plantas solares fotovoltaicas, la potencia máxima que ésta puede suministrar depende no solo de su configuración y ubicación, sino del recurso disponible en la zona. La simulación de la producción de la planta a partir de un modelo detallado e información histórica del recurso permite estimar la producción de la planta y de manera estadística, calcular su capacidad máxima. 
+
 # Protocolo
 
+El cálculo de la CEN se estima mediante la ejecución de una serie de modelos que permiten estimar la irradiancia efectiva sobre el plano de los arreglos y a través del modelamiento de la cadena de conversión energía y pérdidas hasta la frontera comercial, estimar la producción de la planta.
 
+La carga de archivos requeridos, así como la configuración de la ejecución del modelo se realiza mediante una interfaz de usuario que se despliega al correr la primera celda del cuaderno de Jupyter `CNO_Protocolos.ipynb`. La primera pestaña *Documentación* de dicho cuaderno contiene información detallada sobre cada una de las tareas para ejecutar el modelo y el cálculo de la CEN.
 
-# Referencias
+A continuación se describe el proceso de ejecución del modelo de una planta solar fotovoltaica para el cálculo de la CEN.
 
+## Carga de Archivos
+
+Las entradas requeridas son los archivos de configuración de la planta en formato JSON (uno por cada configuración de inversor disponible en la planta) generados según el *Protocolo para la construcción del modelo de una planta solar fotovoltaica* y el archivo con la serie histórica de irradiancia y temperatura ambiente.
+
+### Información Inicial
+
+* Configuración Sistema (.JSON): Seleccione el archivo .JSON de configuración del sistema. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, selecciónelos de forma simultánea (estos se cargarán en orden alfabético).
+* Serie Histórica de Datos (.CSV): Seleccione el archivo .CSV de la serie histórica de datos meteorológicos. La estructura del archivo consiste de tres columnas: estampa temporal (sin nombre en encabezado), irradiancia global horizontal (nombre en encabezado GHI) y temperatura ambiente (nombre en encabezado Tamb). A continuación un ejemplo del encabezado y primeras líneas de un archivo.
+
+> , GHI, Tamb  
+> 2000-01-01 00:30:00-05:00, 0.0, 9.0  
+> 2000-01-01 01:30:00-05:00, 0.0, 9.0  
+> 2000-01-01 02:30:00-05:00, 0.0, 9.0  
+> ...
+
+* Cargar Archivos: Una vez seleccionados los archivos requeridos, dé clic en 'Cargar Archivos'. El ícono y la descripción del botón cambiarán para notificar la carga de los archivos.
+
+### Capacidad Efectiva Neta
+
+* Percentil [%]: Valor del percentil con el que se estimará la CEN. Por defecto, se utiliza el percentil 99 para excluir posibles datos atípicos.
+* Gráfica - Color: Color de la curva generada en el gráfico de la CEN (Percentil vs. $P_{AC}$). **Opcional. No se requiere para el cálculo de la CEN.**
+* Gráfica - Magnitud $P_{AC}$: Para facilitar la visualización del gráfico, seleccione la magnitud en que desea presentar la Potencia AC. **Opcional. No se requiere para el cálculo de la CEN.**
+* Gráfica - Descargar: Seleccione la opción 'Sí' para descargar el gráfico de la CEN (se alojará en la carpeta `cno_solar/downloads/`. **Opcional. No se requiere para el cálculo de la CEN.**
+* Calcular CEN: Dé clic en el botón 'Calcular CEN' para ejecutar el algoritmo que estimará la CEN según los archivos de configuración del sistema y serie histórica de datos, además del percentil indicado.
+* Descargar Producción:Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) empleados para calcular la CEN. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por subarreglos, por inversores y para la planta completa) y se alojarán en la carpeta `cno_solar/downloads/pipeline_xxx.csv`. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.
+
+# Ejemplos
+
+En la carpeta `examples` el archivo `CNO_Doc_Ejemplos.pdf` contiene ejemplos de la construcción del modelo y cálculo de la CEN para plantas solares fotovoltaicas con diferentes configuraciones.
+
+# Referencias {#sec:referencias}
+
+[^1]: El término "condiciones normales de operación" hace referencia a la operación sin restricciones de red de transmisión a la que se encuentra conectada la planta o unidad de generación.

@@ -1,11 +1,10 @@
 ---
 title: Protocolo para la construcción del modelo de una planta solar fotovoltaica
-subtitle: "Andrés González Mancera, Ph.D., Nelson Salazar Peña, M.Sc."
+subtitle: "autores: Andrés González Mancera, Ph.D., Nelson Salazar Peña, M.Sc."
 author:
   - Universidad de los Andes - Consejo Nacional de Operación
-date: Octubre de 2021
+date: Diciembre de 2021
 documentclass: article
-bibliography: zotero.bib
 csl: ieee.csl
 geometry:
 - margin=3cm
@@ -24,11 +23,124 @@ lang: es-CO
 
 # Introducción
 
+El modelo de una planta solar fotovoltaica contiene información sobre las especificaciones técnicas de inversores y módulos fotovoltaicos, la arquitectura eléctrica de la planta, su ubicación y disposición. Este modelo, junto con las series de tiempo con información de irradiancia y temperatura ambiente, permiten correr simulaciones para predecir la producción de la planta en el tiempo. Estas simulaciones permiten, entre otras cosas, estimar la producción de la planta en diferentes escalas de tiempo, estimar la producción mínima de energía en un período de tiempo y calcular la Capacidad Efectiva Neta - CEN de la planta. 
 
+El presente documento presenta el protocolo para la construcción del modelo de la planta solar fotovoltaica.
 
 # Protocolo
 
+La construcción del modelo de la planta solar fotovoltaica se realiza a través de una interfaz de usuario desarrollada para facilitar y estandarizar la tarea. El resultado de la construcción del modelo es una serie de archivos de configuración en formato JSON (uno por cada configuración de inversor disponible en la planta). Los archivos de configuración permiten correr los modelos para el cálculo de la producción energética de la planta como función del recurso y para el cálculo de la CEN.
 
+La configuración de la planta se realiza en una serie de pasos o tareas correspondientes a pestañas disponibles en la interfaz de usuario que se despliega al correr la primera celda del cuaderno de Jupyter `CNO_Configuracion_Sistema.ipynb`. La primera pestaña *Documentación* contiene información detallada sobre los parámetros requeridos en cada una de las tareas.
 
-# Referencias
+A continuación se describe el proceso de construcción del modelo de una plata solar fotovoltaica.
+
+## Tarea 1 - Ubicación
+
+En la pestaña *Ubicación* del cuaderno de configuración se deben completar los datos requeridos. Se deben introducir la *Latitud* y *Longitud* en notación de grados decimales, *Altitud* en metros sobre el nivel del mar (m.s.n.m) y *Huso Horario* con referencia a UTC, por defecto se usa el valor América/Bogotá (UTC-5). Para el valor del *Albedo* se puede asignar un valor porcentual en escala entre 0 y 1 o, si se desconoce el valor del albedo, se puede asignar una *Superficie* y el sistema asignará un valor por defecto para esa superficie. 
+
+## Tarea 2 - Inversor
+
+En la pestaña *Inversor* existen tres opciones para la selección y configuración del inversor. La primera es seleccionarlo de alguno de los repositorios disponibles: CEC, Sandia o Anton Driesser. Cada uno de estos repositorios contiene datos técnicos de muchos de los inversores disponibles en el mercado. De los menús desplegables, seleccionar el fabricante y la referencia del inversor a modelar. 
+
+El segundo método de configuración se denomina *PVsyst*. En este método se puede seleccionar un archivo de configuración generado en PVsyst (extensión .OND) y cargar la información. 
+
+Finalmente, el tercer método corresponde a la configuración *Manual*. En este caso, la configuración se puede realizar mediante uno de dos formatos: *SNL PVlib* o *NREL PVWatts*. Los parámetros para cada uno de los formatos se describen a continuación.
+
+### SNL PVlib
+
+* $P_{AC}$ Nominal: Potencia AC nominal del inversor en W.
+* $P_{DC}$ Nominal: Potencia DC nominal del inversor en W.
+* $V_{DC}$ Nominal: Voltaje DC al que se alcanza la Potencia AC nominal con la entrada de Potencia DC en V.
+* $P_{DC}$ de Arraque: Potencia DC necesaria para iniciar el proceso de inversión en W.
+* $C_0$: Parámetro que define la curvatura de la relación entre la Potencia AC y Potencia DC en condición STC en 1/W.
+* $C_1$: Coeficiente empírico que permite que la Potencia DC Nominal varíe linealmente con el Voltaje DC en 1/V.
+* $C_2$: Coeficiente empírico que permite que la Potencia DC de Arranque varíe linealmente con el Voltaje DC en 1/V.
+* $C_3$: Coeficiente empírico que permite que $C_0$ varíe linealmente con el Voltaje DC en 1/V.
+* $P_{AC}$ Consumo Nocturno: Potencia AC consumida por el inversor durante la noche en W.
+ 
+ ### NREL PVWatts
+
+* $P_{DC}$ Nominal: Potencia DC nominal del inversor en W.
+* Eficiencia Nominal: Eficiencia nominal del inversor en magnitud adimensional.
+
+Este último formato da como resultado un modelo simplificado cuando no se cuenta con los valores detallados de los parámetros del inversor. 
+
+## Tarea 3 - Módulos
+
+En la pestaña *Módulo* existen tres opciones para la selección y configuración de los módulos. La primera es seleccionarlo de alguno de los repositorios disponibles: PVFree, CEC o Sandía. Cada uno de estos repositorios contiene datos técnicos de muchos de los inversores disponibles en el mercado. En el caso de los repositorios CEC y Sandía, seleccionar el fabricante y la referencia del módulo correspondiente de los menús desplegables. Para el repositorio PVFree, seleccionar la base de datos a consultar y el número de identificación ID del módulo indicado en PVFree. 
+
+**Nota:** debido a la extensión del repositorio CEC, es posible que se tome un tiempo no mayor a un minuto en cargar las opciones.
+
+La segunda opción corresponde a cargar la información de los parámetros del módulo fotovoltaico a partir de un archivo generado por PVsyst (extensión .PAN). En este caso simplemente se selecciona el archivo y se da click en *Cargar PAN*.
+
+Finalmente, el tercer método corresponde a la entrada manual de los parámetros de los módulos. Los parámetros requeridos se describe a continuación.
+
+* $T_{NOCT}$: Temperatura nominal de funcionamiento de la celda en ºC.
+* Tecnología: Tecnología de la celda fotovoltaica.
+* Número Celdas: Número de celdas fotovoltaicas en serie.
+* $I_{SC}$ en STC: Corriente de corto circuito en condiciones STC en A.
+* $V_{OC}$ en STC:Voltaje de circuito abierto en condiciones STC en V.
+* $I_{MP}$ en STC: Corriente en el punto de máxima potencia en condiciones STC en A.
+* $V_{MP}$ en STC: Voltaje en el punto de máxima potencia en condiciones STC en V.
+* Coef. Temp. $I_{SC}$: Coeficiente de temperatura de la corriente de cortocircuito en A/ºC.
+* Coef. Temp. $V_{OC}$: Coeficiente de temperatura de voltaje de circuito abierto en V/ºC.
+* Coef. Temp. $P_{MP}$: Coeficiente de temperatura de la potencia en el punto máximo en %/ºC.
+* $P_{Nominal}$ en STC: Potencia nominal del módulo fotovoltaico en condiciones STC en W.
+
+Especificar si se trata o no de un módulo bifacial. En caso de ser bifacial, introducir los *Parámetros Bifacialidad* que se describen a continuación.
+
+* Panel Bifacial: Si el panel fotovoltaico es bifacial o no.
+* Bifacialidad: Relación entre la eficiencia del lado frontal y posterior del módulo fotovoltaico, medida en condiciones STC. Utilice un valor porcentual en escala entre 0 y 1.
+* Alto Fila Paneles: Altura de las filas de paneles fotovoltaicos medida en su centro en unidades de metros.
+* Ancho Fila Paneles: Ancho de las filas de paneles fotovoltaicos en el plano 2D considerado en unidades de metros (e.g., 1P, 2P, 4L). 
+
+## Tarea 4 - Diseño de la Planta
+
+Finalmente, en la pestaña *Diseño Planta* se realiza la configuración de la arquitectura de la planta mediante la definición de los siguientes parámetros, organizados en sub-secciones y definidos como se indica a continuación.
+
+### Subarrays
+
+* Cantidad Subarrays: Conjunto de arreglos conectados a un inversor. Cada subarray se compone de módulos en serie por string, strings en paralelo y el número de entradas al inversor (ya sea entradas completas por inversor o número de entradas MPPT).
+
+### Configuración Eléctrica
+
+* Módulos por String: Cantidad de módulos en serie por string en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.
+* Strings por Inversor: Cantidad de strings en paralelo en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.
+* Porcentaje Entradas: Fracción de potencia manejada por cada entrada (e.g., 1/Número de Entradas o 1/Número MPPT). Para múltiples subarrays, separe los valores mediante comas.
+* Número de Inversores: Cantidad de inversores con configuración eléctrica exactamente igual a la definida. Permite escalar los cálculos de producción.
+
+### Seguidores y Orientación
+
+#### Sin Seguidor
+
+* Azimutal: Ángulo azimutal en grados decimales (Norte = 0, Sur = 180, Este = 90, Oeste = 270). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal es el mismo).
+* Elevación: Ángulos de inclinación desde la horizontal en grados decimales. Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación es la misma).
+* Racking: Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.
+
+#### Seguidor 1-Eje
+
+El ángulo de rotación se determina en un sistema de coordenadas diestro. El seguidor define el eje-y positivo, el eje-x positivo está a 90º en sentido horario desde el eje-y y es paralelo a la superficie, y el eje-z positivo es normal a ambos ejes (-x y -y), y está orientado hacia el cielo. El ángulo de rotación es una rotación hacia la derecha alrededor del eje-y en el sistema de coordenadas e indica la posición del seguidor en relación con la horizontal. Por ejemplo, si Azimutal Eje es 180º (orientado al sur) y Elevación Eje es 0º, entonces un ángulo del seguidor de 0º es horizontal, de 30º es una rotación hacia el oeste, y -90º es una rotación al plano vertical hacia el este.
+
+* Elevación Eje: Elevación del eje de rotación con respecto a la horizontal en grados decimales (e.g., un valor de 0º indica que el eje de soporte de los paneles fotovoltaicos está horizontal). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación del eje es la misma).
+* Azimutal Eje: Ángulo perpendicular por regla de la mano derecha al eje de rotación en grados decimales (e.g., un valor de 180º --i.e., dirección sur-- indica una rotación de este a oeste). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal del eje es el mismo).
+* Ángulo Máximo: Ángulo de rotación máximo del seguidor desde su posición horizontal en grados decimales (e.g., un valor de 90º permite que el seguidor gire desde y hasta una posición vertical en la que el panel mira hacia el horizonte). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el ángulo máximo es el mismo).
+* Racking: Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.
+
+### Parámetros Globales
+
+* Pérdidas: Porcentaje de pérdidas globales del sistema. Por defecto: 14.6%.
+* Nombre Planta: Sufijo al nombre del archivo de configuración (system_config_*sufijo*). Por defecto: system_config.
+
+Finalmente, desde esta misma pestaña se puede generar la configuración y descargar el archivo de configuración correspondiente.
+
+### Archivo Configuración
+
+* Generar Configuración: Dé clic en este botón para que el algoritmo genere internamente el archivo de configuración con los parámetros previamente asignados. El ícono y la descripción del botón cambiarán para notificar la ejecución de la configuración.
+* Descargar Configuración: Dé clic en este botón para descargar el archivo de configuración genererado con el botón 'Generar Configuración' (una vez este haya notificado su ejecución). Se descargará un archivo JSON que se alojarán en la carpeta `cno_solar/configurations/system_config.json`. El ícono y la descripción del botón cambiarán para notificar la descarga del archivo.
+
+# Ejemplos
+
+En la carpeta `examples` el archivo `CNO_Doc_Ejemplos.pdf` contiene ejemplos de la construcción del modelo para plantas solares fotovoltaicas con diferentes configuraciones. 
+
 
