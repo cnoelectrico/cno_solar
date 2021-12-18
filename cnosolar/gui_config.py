@@ -72,7 +72,8 @@ def execute():
               2. eta_inv_nom: Dimensionless nominal efficiency of the inverter.
         
     10. ac_model : string
-            Inverter modeling method to be used: SNL or NREL.
+            Inverter modeling method to be used. Valid options are: sandia or
+            pvwatts.
     
     11. modules_database : string
             Repository of PV modules arranged by PVlib. Valid options are: pvmodule 
