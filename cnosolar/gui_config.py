@@ -124,64 +124,64 @@ def execute():
             Parameter that checks if the mounting of the array is either on 
             fixed-tilt racking or horizontal single axis tracker.
     
-    20. surface_azimuth : float or list
+    19. surface_azimuth : float or list
             Azimuth angle of the module surface. North = 0, East = 90, 
             South = 180 and West = 270. If with_tracker = true, the value is 
             set to null.
     
-    21. surface_tilt : float or list
+    20. surface_tilt : float or list
             Surface tilt angles. The tilt angle is defined as degrees from 
             horizontal (e.g. surface facing up = 0, surface facing 
             horizon = 90). If with_tracker = true, the value is set to null.
         
-    22. axis_tilt : float
+    21. axis_tilt : float
             Tilt of the axis of rotation with respect to horizontal (e.g. a value of 
             0º indicates that the support axis of the photovoltaic panels is horizontal)
             in [degrees]. If with_tracker = false, the value is set to null.
     
-    23. axis_azimuth : float
+    22. axis_azimuth : float
             Perpendicular angle to the axis of rotation by right hand rule (e.g., a 
             value of 180º indicates a rotation from east to west) in [degrees]. If 
             with_tracker = false, the value is set to null.
     
-    24. max_angle : float
+    23. max_angle : float
             Maximum angle of rotation of the tracker from its horizontal position (e.g., a 
             value of 90º allows the tracker to rotate to and from a vertical position where 
             the panel faces the horizon) in [degrees]. If with_tracker = false, the value 
             is set to null.
     
-    25. module_type : string
+    24. module_type : string
             PV module mounting and front and back insolation sheets materials. Valid options
             are: open_rack_glass_glass, close_mount_glass_glass or insulated_back_glass_polymer.
     
-    26. racking_model : string, optional
+    25. racking_model : string, optional
             Racking of the PV modules. Valid strings are 'open_rack', 'close_mount', 
             and 'insulated_back'. Used to identify a parameter set for the SAPM cell 
             temperature model.
         
-    27. num_arrays : int
+    26. num_arrays : int
             Set of arrangements connected to an inverter. Each subarray consists of modules 
             in series per string, strings in parallel, and the number of inputs to the inverter 
             (either full inputs per inverter or number of MPPT inputs).
     
-    28. modules_per_string : int or list
+    27. modules_per_string : int or list
             Number of modules in series per string in each subarray.
     
-    29. strings_per_inverter : int or list
+    28. strings_per_inverter : int or list
             Number of strings in parallel in each subarray.
     
-    30. per_mppt : float or list
+    29. per_mppt : float or list
             Fraction of power handled by each input (e.g., 1/Number of Inputs or 1/MPPT Number).
     
-    31. num_inverter : int
+    30. num_inverter : int
             Number of inverters with electrical configuration exactly equal to the one defined. 
             It allows to scale theproduction calculations.
     
-    32. loss : float
+    31. loss : float
         Overall system losses in percentage.
         Default = 14.6
     
-    33. name : string
+    32. name : string
         Suffix to the name of the configuration file (system_config_suffix). 
         Default = 'system_config'
     '''
