@@ -51,7 +51,7 @@ def execute():
     9. inverter : dict
             Set of technical parameters that defines the inverter.
             
-            - Main Parameters of SNL Method
+            - Main Parameters of SNL PVlib Method
               1. Paco: Inverter rated AC power in W.
               2. Pdco: Inverter rated DC power in W.
               3. Vdco: DC voltage at which the nominal AC Power is reached 
@@ -67,7 +67,7 @@ def execute():
                      with the DC Voltage by 1/V.
               9. Pnt: AC power consumed by the inverter during the night in W.
             
-            - Main Parameters of NREL Method
+            - Main Parameters of NREL PVWatts Method
               1. Pdco: Inverter rated DC power in W.
               2. eta_inv_nom: Dimensionless nominal efficiency of the inverter.
         
