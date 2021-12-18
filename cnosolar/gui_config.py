@@ -88,7 +88,8 @@ def execute():
             
             - Main Parameters
               1. T_NOCT: Nominal operating cell temperature in ºC.
-              2. Technology: PV cell technology. Valid options are: xxx.
+              2. Technology: PV cell technology. Valid options are: monosi, multisi, 
+                             cigs, cdte, asi or None.
               3. N_s: Number of PV cells in series.
               4. I_sc_ref: Short circuit current under STC conditions in A.
               5. V_oc_ref: Open circuit voltage under STC conditions in V.
