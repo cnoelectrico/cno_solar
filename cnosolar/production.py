@@ -132,7 +132,7 @@ def losses(dc, loss=13.92):
 
     loss : float, optional
         Overall system losses in [%].
-        Default = 13.92
+        Default = 14.6
 
     Returns
     -------

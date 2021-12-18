@@ -19,7 +19,171 @@ def execute():
     '''
     Graphical user interface for the configuration of the PV plant 
     and download of the corresponding .JSON file.
+    
+    The JSON file data structure contains the following parameters:
+    1. latitude : float
+           Latitude based on the location of the PV plant in decimal degrees notation.
+        
+    2. longitude : float
+           Longitude based on the location of the PV plant in decimal degrees notation.
+        
+    3. tz : string
+           Time zone of the location of the PV plant.
+    
+    4. altitude : float
+           Altitude based on the location of the PV plant from sea level in [m].
+    
+    5. surface_type : string
+           Surface type to determine the albedo. Optional if albedo is not known.
+    
+    6. surface_albedo : float
+           Albedo.
+    
+    7. inverters_database : string
+           Repository of inverters arranged by PVlib. Valid options are: 
+           CECInverter, SandiaInverter or ADRInverter. If the configuration 
+           method is PVsyst or Manual, the value is set to null.
+    
+    8. inverter_name : string
+           Inverter name following the according repository format. If the 
+           configuration method is PVsyst or Manual, the value is set to null.
+    
+    9. inverter : dict
+            Set of technical parameters that defines the inverter.
+            
+            - Main Parameters of SNL Method
+              1. Paco: Inverter rated AC power in W.
+              2. Pdco: Inverter rated DC power in W.
+              3. Vdco: DC voltage at which the nominal AC Power is reached 
+                       with the DC Power input in V.
+              4. Pso: DC power required to start the inversion process in W.
+              5. C0: Parameter that defines the curvature of the relationship 
+                     between AC Power and DC Power in STC condition in 1/W.
+              6. C1: Empirical coefficient that allows the Nominal DC Power 
+                     to vary linearly with the DC Voltage in 1/V.
+              7. C2: Empirical coefficient that allows the DC Starting Power 
+                     to vary linearly with the DC Voltage in 1/V.
+              8. C3: Empirical coefficient that allows $C_0$ to vary linearly 
+                     with the DC Voltage by 1/V.
+              9. Pnt: AC power consumed by the inverter during the night in W.
+            
+            - Main Parameters of NREL Method
+              1. Pdco: Inverter rated DC power in W.
+              2. eta_inv_nom: Dimensionless nominal efficiency of the inverter.
+        
+    10. ac_model : string
+            Inverter modeling method to be used: SNL or NREL.
+    
+    11. modules_database : string
+            Repository of PV modules arranged by PVlib. Valid options are: pvmodule 
+            or cecmodul). If the configuration method is PVFree, PVsyst or Manual, 
+            the value is set to null.
+    
+    12. module_name : string
+            PV module name following the according repository format. If the configuration 
+            method is PVFree, PVsyst or Manual, the value is set to null.
+    
+    13. module : dict
+            Set of technical parameters that defines the PV module.
+            
+            - Main Parameters
+              1. T_NOCT: Nominal operating cell temperature in ºC.
+              2. Technology: PV cell technology. Valid options are: xxx.
+              3. N_s: Number of PV cells in series.
+              4. I_sc_ref: Short circuit current under STC conditions in A.
+              5. V_oc_ref: Open circuit voltage under STC conditions in V.
+              6. I_mp_ref: Current at the point of maximum power under STC 
+                           conditions in A.
+              7. V_mp_ref: Voltage at the point of maximum power under STC 
+                           conditions in V.
+              8. alpha_sc: Temperature coefficient of the short-circuit 
+                           current in A/ºC.
+              9. beta_oc: Open circuit voltage temperature coefficient in V/ºC.
+              10. gamma_r: Temperature coefficient of the power at the maximum 
+                           point in %/ºC.
+              11. STC: Nominal power of the PV module under STC conditions in W.
+              
+    14. bifacial : bool
+            Defines if the PV module is bifacial or not.
+    
+    15. bifaciality : float
+            Fraction between the efficiency of the front and rear side 
+            of the PV module, measured under STC conditions.
+    
+    16. row_height : float
+            Height of the rows of photovoltaic panels measured at their 
+            center in units of meters.
+    
+    17. row_width : float
+            Width of the rows of photovoltaic panels in the 2D plane considered 
+            in units of meters (e.g., 1P, 2P, 4L).
+    
+    18. with_tracker : bool
+            Parameter that checks if the mounting of the array is either on 
+            fixed-tilt racking or horizontal single axis tracker.
+    
+    20. surface_azimuth : float or list
+            Azimuth angle of the module surface. North = 0, East = 90, 
+            South = 180 and West = 270. If with_tracker = true, the value is 
+            set to null.
+    
+    21. surface_tilt : float or list
+            Surface tilt angles. The tilt angle is defined as degrees from 
+            horizontal (e.g. surface facing up = 0, surface facing 
+            horizon = 90). If with_tracker = true, the value is set to null.
+        
+    22. axis_tilt : float
+            Tilt of the axis of rotation with respect to horizontal (e.g. a value of 
+            0º indicates that the support axis of the photovoltaic panels is horizontal)
+            in [degrees]. If with_tracker = false, the value is set to null.
+    
+    23. axis_azimuth : float
+            Perpendicular angle to the axis of rotation by right hand rule (e.g., a 
+            value of 180º indicates a rotation from east to west) in [degrees]. If 
+            with_tracker = false, the value is set to null.
+    
+    24. max_angle : float
+            Maximum angle of rotation of the tracker from its horizontal position (e.g., a 
+            value of 90º allows the tracker to rotate to and from a vertical position where 
+            the panel faces the horizon) in [degrees]. If with_tracker = false, the value 
+            is set to null.
+    
+    25. module_type : string
+            PV module mounting and front and back insolation sheets materials. Valid options
+            are: open_rack_glass_glass, close_mount_glass_glass or insulated_back_glass_polymer.
+    
+    26. racking_model : string, optional
+            Racking of the PV modules. Valid strings are 'open_rack', 'close_mount', 
+            and 'insulated_back'. Used to identify a parameter set for the SAPM cell 
+            temperature model.
+        
+    27. num_arrays : int
+            Set of arrangements connected to an inverter. Each subarray consists of modules 
+            in series per string, strings in parallel, and the number of inputs to the inverter 
+            (either full inputs per inverter or number of MPPT inputs).
+    
+    28. modules_per_string : int or list
+            Number of modules in series per string in each subarray.
+    
+    29. strings_per_inverter : int or list
+            Number of strings in parallel in each subarray.
+    
+    30. per_mppt : float or list
+            Fraction of power handled by each input (e.g., 1/Number of Inputs or 1/MPPT Number).
+    
+    31. num_inverter : int
+            Number of inverters with electrical configuration exactly equal to the one defined. 
+            It allows to scale theproduction calculations.
+    
+    32. loss : float
+        Overall system losses in percentage.
+        Default = 14.6
+    
+    33. name : string
+        Suffix to the name of the configuration file (system_config_suffix). 
+        Default = 'system_config'
     '''
+    
     ###############################
     #      DOCUMENTATION TAB      #
     ###############################
