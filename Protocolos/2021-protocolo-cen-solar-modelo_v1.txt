@@ -97,7 +97,7 @@ En caso de que los módulos sean bifaciales, se requieren los parámetros defini
 
 * Bifacialidad: Relación entre la eficiencia del lado frontal y posterior del módulo fotovoltaico, medida en condiciones STC. Utilice un valor porcentual en escala entre 0 y 1.
 * Alto Fila Paneles: Altura de las filas de paneles fotovoltaicos medida en su centro en unidades de metros.
-* Ancho Fila Paneles: Ancho de las filas de paneles fotovoltaicos en el plano 2D considerado en unidades de metros (e.g., 1P, 2P, 4L). 
+* Ancho Fila Paneles: Ancho de las filas de paneles fotovoltaicos en el plano 2D considerado en unidades de metros (por ejemplo, 1P, 2P, 4L). 
 
 ### Inversores
 
@@ -132,7 +132,7 @@ Finalmente, se debe realizar la configuración de la arquitectura de la planta m
 
 * Módulos por String: Cantidad de módulos en serie por string en cada subarray.
 * Strings por Inversor: Cantidad de strings en paralelo en cada subarray. 
-* Porcentaje Entradas: Fracción de potencia manejada por cada entrada (e.g., 1/Número de Entradas o 1/Número MPPT).
+* Porcentaje Entradas: Fracción de potencia manejada por cada entrada (por ejemplo, 1/Número de Entradas o 1/Número MPPT).
 * Número de Inversores: Cantidad de inversores con configuración eléctrica exactamente igual a la definida.
 
 #### Seguidores y Orientación  
@@ -198,7 +198,7 @@ De acuerdo con Smets et al. (2016) [@Smets:2016vk], la principal cualidad del mo
 
 Mayor detalle sobre este modelo se puede encontrar en la documentación de [*pvlib*](https://pvlib-python.readthedocs.io/en/stable/generated/pvlib.inverter.sandia.html).
 
-En caso de no contar con todos los parámetros requeridos por el modelo *SNL* para la caracterización del inversos. Se permite una representación simplificada mediante el modelo *NREL - PVWatts*. Este modelo utiliza una descripción simplificada aunque con exactitud similar.
+En caso de no contar con todos los parámetros requeridos por el modelo *SNL* para la caracterización del inversor, se permite una representación simplificada mediante el modelo *NREL - PVWatts*. Este modelo utiliza una descripción simplificada aunque con exactitud similar.
 
 El modelo de inversor de *NREL PVWatts* está dado por las siguientes ecuaciones.
 
