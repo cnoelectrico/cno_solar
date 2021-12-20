@@ -29,9 +29,9 @@ El presente documento presenta el protocolo para la construcción del modelo de 
 
 # Protocolo
 
-El modelo de la planta solar fovoltaica se realiza mediante una serie de archivos de configuración en formato JSON (uno por cada configuración de inversor disponible en la planta). Los archivos de configuración permiten correr los modelos para el cálculo de la producción energética de la planta como función del recurso y para el cálculo de la CEN.
+El modelo de la planta solar fotovoltaica se realiza mediante una serie de archivos de configuración en formato JSON (uno por cada configuración de inversor disponible en la planta). Los archivos de configuración permiten correr los modelos para el cálculo de la producción energética de la planta como función del recurso y para el cálculo de la CEN.
 
-El archivo de configuración en formato JSON inicia y termina con corchetes `{}`. Entre estos corchetes, cada linea contiene una llave con el nombre del parámetro en paréntesis, seguido del valor correspondiente a dicho parámetro y cada fila separada por coma así: 
+El archivo de configuración en formato JSON inicia y termina con corchetes `{}`. Entre estos corchetes, cada línea contiene una llave con el nombre del parámetro en paréntesis, seguido del valor correspondiente a dicho parámetro y cada fila separada por coma así: 
 
 ```json
 "nombre_parámetro": valor_parámetro,
@@ -118,15 +118,15 @@ La estructura de datos del archivo de configuración JSON contiene los siguiente
     **Parámetros técnicos del módulo solar fotovoltaico.**
 
     1. T_NOCT: Temperatura de celda de operación nominal en ºC.
-    2. Technology: Tecnología de la celda solar fotovoltaica. Opciones válidas: monosi, multisi, cigs, cdte, asi or None.
+    2. Technology: Tecnología de la celda solar fotovoltaica. Opciones válidas: monosi, multisi, cigs, cdte, asi o None.
     3. N_s: Número de celdas solares en serie.
     4. I_sc_ref: Corriente de circuito cerrado en condiciones STC en A.
     5. V_oc_ref: Voltaje de circuito abierto en condiciones STC en V.
     6. I_mp_ref: Corriente en el punto de máxima potencia en condiciones STC en A.
     7. V_mp_ref: Voltaje en el punto de máxima potencia en condiciones STC en V.
-    8. alpha_sc: Coeficiente térmico de la corriente de circuito cerrado en  A/ºC.
+    8. alpha_sc: Coeficiente térmico de la corriente de circuito cerrado en A/ºC.
     9. beta_oc: Coeficiente térmico del voltaje de circuito abierto en V/ºC.
-    10. gamma_r: Coeficiente térmico de potencia en el punto de mayor potencia %/ºC.
+    10. gamma_r: Coeficiente térmico de potencia en el punto de mayor potencia en %/ºC.
     11. STC: Potencia nominal del módulo bajo condiciones STC en W.
           
 14. bifacial : bool
@@ -164,7 +164,7 @@ La estructura de datos del archivo de configuración JSON contiene los siguiente
 
 22. axis_azimuth : float
 
-    Ángulo perpendicular al eje de rotación siguiendo la regla de la mano derecha (por ejemplo, un valor de 180º indica una rotation de este a oeste) in [grados]. Si `with_tracker = false`, el valor se asigna a `null`.
+    Ángulo perpendicular al eje de rotación siguiendo la regla de la mano derecha (por ejemplo, un valor de 180º indica una rotation de este a oeste) en [grados]. Si `with_tracker = false`, el valor se asigna a `null`.
 
 23. max_angle : float
         Máximo angulo de rotación del seguidor desde su posición horizontal (por ejemplo, un valor de 90º permite al seguidor girar desde y hasta la posición vertical donde las caras del módulo miran al horizonte) en [grados]. Si `with_tracker = false`, el valor se asigna a `null`.
@@ -282,6 +282,6 @@ A continuación un ejemplo parcial de la estructura de un archivo de configuraci
 }
 ```
 
-La configuración de la planta se puede realizar de manera manual siguiendo la descripción de este protocolo. También se puede crear de manera automática a través de una interfaz gráfica siguiendo una serie de pasos o tareas correspondientes a pestañas disponiblesal correr la primera celda del cuaderno de Jupyter `CNO_Configuracion_Sistema.ipynb`. La primera pestaña *Documentación* contiene información detallada sobre los parámetros requeridos en cada una de las tareas.
+La configuración de la planta se puede realizar de manera manual siguiendo la descripción de este protocolo. También se puede crear de manera automática a través de una interfaz gráfica siguiendo una serie de pasos o tareas correspondientes a pestañas disponibles al correr la primera celda del cuaderno de Jupyter `CNO_Configuracion_Sistema.ipynb`. La primera pestaña *Documentación* contiene información detallada sobre los parámetros requeridos en cada una de las tareas.
 
 En la carpeta `examples`, las carpetas `Ejemplo_x` contiene archivos de configuración de ejemplo para plantas solares fotovoltaicas con diferentes arquitecturas. 
