@@ -14,7 +14,7 @@ titlepage: true
 titlepage-text-color: '002d62'
 titlepage-rule-color: 'FF9f00'
 titlepage-rule-height: 4
-logo: "Uniandes-CNO.png"
+logo: "Uniandes-CNO2.png"
 logo-width: 380pt
 lang: es-CO
 ---
