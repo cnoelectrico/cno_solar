@@ -198,7 +198,7 @@ De acuerdo con Smets et al. (2016) [@Smets:2016vk], la principal cualidad del mo
 
 Mayor detalle sobre este modelo se puede encontrar en la documentación de [*pvlib*](https://pvlib-python.readthedocs.io/en/stable/generated/pvlib.inverter.sandia.html).
 
-En caso de no contar con todos los parámetros requeridos por el modelo *SNL* para la caracterización del inversor, se permite una representación simplificada mediante el modelo *NREL - PVWatts*. Este modelo utiliza una descripción simplificada aunque con exactitud similar.
+En caso de no contar con todos los parámetros requeridos por el modelo *SNL* para la caracterización del inversor, se permite una representación mediante el modelo *NREL - PVWatts*. Este modelo utiliza una descripción simplificada aunque con exactitud similar.
 
 El modelo de inversor de *NREL PVWatts* está dado por las siguientes ecuaciones.
 
