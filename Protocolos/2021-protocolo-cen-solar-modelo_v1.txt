@@ -154,7 +154,7 @@ El ángulo de rotación se determina en un sistema de coordenadas diestro. El se
 
 La siguiente figura describe algunos de los parámetros utilizados para la descripción del sistema con seguidor de 1 eje.
 
-![Descripción de los parámetros para la definición de un sistema a un eje.](seguidor-1-eje.png)
+![Descripción de los parámetros para la definición de un sistema a un eje. Diagrama adaptado de [@Papathanasiou:2021aa].](seguidor-1-eje.png)
 
 ## Modelo DC
 
