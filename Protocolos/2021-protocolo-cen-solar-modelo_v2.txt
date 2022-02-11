@@ -1,0 +1,55 @@
+---
+title: Protocolo para el cálculo de la CEN de plantas solares fotovoltaicas que no han entrado en operación
+subtitle: "autores: Andrés González Mancera, Ph.D., Nelson Salazar Peña, M.Sc."
+author:
+  - Universidad de los Andes - Consejo Nacional de Operación
+date: Febrero de 2022
+documentclass: article
+bibliography: 2021-cen_solar.bib
+csl: ieee.csl
+geometry:
+- margin=3cm
+papersize: letter
+numbersections: true
+titlepage: true
+titlepage-text-color: '002d62'
+titlepage-rule-color: 'FF9f00'
+titlepage-rule-height: 4
+logo: "Uniandes-CNO2.png"
+logo-width: 380pt
+lang: es-CO
+---
+
+[//]: pandoc -F pandoc-crossref --citeproc --template eisvogel 2021-protocolo-cen-solar-modelo_v2.txt -o 2021-protocolo-cen-solar-modelo_v2.pdf
+
+# Introducción
+
+De acuerdo con la resolución CREG 116 de 1996 [@CREG116_96], la adición
+realizada a la misma en la resolución CREG 074 de 1999 [@CREG074_99] y
+las modificaciones subsecuentes CREG 059 de 1999 [@CREG059_99], CREG 081
+del 2000 [@CREG081_00] y CREG 074 de 2002 [@CREG074_02], la Capacidad
+Efectiva Neta - CEN está definida como la: *"Máxima capacidad de
+potencia neta (expresada en valor entero en MW) que puede suministrar
+una planta y/o unidad de generación en condiciones normales de operación[^1]
+medida **en la frontera comercial**. Se calcula como la Capacidad
+Nominal menos el Consumo Propio de la planta y/o unidad de generación."*
+
+En el caso de plantas solares fotovoltaicas, la potencia máxima que ésta puede suministrar depende no solo de su ubicación y configuración, sino del recurso disponible en la zona. Para una planta que no ha entrado en operación, la predicción de la producción de la planta se hace a partir de un modelo detallado e información histórica del recurso, lo que permite estimar la producción de la planta y, de manera estadística, calcular su capacidad máxima.
+
+El presente documento establece el procedimiento para el cálculo de la CEN para plantas solares fotovoltaicas que no han entrado en operación.
+
+# Metodología - Modelo y series históricas del recurso
+
+Con el fin de estimar la producción de la planta, se debe construir un modelo que caracterice de manera adecuada la operación ante diferentes condiciones de irradiancia y temperatura. Dicho modelo debe caracterizar de manera adecuada los procesos de transformación de la energía solar a potencia DC, las pérdidas de conversión y transmisión, la conversión DC-AC, entre otras. el *Protocolo para la construcción del modelo de una planta solar fotovoltaica* establece los requerimientos mínimos para la construcción de dicho modelo. 
+
+Para el cálculo de la *CEN* de plantas solares fotovoltaicas que no han entrado en operación se debe contar con una serie histórica de la irradiancia horizontal global *GHI* y la temperatura ambiente $T_{amb}$ en resolución horaria siguiendo el Protocolo establecido en el Acuerdo CNO 1042 del 9 de Febrero de 2018. 
+
+El modelo y la serie con información histórica permite calcular la producción histórica de la planta con resolución horaria con base a lo cual se realiza el cálculo de la CEN.
+
+## Cálculo de la CEN
+
+La *CEN* para plantas que no han entrado en operación se calcula con base a la producción histórica de la planta, calculada a partir de un modelo construido de acuerdo al *Protocolo para la construcción del modelo de una planta solar fotovoltaica*  y una serie de datos de la irradiancia horizontal global *GHI* y la temperatura ambiente $T_{amb}$ en resolución horaria contruida siguiendo el Protocolo establecido en el Acuerdo CNO 1042 del 9 de Febrero de 2018. Mediante el modelo se calcula la serie histórica en resolución horaria de la potencia AC producida en la frontera comercial $Pot_{AC}$. A partir de la serie histórica se establece la curva de excedencia y se calcula el valor correspondiente el cuantil 99,9%, equivalente al 0,1%PSS. La *CEN* de la planta se define como este valor.
+
+# Referencias {#sec:referencias}
+
+[^1]: El término "condiciones normales de operación" hace referencia a la operación sin restricciones de red de transmisión a la que se encuentra conectada la planta o unidad de generación.
