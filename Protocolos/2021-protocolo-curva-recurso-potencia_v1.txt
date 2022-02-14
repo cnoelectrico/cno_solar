@@ -1,0 +1,287 @@
+---
+title: Protocolo para la construcción del modelo de una planta solar fotovoltaica
+subtitle: "autores: Andrés González Mancera, Ph.D., Nelson Salazar Peña, M.Sc."
+author:
+  - Universidad de los Andes - Consejo Nacional de Operación
+date: Diciembre de 2021
+documentclass: article
+csl: ieee.csl
+geometry:
+- margin=3cm
+papersize: letter
+numbersections: true
+titlepage: true
+titlepage-text-color: '002d62'
+titlepage-rule-color: 'FF9f00'
+titlepage-rule-height: 4
+logo: "Uniandes-CNO2.png"
+logo-width: 380pt
+lang: es-CO
+---
+
+[//]: pandoc -F pandoc-crossref --citeproc --template eisvogel 2021-protocolo-curva-recurso-potencia_v1.txt -o 2021-protocolo-curva-recurso-potencia_v1.pdf
+
+# Introducción
+
+El modelo de una planta solar fotovoltaica contiene información sobre las especificaciones técnicas de inversores y módulos fotovoltaicos, la arquitectura eléctrica de la planta, su ubicación y disposición. Este modelo, junto con las series de tiempo con información de irradiancia y temperatura ambiente, permiten correr simulaciones para predecir la producción de la planta en el tiempo. Estas simulaciones permiten, entre otras cosas, estimar la producción de la planta en diferentes escalas de tiempo, estimar la producción mínima de energía en un período de tiempo y calcular la Capacidad Efectiva Neta - CEN de la planta. 
+
+El presente documento presenta el protocolo para la construcción del modelo de la planta solar fotovoltaica.
+
+# Protocolo
+
+El modelo de la planta solar fotovoltaica se realiza mediante una serie de archivos de configuración en formato JSON (uno por cada configuración de inversor disponible en la planta). Los archivos de configuración permiten correr los modelos para el cálculo de la producción energética de la planta como función del recurso y para el cálculo de la CEN.
+
+El archivo de configuración en formato JSON inicia y termina con corchetes `{}`. Entre estos corchetes, cada línea contiene una llave con el nombre del parámetro en paréntesis, seguido del valor correspondiente a dicho parámetro y cada fila separada por coma así: 
+
+```json
+"nombre_parámetro": valor_parámetro,
+```
+
+La Figura 1 muestra de manera gráfica los parámetros que deben aparecer en el archivo de configuración dependiendo de la configuración de la planta solar fotovoltaica y las fuentes de información a utilizar.
+
+![Estructura archivo de configuración JSON para modelar una planta solar fotovoltaica.](Estructura_JSON.png)
+
+La estructura de datos del archivo de configuración JSON contiene los siguientes parámetros:
+
+1. latitude : float
+
+    Latitud basada en la localización de la planta solar fotovoltaica en notación de grados decimales.
+    
+2. longitude : float
+
+    Longitud basada en la localización de la planta solar fotovoltaica en notación de grados decimales.
+	    
+3. tz : string
+
+    Zona horaria de la localización de la planta solar fotovoltaica.
+
+4. altitude : float
+
+    Altura sobre el nivel del mar de la planta solar fotovoltacia en [m].
+
+5. surface_type : string
+
+    Tipo de superficie para determinar el albedo. Opcional si el valor del albedo no se conoce.
+
+6. surface_albedo : float
+
+    Albedo.
+
+7. inverters_database : string
+    
+    Repositorio a utilizar para obtener parámetros de inversores. Las opciones válidas son: CECInverter, SandiaInverter o ADRInverter. Si el método de configuración es archivo de PVsyst o Manual, el valor se asigna `null`.
+
+8. inverter_name : string
+
+    Nombre del inversor siguiendo el formato del repositorio a utilizar. Si el método de configuración es archivo de PVsyst o Manual, el valor se asigna `null`.
+
+9. inverter : dict
+
+    **Parámetros técnicos del inversor.**
+
+    Parámetros para utilizar el método *SNL PVlib*:
+
+    1. Paco: Potencia de salida AC nominal del inversor en W.
+    2. Pdco: Potencia de entrada DC nominal del inversor en W.
+    3. Vdco: Voltaje DC al que se alcanza la potencia nominal AC con
+	   la potencia DC nominal en V.
+    4. Pso: Potencia DC requerida para iniciar el inversor en W.
+    5. C0: Parámetros que definen la curvatura de la relación entre
+	   la potencia AC la potencia DC en condiciones STC en 1/W.
+    6. C1: Coeficiente empíricos que permiten la variación lineal de la
+	   potencia DC nominal como función del voltaje DC en 1/V.
+    7. C2: Coeficiente empíricos que permiten la variación lineal de la 
+	   potencia DC de arranque como función del voltaje DC in 1/V.
+    8. C3: Coeficiente empírico que permite la variación lineal de $C_0$ 
+	   como función del voltaje DC en 1/V.
+    9. Pnt: Potencia AC consumida por el inversor en W.
+
+    Parámetros para utilizar el método *NREL PVWatts*:
+
+    1. Pdco: Potencia DC nominal del inversor en W.
+    2. eta_inv_nom: Eficiencia nominal del inversor adimensional.
+    
+10. ac_model : string
+
+    Método a usar para el modelamiento del inversor. Las opciones válidas son: sandia o pvwatts.
+
+11. modules_database : string
+
+    Repositorio a utilizar para obtener parámetros de módulos solares fotovoltaicos. Las opciones válidas son: *pvmodule* o *cecmodul*. Si el método de configuración es PVFree, archivo de PVsyst o Manual, el valor se asigna `null`.
+
+12. module_name : string
+        
+    Nombre del módulo solar fotovoltaico siguiendo el formato del repositorio a utilizar. Si el método de configuración es PVFree, archivo de PVsyst o Manual, el valor se asigna `null`.
+
+13. module : dict
+
+    **Parámetros técnicos del módulo solar fotovoltaico.**
+
+    1. T_NOCT: Temperatura de celda de operación nominal en ºC.
+    2. Technology: Tecnología de la celda solar fotovoltaica. Opciones válidas: monosi, multisi, cigs, cdte, asi o None.
+    3. N_s: Número de celdas solares en serie.
+    4. I_sc_ref: Corriente de circuito cerrado en condiciones STC en A.
+    5. V_oc_ref: Voltaje de circuito abierto en condiciones STC en V.
+    6. I_mp_ref: Corriente en el punto de máxima potencia en condiciones STC en A.
+    7. V_mp_ref: Voltaje en el punto de máxima potencia en condiciones STC en V.
+    8. alpha_sc: Coeficiente térmico de la corriente de circuito cerrado en A/ºC.
+    9. beta_oc: Coeficiente térmico del voltaje de circuito abierto en V/ºC.
+    10. gamma_r: Coeficiente térmico de potencia en el punto de mayor potencia en %/ºC.
+    11. STC: Potencia nominal del módulo bajo condiciones STC en W.
+          
+14. bifacial : bool
+
+    Define si el módulo es bifacial o no.
+
+15. bifaciality : float
+
+    Fracción entre la eficiencia del frente y la parte trasera del módulo solar fotovoltaico, medido bajo condiciones STC.
+
+16. row_height : float
+
+    Altura de las filas de los módulos solares medido en su centro en m.
+
+17. row_width : float
+
+    Ancho de las filas de módulos solares en el plano 2D en unidades de metros (por ejemplo, 1P, 2P, 4L).
+
+18. with_tracker : bool
+
+    Parámetro que define si los arreglso están montados en estructuras fijas o con seguimiento a un eje.
+
+19. surface_azimuth : float or list
+
+    Ángulo azimutal de la superficie del módulo. Norte = 0, Este = 90, 
+        Sur = 180 y Oeste = 270. Si `with_tracker = true`, el valor se asigna a `null`.
+
+20. surface_tilt : float or list
+
+    Inclinación de la superficie de los módulos. La inclinación se asigna desde la horizontal (por ejemplo, superficie horizontal = 0, superficie hasta el horizonte = 90). Si `with_tracker = true`, el valor se asigna a `null`.
+    
+21. axis_tilt : float
+
+    Inclinación del eje de rotación con respecto a la horizontal (por ejemplo, un valor de 0º indica que el eje de rotación de los módulos se encuentra horizontal) en [grados]. Si `with_tracker = false`, el valor se asigna a `null`.
+
+22. axis_azimuth : float
+
+    Ángulo perpendicular al eje de rotación siguiendo la regla de la mano derecha (por ejemplo, un valor de 180º indica una rotation de este a oeste) en [grados]. Si `with_tracker = false`, el valor se asigna a `null`.
+
+23. max_angle : float
+        Máximo angulo de rotación del seguidor desde su posición horizontal (por ejemplo, un valor de 90º permite al seguidor girar desde y hasta la posición vertical donde las caras del módulo miran al horizonte) en [grados]. Si `with_tracker = false`, el valor se asigna a `null`.
+
+24. module_type : string
+
+    Método de montaje de los módulos solares y materiales del frente y parte trasera de los mismos. Las opciones válidas son: `open_rack_glass_glass`, `close_mount_glass_glass` o `insulated_back_glass_polymer`.
+
+25. racking_model : string, optional
+
+    Método de racking de los módulos solares. Opciones válidas son 'open_rack', 'close_mount' e 'insulated_back'. Se utiliza para la difinición de los parámetros del modelo de temperatura de las celdas *SAPM*.
+    
+26. num_arrays : int
+
+    Número de subarreglos conectados al inversor. Para cada subarreglo se define el número de módulos en serie en un *string*, *strings* en paralelo, y fracción de la entradas al inversor.
+
+27. modules_per_string : int or list
+
+    Número de módulos en serie por string en un subarreglo.
+
+28. strings_per_inverter : int or list
+
+    Número de strings en paralelo en cada subarreglo.
+
+29. per_mppt : float or list
+
+    Fracción de la potencia que ocupa un subarrelgo o entrada (por ejemplo, 1/Número de Entradas o 1/Número de MPPT).
+
+30. num_inverter : int
+
+    Número de inversores con configuración eléctrica idéntica a la definida en el archivo de configuración. Permite escalar el cálculo de la potencia producida.
+
+31. loss : float
+
+    Pérdidas globales del sistema en porcentaje.
+    Valor por defecto = 14.6
+
+32. name : string
+
+    Nombre de la configuración de planta.
+    
+A continuación un ejemplo parcial de la estructura de un archivo de configuración de una planta solar fotovoltaica en formato JSON.
+
+```json
+{
+  "latitude": 4.604535,
+  "longitude": -74.066038,
+  "tz": "America/Bogota",
+  ...
+  "inverter": {
+    "Paco": 27600.0,
+    "Pdco": 28199.2,
+    "Vdco": 715.0,
+    "Pso": 92.1,
+    "C0": -2.513804e-07,
+    "C1": -3.1e-05,
+    "C2": -0.001336,
+    "C3": -0.001753,
+    "Pnt": 8.28
+  },
+  "ac_model": "sandia",
+  ...
+  "module": {
+    "A_c": 2.0,
+    "Adjust": 9.380614,
+    "BIPV": false,
+    "Bifacial": false,
+    "Date": "2018-11-04",
+    "I_L_ref": 10.48115,
+    "I_mp_ref": 9.86,
+    "I_o_ref": 1.807477e-11,
+    "I_sc_ref": 10.47,
+    "Length": 2.0,
+    "N_s": 72,
+    "Name": "LG Electronics Inc. LG400N2W-A5",
+    "PTC": 368.4,
+    "R_s": 0.312859,
+    "R_sh_ref": 293.80542,
+    "STC": 400.316,
+    "T_NOCT": 47.7,
+    "Technology": "Mono-c-Si",
+    "V_mp_ref": 40.6,
+    "V_oc_ref": 49.3,
+    "Version": "SAM 2018.10.29",
+    "Width": 1.0,
+    "a_ref": 1.821208,
+    "alpha_sc": 0.003141,
+    "beta_oc": -0.12818,
+    "created_on": "2019-02-12",
+    "gamma_r": -0.36,
+    "id": 10267,
+    "modified_on": "2019-02-12",
+    "resource_uri": "/api/v1/cecmodule/10267/"
+  },
+  ...
+  "surface_azimuth": [
+    180.0
+  ],
+  "surface_tilt": [
+    10.0
+  ],
+  ...
+  "num_arrays": 1,
+  "modules_per_string": [
+    18
+  ],
+  "strings_per_inverter": [
+    4
+  ],
+  "per_mppt": [
+    1.0
+  ],
+  ...
+  "name": "SD29"
+}
+```
+
+La configuración de la planta se puede realizar de manera manual siguiendo la descripción de este protocolo. También se puede crear de manera automática a través de una interfaz gráfica siguiendo una serie de pasos o tareas correspondientes a pestañas disponibles al correr la primera celda del cuaderno de Jupyter `CNO_Configuracion_Sistema.ipynb`. La primera pestaña *Documentación* contiene información detallada sobre los parámetros requeridos en cada una de las tareas.
+
+En la carpeta `examples`, las carpetas `Ejemplo_x` contiene archivos de configuración de ejemplo para plantas solares fotovoltaicas con diferentes arquitecturas. 
