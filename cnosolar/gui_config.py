@@ -1126,7 +1126,7 @@ def execute():
                 module = dict(pvlib.pvsystem.retrieve_sam(modules_database)[modules_name])
 
             else:
-                modules_database = dropdown_modrepo.value # AAA
+                modules_database = dropdown_modrepo.value
                 module = dict(requests.get(f'https://pvfree.herokuapp.com/api/v1/{module_vbox.children[2].children[0].children[1].value}/{module_vbox.children[3].children[0].children[1].children[0].value}/').json())
                 modules_name = module['Name']        
 
@@ -1150,23 +1150,23 @@ def execute():
                       'gamma_r': module_vbox.children[1].children[10].children[1].value,
                       'STC': module_vbox.children[1].children[11].children[1].value}
             
-            I_L_ref, I_o_ref, R_s, R_sh_ref, a_ref, Adjust = pvlib.ivtools.sdm.fit_cec_sam(celltype=module['Technology'], 
-                                                                                           v_mp=module['V_mp_ref'], 
-                                                                                           i_mp=module['I_mp_ref'], 
-                                                                                           v_oc=module['V_oc_ref'], 
-                                                                                           i_sc=module['I_sc_ref'], 
-                                                                                           alpha_sc=module['alpha_sc'], 
-                                                                                           beta_voc=module['beta_oc'], 
-                                                                                           gamma_pmp=module['gamma_r'], 
-                                                                                           cells_in_series=module['N_s'], 
-                                                                                           temp_ref=25)
+#             I_L_ref, I_o_ref, R_s, R_sh_ref, a_ref, Adjust = pvlib.ivtools.sdm.fit_cec_sam(celltype=module['Technology'], 
+#                                                                                            v_mp=module['V_mp_ref'], 
+#                                                                                            i_mp=module['I_mp_ref'], 
+#                                                                                            v_oc=module['V_oc_ref'], 
+#                                                                                            i_sc=module['I_sc_ref'], 
+#                                                                                            alpha_sc=module['alpha_sc'], 
+#                                                                                            beta_voc=module['beta_oc'], 
+#                                                                                            gamma_pmp=module['gamma_r'], 
+#                                                                                            cells_in_series=module['N_s'], 
+#                                                                                            temp_ref=25)
 
-            module.update({'I_L_ref':I_L_ref, 
-                           'I_o_ref':I_o_ref,
-                           'R_s':R_s, 
-                           'R_sh_ref':R_sh_ref, 
-                           'a_ref':a_ref,
-                           'Adjust':Adjust})
+#             module.update({'I_L_ref':I_L_ref, 
+#                            'I_o_ref':I_o_ref,
+#                            'R_s':R_s, 
+#                            'R_sh_ref':R_sh_ref, 
+#                            'a_ref':a_ref,
+#                            'Adjust':Adjust})
 
             modules_database = None
             modules_name = None

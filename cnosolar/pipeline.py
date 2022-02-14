@@ -146,6 +146,50 @@ def run(system_configuration, data, availability, energy_units):
         sc = system_configuration[j]
         num_subarrays = sc['num_arrays']
         
+        # Check Single-Diode Parameters
+        _module = sc['module']
+        _tocheck = ['I_L_ref', 'I_o_ref', 'R_s', 'R_sh_ref', 'a_ref', 'Adjust']
+
+        check = [item for item in _tocheck if item not in _module.keys()]
+
+        ## Module Technology
+        t = sc['module']['Technology']
+        if t in ['Mono-c-Si', 'mc-Si', 'c-Si', 'monoSi', 'monosi', 'xsi', 'Thin Film', 'Si-Film', 'HIT-Si', 'EFG mc-Si']:
+            module_tec = 'monoSi'
+        elif t in ['Multi-c-Si', 'multiSi', 'multisi']:
+            module_tec = 'multiSi'
+        elif t in ['polySi', 'polysi', 'mtSiPoly']:
+            module_tec = 'polySi'
+        elif t in ['CIS', 'cis']:
+            module_tec = 'cis'
+        elif t in ['CIGS', 'cigs']:
+            module_tec = 'cigs'
+        elif t in ['CdTe', 'CdTe', 'cdte', 'GaAs']:
+            module_tec = 'cdte'
+        elif t in ['asi', 'amorphous', 'a-Si / mono-Si', '2-a-Si', '3-a-Si']:
+            module_tec = 'amorphous'
+        else:
+            module_tec = None
+
+        if len(check) > 0:
+            I_L_ref, I_o_ref, R_s, R_sh_ref, a_ref, Adjust = pvlib.ivtools.sdm.fit_cec_sam(celltype=module_tec, 
+                                                                                           v_mp=_module['V_mp_ref'], 
+                                                                                           i_mp=_module['I_mp_ref'], 
+                                                                                           v_oc=_module['V_oc_ref'], 
+                                                                                           i_sc=_module['I_sc_ref'], 
+                                                                                           alpha_sc=_module['alpha_sc'], 
+                                                                                           beta_voc=_module['beta_oc'], 
+                                                                                           gamma_pmp=_module['gamma_r'], 
+                                                                                           cells_in_series=_module['N_s'], 
+                                                                                           temp_ref=25)
+
+            sc['module'].update({'I_L_ref':I_L_ref, 
+                                 'I_o_ref':I_o_ref,
+                                 'R_s':R_s, 
+                                 'R_sh_ref':R_sh_ref, 
+                                 'a_ref':a_ref,
+                                 'Adjust':Adjust})
+        
         if num_systems > 1:
             superkey = f'inverter{j+1}'
         else:

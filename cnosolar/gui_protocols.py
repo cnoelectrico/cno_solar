@@ -182,9 +182,9 @@ def execute():
             df = cno.data.load_csv(file_name=upload_data.files, tz=system_config[0]['tz'])
 
             btn.files = {'system_configuration': system_config, 'df': df}
-
+            
     btn.on_click(on_button_clicked)
-
+    
     ###############################
     #             CEN             #
     ###############################
