@@ -76,10 +76,9 @@ def run(system_configuration, data, availability, energy_units):
                   water is provided in data parameter), taking into account spectral and 
                   mismatch losses, in [W/m2].
         14. temp_cell - Average cell temperature of cells within a module in [ºC].
-        15. v_dc - Voltage at maximum power point in [V].
-        16. p_dc - Power at maximum power point in [W].
-        17. ac - AC power output in [W].
-        18. energy - Data structure that contains the following parameters:
+        15. p_dc - Power at maximum power point in [W].
+        16. ac - AC power output in [W].
+        17. energy - Data structure that contains the following parameters:
                          1. Daily energy in selected units. Default units in [Wh].
                          2. Weekly energy in selected units. Default units in [Wh].
                          3. Monthly energy in selected units. Default units in [Wh].
