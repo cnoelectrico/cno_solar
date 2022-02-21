@@ -158,10 +158,6 @@
     96,
     32
   ],
-  "per_mppt": [
-    0.75,
-    0.25
-  ],
   "num_inverter": 3,
   "loss": 14.6,
   "name": "Ejemplo2"

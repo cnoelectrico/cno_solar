@@ -44,7 +44,7 @@ def execute():
                                   <li> <b>Gráfica - Magnitud $P_{AC}$:</b> Para facilitar la visualización del gráfico, seleccione la magnitud en que desea presentar la Potencia AC. <span style='color:red'>No se requiere para el cálculo de la CEN</span>.</li>
                                   <li> <b>Gráfica - Descargar:</b> Seleccione la opción 'Sí' para descargar el gráfico de la CEN (se alojará en la carpeta <i>cno_solar/downloads/<span style='color:blue'>cen.pdf</span></i>). <span style='color:red'>No se requiere para el cálculo de la CEN</span>.</li>
                                   <li> <b>Calcular CEN:</b> Dé clic en el botón 'Calcular CEN' para ejecutar el algoritmo que estimará la CEN según los archivos de configuración del sistema y serie histórica de datos, además del percentil indicado.</li>
-                                  <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) empleados para calcular la CEN. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por subarreglos, por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>pipeline_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
+                                  <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) empleados para calcular la CEN. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>pipeline_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
                                 </ul>
 
                                 <h5>Energía Mínima Diaria</h5>
@@ -71,7 +71,7 @@ def execute():
                                 <ul>
                                   <li> <b>Disponibilidad [%]:</b> Valor porcentual en escala entre 0 y 1 de la disponibilidad por conjunto inversores con configuración eléctrica exactamente igual (i.e., por archivo .JSON de configuración del sistema). Para múltiples inversores (i.e., múltiples archivos .JSON de configuración), separe los valores con una coma de manera ordenada.</li>
                                   <li> <b>Ejecutar:</b> Dé clic en este botón para ejecutar el algoritmo que estimará la producción de la planta fotovoltaica según el recurso indicado en los archivos de configuración del sistema y serie histórica de datos. El ícono y la descripción del botón cambiarán para notificar la ejecución del algoritmo.</li>
-                                  <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) estimados por el algoritmo. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por subarreglos, por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>rp_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
+                                  <li> <b>Descargar Producción:</b> Al dar clic en este botón, se descargará un archivo .CSV con datos meteorológicos y de producción (en las estampas de tiempo de la serie histórica de datos) estimados por el algoritmo. Se generarán archivos .CSV según la arquitectura de la planta fotovoltaica (i.e., por inversores y para la planta completa) y se alojarán en la carpeta <i>cno_solar/downloads/<span style='color:blue'>rp_xxx.csv</span></i>. Si la planta fotovoltaica se compone de múltiples archivos .JSON de configuración, el orden de descarga es según el orden alfabético de carga de los archivos de configuración. El ícono y la descripción del botón cambiarán para notificar la descarga.</li>
                                 </ul>
 
                                 <h5>Gráfica</h5>
@@ -241,10 +241,8 @@ def execute():
                                             availability=None,
                                             energy_units='Wh')
             
-            if len(btn.files['system_configuration']) > 1:
-                ac_for_cen = bus_pipeline['plant']['ac']
-            else:
-                ac_for_cen = bus_pipeline['plant']['system']['ac']
+            
+            ac_for_cen = bus_pipeline['plant']['ac']
 
             cen_per, cen_pmax = cno.cen.get_cen(ac=ac_for_cen, 
                                                 perc=w_cenpercentil.value, # Percentil CEN
@@ -260,127 +258,45 @@ def execute():
         with downloadcen_output:
 
             for sk in w_cen.files['bus_pipeline'].keys():
-                main_cols = ['Zenith, degree', 'Elevation, degree', 'Azimuth, degree', 'Airmass Relative, ad',  'Airmass Absolute, ad', 'Extraterrestrial Radiation, W/m2', 'POA, W/m2', 'Tmod, C', 'Isc, A', 'Voc, V', 'Idc, A', 'Vdc, V', 'Pdc, W', 'Pac, W', 'Daily Energy, Wh', 'Weekly Energy, Wh', 'Monthly Energy, Wh']
+                main_cols = ['Zenith, degree', 'Elevation, degree', 'Azimuth, degree', 'Airmass Relative, ad',  'Airmass Absolute, ad', 'Extraterrestrial Radiation, W/m2', 'POA, W/m2', 'Tmod, C', 'Pdc, W', 'Pac, W', 'Daily Energy, Wh', 'Weekly Energy, Wh', 'Monthly Energy, Wh']
 
-                if len(upload_config.files) > 1:
-                    if sk != 'plant': 
-                        for k in w_cen.files['bus_pipeline'][sk].keys():
-                            cols_to_download = main_cols.copy()
-                            if w_cen.files['bus_pipeline'][sk][k]['bifacial'] == True:
-                                cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
+                cols_to_download = main_cols.copy()
+                if w_cen.files['bus_pipeline'][sk]['bifacial'] == True:
+                    cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
 
-                                w_cen.files['bus_pipeline'][sk][k]['total_incident_front'].round(2)
-                                w_cen.files['bus_pipeline'][sk][k]['total_incident_back'].round(2)
-                                w_cen.files['bus_pipeline'][sk][k]['total_absorbed_front'].round(2)
-                                w_cen.files['bus_pipeline'][sk][k]['total_absorbed_back'].round(2)
-                            
-                            # Check lengths
-                            if w_cen.files['bus_pipeline'][sk][k]['energy']['week'].index[-1] > btn.files['df'].index[-1]:
-                                cen_energy_week = w_cen.files['bus_pipeline'][sk][k]['energy']['week'][:-1].round(2)
-                            else:
-                                cen_energy_week = w_cen.files['bus_pipeline'][sk][k]['energy']['week'].round(2)
-                                
-                            if w_cen.files['bus_pipeline'][sk][k]['energy']['month'].index[-1] > btn.files['df'].index[-1]:
-                                cen_energy_month = w_cen.files['bus_pipeline'][sk][k]['energy']['month'][:-1].round(2)
-                            else:
-                                cen_energy_month = w_cen.files['bus_pipeline'][sk][k]['energy']['month'].round(2)
-                            
-                            cen_to_download = pd.concat([w_cen.files['bus_pipeline'][sk][k]['solpos'][['zenith', 'elevation', 'azimuth']].round(2), 
-                                                         w_cen.files['bus_pipeline'][sk][k]['airmass'].round(2),
-                                                         w_cen.files['bus_pipeline'][sk][k]['etr_nrel'].round(2),
-                                                         w_cen.files['bus_pipeline'][sk][k]['total_incident_front'],
-                                                         w_cen.files['bus_pipeline'][sk][k]['total_incident_back'],
-                                                         w_cen.files['bus_pipeline'][sk][k]['total_absorbed_front'],
-                                                         w_cen.files['bus_pipeline'][sk][k]['total_absorbed_back'],
-                                                         w_cen.files['bus_pipeline'][sk][k]['poa'].round(2),
-                                                         w_cen.files['bus_pipeline'][sk][k]['temp_cell'].round(2),
-                                                         w_cen.files['bus_pipeline'][sk][k]['dc'][['i_sc', 'v_oc', 'i_mp', 'v_mp', 'p_mp']].round(2),
-                                                         w_cen.files['bus_pipeline'][sk][k]['ac'].round(2),
-                                                         w_cen.files['bus_pipeline'][sk][k]['energy']['day'].round(2),
-                                                         cen_energy_week,
-                                                         cen_energy_month], axis=1)
+                    w_cen.files['bus_pipeline'][sk]['total_incident_front'].round(2)
+                    w_cen.files['bus_pipeline'][sk]['total_incident_back'].round(2)
+                    w_cen.files['bus_pipeline'][sk]['total_absorbed_front'].round(2)
+                    w_cen.files['bus_pipeline'][sk]['total_absorbed_back'].round(2)
 
-                            cen_to_download.columns = cols_to_download
-                            cen_to_download.to_csv(f'./downloads/pipeline_{sk}_{k}.csv')
-                
-                    else:
-                        cols_to_download = main_cols.copy()
-                        if w_cen.files['bus_pipeline'][sk]['bifacial'] == True:
-                            cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
-                            
-                            w_cen.files['bus_pipeline'][sk]['total_incident_front'].round(2)
-                            w_cen.files['bus_pipeline'][sk]['total_incident_back'].round(2)
-                            w_cen.files['bus_pipeline'][sk]['total_absorbed_front'].round(2)
-                            w_cen.files['bus_pipeline'][sk]['total_absorbed_back'].round(2)
-                    
-                        # Check lengths
-                        if w_cen.files['bus_pipeline'][sk]['energy']['week'].index[-1] > btn.files['df'].index[-1]:
-                            cen_energy_week = w_cen.files['bus_pipeline'][sk]['energy']['week'][:-1].round(2)
-                        else:
-                            cen_energy_week = w_cen.files['bus_pipeline'][sk]['energy']['week'].round(2)
-
-                        if w_cen.files['bus_pipeline'][sk]['energy']['month'].index[-1] > btn.files['df'].index[-1]:
-                            cen_energy_month = w_cen.files['bus_pipeline'][sk]['energy']['month'][:-1].round(2)
-                        else:
-                            cen_energy_month = w_cen.files['bus_pipeline'][sk]['energy']['month'].round(2)
-                    
-                        cen_to_download = pd.concat([w_cen.files['bus_pipeline'][sk]['solpos'][['zenith', 'elevation', 'azimuth']].round(2), 
-                                                     w_cen.files['bus_pipeline'][sk]['airmass'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk]['etr_nrel'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk]['total_incident_front'],
-                                                     w_cen.files['bus_pipeline'][sk]['total_incident_back'],
-                                                     w_cen.files['bus_pipeline'][sk]['total_absorbed_front'],
-                                                     w_cen.files['bus_pipeline'][sk]['total_absorbed_back'],
-                                                     w_cen.files['bus_pipeline'][sk]['poa'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk]['temp_cell'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk]['dc'][['i_sc', 'v_oc', 'i_mp', 'v_mp', 'p_mp']].round(2),
-                                                     w_cen.files['bus_pipeline'][sk]['ac'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk]['energy']['day'].round(2),
-                                                     cen_energy_week,
-                                                     cen_energy_month], axis=1)
-
-                        cen_to_download.columns = cols_to_download
-                        cen_to_download.to_csv(f'./downloads/pipeline_{sk}.csv')
-                
+                # Check lengths
+                if w_cen.files['bus_pipeline'][sk]['energy']['week'].index[-1] > btn.files['df'].index[-1]:
+                    cen_energy_week = w_cen.files['bus_pipeline'][sk]['energy']['week'][:-1].round(2)
                 else:
-                    for k in w_cen.files['bus_pipeline'][sk].keys():
-                        cols_to_download = main_cols.copy()
-                        if w_cen.files['bus_pipeline'][sk][k]['bifacial'] == True:
-                            cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
+                    cen_energy_week = w_cen.files['bus_pipeline'][sk]['energy']['week'].round(2)
 
-                            w_cen.files['bus_pipeline'][sk][k]['total_incident_front'].round(2)
-                            w_cen.files['bus_pipeline'][sk][k]['total_incident_back'].round(2)
-                            w_cen.files['bus_pipeline'][sk][k]['total_absorbed_front'].round(2)
-                            w_cen.files['bus_pipeline'][sk][k]['total_absorbed_back'].round(2)
+                if w_cen.files['bus_pipeline'][sk]['energy']['month'].index[-1] > btn.files['df'].index[-1]:
+                    cen_energy_month = w_cen.files['bus_pipeline'][sk]['energy']['month'][:-1].round(2)
+                else:
+                    cen_energy_month = w_cen.files['bus_pipeline'][sk]['energy']['month'].round(2)
 
-                        # Check lengths
-                        if w_cen.files['bus_pipeline'][sk][k]['energy']['week'].index[-1] > btn.files['df'].index[-1]:
-                            cen_energy_week = w_cen.files['bus_pipeline'][sk][k]['energy']['week'][:-1].round(2)
-                        else:
-                            cen_energy_week = w_cen.files['bus_pipeline'][sk][k]['energy']['week'].round(2)
+                cen_to_download = pd.concat([w_cen.files['bus_pipeline'][sk]['solpos'][['zenith', 'elevation', 'azimuth']].round(2), 
+                                             w_cen.files['bus_pipeline'][sk]['airmass'].round(2),
+                                             w_cen.files['bus_pipeline'][sk]['etr_nrel'].round(2),
+                                             w_cen.files['bus_pipeline'][sk]['total_incident_front'],
+                                             w_cen.files['bus_pipeline'][sk]['total_incident_back'],
+                                             w_cen.files['bus_pipeline'][sk]['total_absorbed_front'],
+                                             w_cen.files['bus_pipeline'][sk]['total_absorbed_back'],
+                                             w_cen.files['bus_pipeline'][sk]['poa'].round(2),
+                                             w_cen.files['bus_pipeline'][sk]['temp_cell'].round(2),
+                                             w_cen.files['bus_pipeline'][sk]['p_dc'].round(2),
+                                             w_cen.files['bus_pipeline'][sk]['ac'].round(2),
+                                             w_cen.files['bus_pipeline'][sk]['energy']['day'].round(2),
+                                             cen_energy_week,
+                                             cen_energy_month], axis=1)
 
-                        if w_cen.files['bus_pipeline'][sk][k]['energy']['month'].index[-1] > btn.files['df'].index[-1]:
-                            cen_energy_month = w_cen.files['bus_pipeline'][sk][k]['energy']['month'][:-1].round(2)
-                        else:
-                            cen_energy_month = w_cen.files['bus_pipeline'][sk][k]['energy']['month'].round(2)
-
-                        cen_to_download = pd.concat([w_cen.files['bus_pipeline'][sk][k]['solpos'][['zenith', 'elevation', 'azimuth']].round(2), 
-                                                     w_cen.files['bus_pipeline'][sk][k]['airmass'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk][k]['etr_nrel'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk][k]['total_incident_front'],
-                                                     w_cen.files['bus_pipeline'][sk][k]['total_incident_back'],
-                                                     w_cen.files['bus_pipeline'][sk][k]['total_absorbed_front'],
-                                                     w_cen.files['bus_pipeline'][sk][k]['total_absorbed_back'],
-                                                     w_cen.files['bus_pipeline'][sk][k]['poa'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk][k]['temp_cell'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk][k]['dc'][['i_sc', 'v_oc', 'i_mp', 'v_mp', 'p_mp']].round(2),
-                                                     w_cen.files['bus_pipeline'][sk][k]['ac'].round(2),
-                                                     w_cen.files['bus_pipeline'][sk][k]['energy']['day'].round(2),
-                                                     cen_energy_week,
-                                                     cen_energy_month], axis=1)
-
-                        cen_to_download.columns = cols_to_download
-                        cen_to_download.to_csv(f'./downloads/pipeline_{sk}_{k}.csv')
+                cen_to_download.columns = cols_to_download
+                cen_to_download.to_csv(f'./downloads/pipeline_{sk}.csv')
 
             download_cen.description = 'Producción Descargada'
             download_cen.icon = 'check'
@@ -709,127 +625,45 @@ def execute():
         with downloadrp_output:
 
             for sk in w_rp.files['bus_pipeline'].keys():
-                main_cols = ['Zenith, degree', 'Elevation, degree', 'Azimuth, degree', 'Airmass Relative, ad',  'Airmass Absolute, ad', 'Extraterrestrial Radiation, W/m2', 'POA, W/m2', 'Tmod, C', 'Isc, A', 'Voc, V', 'Idc, A', 'Vdc, V', 'Pdc, W', 'Pac, W', 'Daily Energy, Wh', 'Weekly Energy, Wh', 'Monthly Energy, Wh']
+                main_cols = ['Zenith, degree', 'Elevation, degree', 'Azimuth, degree', 'Airmass Relative, ad',  'Airmass Absolute, ad', 'Extraterrestrial Radiation, W/m2', 'POA, W/m2', 'Tmod, C', 'Pdc, W', 'Pac, W', 'Daily Energy, Wh', 'Weekly Energy, Wh', 'Monthly Energy, Wh']
                 
-                if len(upload_config_rp.files) > 1:
-                    if sk != 'plant': 
-                        for k in w_rp.files['bus_pipeline'][sk].keys():
-                            cols_to_download = main_cols.copy()
-                            if btn_rp.files['system_configuration'][0]['bifacial'] == True:
-                                cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
+                cols_to_download = main_cols.copy()
+                if btn_rp.files['system_configuration'][0]['bifacial'] == True:
+                    cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
 
-                                w_rp.files['bus_pipeline'][sk][k]['total_incident_front'].round(2)
-                                w_rp.files['bus_pipeline'][sk][k]['total_incident_back'].round(2)
-                                w_rp.files['bus_pipeline'][sk][k]['total_absorbed_front'].round(2)
-                                w_rp.files['bus_pipeline'][sk][k]['total_absorbed_back'].round(2)
-                            
-                            # Check lengths
-                            if w_rp.files['bus_pipeline'][sk][k]['energy']['week'].index[-1] > btn_rp.files['df'].index[-1]:
-                                rp_energy_week = w_rp.files['bus_pipeline'][sk][k]['energy']['week'][:-1].round(2)
-                            else:
-                                rp_energy_week = w_rp.files['bus_pipeline'][sk][k]['energy']['week'].round(2)
-                                
-                            if w_rp.files['bus_pipeline'][sk][k]['energy']['month'].index[-1] > btn_rp.files['df'].index[-1]:
-                                rp_energy_month = w_rp.files['bus_pipeline'][sk][k]['energy']['month'][:-1].round(2)
-                            else:
-                                rp_energy_month = w_rp.files['bus_pipeline'][sk][k]['energy']['month'].round(2)
-                            
-                            rp_to_download = pd.concat([w_rp.files['bus_pipeline'][sk][k]['solpos'][['zenith', 'elevation', 'azimuth']].round(2), 
-                                                        w_rp.files['bus_pipeline'][sk][k]['airmass'].round(2),
-                                                        w_rp.files['bus_pipeline'][sk][k]['etr_nrel'].round(2),
-                                                        w_rp.files['bus_pipeline'][sk][k]['total_incident_front'],
-                                                        w_rp.files['bus_pipeline'][sk][k]['total_incident_back'],
-                                                        w_rp.files['bus_pipeline'][sk][k]['total_absorbed_front'],
-                                                        w_rp.files['bus_pipeline'][sk][k]['total_absorbed_back'],
-                                                        w_rp.files['bus_pipeline'][sk][k]['poa'].round(2),
-                                                        w_rp.files['bus_pipeline'][sk][k]['temp_cell'].round(2),
-                                                        w_rp.files['bus_pipeline'][sk][k]['dc'][['i_sc', 'v_oc', 'i_mp', 'v_mp', 'p_mp']].round(2),
-                                                        w_rp.files['bus_pipeline'][sk][k]['ac'].round(2),
-                                                        w_rp.files['bus_pipeline'][sk][k]['energy']['day'].round(2),
-                                                        rp_energy_week,
-                                                        rp_energy_month], axis=1)
+                    w_rp.files['bus_pipeline'][sk]['total_incident_front'].round(2)
+                    w_rp.files['bus_pipeline'][sk]['total_incident_back'].round(2)
+                    w_rp.files['bus_pipeline'][sk]['total_absorbed_front'].round(2)
+                    w_rp.files['bus_pipeline'][sk]['total_absorbed_back'].round(2)
 
-                            rp_to_download.columns = cols_to_download
-                            rp_to_download.to_csv(f'./downloads/rp_{sk}_{k}.csv')
-                
-                    else:
-                        cols_to_download = main_cols.copy()
-                        if btn_rp.files['system_configuration'][0]['bifacial'] == True:
-                            cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
-                            
-                            w_rp.files['bus_pipeline'][sk]['total_incident_front'].round(2)
-                            w_rp.files['bus_pipeline'][sk]['total_incident_back'].round(2)
-                            w_rp.files['bus_pipeline'][sk]['total_absorbed_front'].round(2)
-                            w_rp.files['bus_pipeline'][sk]['total_absorbed_back'].round(2)
-                    
-                        # Check lengths
-                        if w_rp.files['bus_pipeline'][sk]['energy']['week'].index[-1] > btn_rp.files['df'].index[-1]:
-                            rp_energy_week = w_rp.files['bus_pipeline'][sk]['energy']['week'][:-1].round(2)
-                        else:
-                            rp_energy_week = w_rp.files['bus_pipeline'][sk]['energy']['week'].round(2)
-
-                        if w_rp.files['bus_pipeline'][sk]['energy']['month'].index[-1] > btn_rp.files['df'].index[-1]:
-                            rp_energy_month = w_rp.files['bus_pipeline'][sk]['energy']['month'][:-1].round(2)
-                        else:
-                            rp_energy_month = w_rp.files['bus_pipeline'][sk]['energy']['month'].round(2)
-                    
-                        rp_to_download = pd.concat([w_rp.files['bus_pipeline'][sk]['solpos'][['zenith', 'elevation', 'azimuth']].round(2), 
-                                                    w_rp.files['bus_pipeline'][sk]['airmass'].round(2),
-                                                    w_rp.files['bus_pipeline'][sk]['etr_nrel'].round(2),
-                                                    w_rp.files['bus_pipeline'][sk]['total_incident_front'],
-                                                    w_rp.files['bus_pipeline'][sk]['total_incident_back'],
-                                                    w_rp.files['bus_pipeline'][sk]['total_absorbed_front'],
-                                                    w_rp.files['bus_pipeline'][sk]['total_absorbed_back'],
-                                                    w_rp.files['bus_pipeline'][sk]['poa'].round(2),
-                                                    w_rp.files['bus_pipeline'][sk]['temp_cell'].round(2),
-                                                    w_rp.files['bus_pipeline'][sk]['dc'][['i_sc', 'v_oc', 'i_mp', 'v_mp', 'p_mp']].round(2),
-                                                    w_rp.files['bus_pipeline'][sk]['ac'].round(2),
-                                                    w_rp.files['bus_pipeline'][sk]['energy']['day'].round(2),
-                                                    rp_energy_week,
-                                                    rp_energy_month], axis=1)
-
-                        rp_to_download.columns = cols_to_download
-                        rp_to_download.to_csv(f'./downloads/rp_{sk}.csv')
-                
+                # Check lengths
+                if w_rp.files['bus_pipeline'][sk]['energy']['week'].index[-1] > btn_rp.files['df'].index[-1]:
+                    rp_energy_week = w_rp.files['bus_pipeline'][sk]['energy']['week'][:-1].round(2)
                 else:
-                    for k in w_rp.files['bus_pipeline'][sk].keys():
-                        cols_to_download = main_cols.copy()
-                        if btn_rp.files['system_configuration'][0]['bifacial'] == True:
-                            cols_to_download[6:6] = ['Front Incident Irradiance, W/m2', 'Back Incident Irradiance, W/m2', 'Front Absorbed Irradiance, W/m2', 'Back Absorbed Irradiance, W/m2']
+                    rp_energy_week = w_rp.files['bus_pipeline'][sk]['energy']['week'].round(2)
 
-                            w_rp.files['bus_pipeline'][sk][k]['total_incident_front'].round(2)
-                            w_rp.files['bus_pipeline'][sk][k]['total_incident_back'].round(2)
-                            w_rp.files['bus_pipeline'][sk][k]['total_absorbed_front'].round(2)
-                            w_rp.files['bus_pipeline'][sk][k]['total_absorbed_back'].round(2)
+                if w_rp.files['bus_pipeline'][sk]['energy']['month'].index[-1] > btn_rp.files['df'].index[-1]:
+                    rp_energy_month = w_rp.files['bus_pipeline'][sk]['energy']['month'][:-1].round(2)
+                else:
+                    rp_energy_month = w_rp.files['bus_pipeline'][sk]['energy']['month'].round(2)
 
-                        # Check lengths
-                        if w_rp.files['bus_pipeline'][sk][k]['energy']['week'].index[-1] > btn_rp.files['df'].index[-1]:
-                            rp_energy_week = w_rp.files['bus_pipeline'][sk][k]['energy']['week'][:-1].round(2)
-                        else:
-                            rp_energy_week = w_rp.files['bus_pipeline'][sk][k]['energy']['week'].round(2)
+                rp_to_download = pd.concat([w_rp.files['bus_pipeline'][sk]['solpos'][['zenith', 'elevation', 'azimuth']].round(2), 
+                                            w_rp.files['bus_pipeline'][sk]['airmass'].round(2),
+                                            w_rp.files['bus_pipeline'][sk]['etr_nrel'].round(2),
+                                            w_rp.files['bus_pipeline'][sk]['total_incident_front'],
+                                            w_rp.files['bus_pipeline'][sk]['total_incident_back'],
+                                            w_rp.files['bus_pipeline'][sk]['total_absorbed_front'],
+                                            w_rp.files['bus_pipeline'][sk]['total_absorbed_back'],
+                                            w_rp.files['bus_pipeline'][sk]['poa'].round(2),
+                                            w_rp.files['bus_pipeline'][sk]['temp_cell'].round(2),
+                                            w_rp.files['bus_pipeline'][sk]['p_dc'].round(2),
+                                            w_rp.files['bus_pipeline'][sk]['ac'].round(2),
+                                            w_rp.files['bus_pipeline'][sk]['energy']['day'].round(2),
+                                            rp_energy_week,
+                                            rp_energy_month], axis=1)
 
-                        if w_rp.files['bus_pipeline'][sk][k]['energy']['month'].index[-1] > btn_rp.files['df'].index[-1]:
-                            rp_energy_month = w_rp.files['bus_pipeline'][sk][k]['energy']['month'][:-1].round(2)
-                        else:
-                            rp_energy_month = w_rp.files['bus_pipeline'][sk][k]['energy']['month'].round(2)
-
-                        rp_to_download = pd.concat([w_rp.files['bus_pipeline'][sk][k]['solpos'][['zenith', 'elevation', 'azimuth']].round(2), 
-                                                     w_rp.files['bus_pipeline'][sk][k]['airmass'].round(2),
-                                                     w_rp.files['bus_pipeline'][sk][k]['etr_nrel'].round(2),
-                                                     w_rp.files['bus_pipeline'][sk][k]['total_incident_front'],
-                                                     w_rp.files['bus_pipeline'][sk][k]['total_incident_back'],
-                                                     w_rp.files['bus_pipeline'][sk][k]['total_absorbed_front'],
-                                                     w_rp.files['bus_pipeline'][sk][k]['total_absorbed_back'],
-                                                     w_rp.files['bus_pipeline'][sk][k]['poa'].round(2),
-                                                     w_rp.files['bus_pipeline'][sk][k]['temp_cell'].round(2),
-                                                     w_rp.files['bus_pipeline'][sk][k]['dc'][['i_sc', 'v_oc', 'i_mp', 'v_mp', 'p_mp']].round(2),
-                                                     w_rp.files['bus_pipeline'][sk][k]['ac'].round(2),
-                                                     w_rp.files['bus_pipeline'][sk][k]['energy']['day'].round(2),
-                                                     rp_energy_week,
-                                                     rp_energy_month], axis=1)
-
-                        rp_to_download.columns = cols_to_download
-                        rp_to_download.to_csv(f'./downloads/rp_{sk}_{k}.csv')
+                rp_to_download.columns = cols_to_download
+                rp_to_download.to_csv(f'./downloads/rp_{sk}.csv')
                     
             download_rp.description = 'Descargado'
             download_rp.icon = 'check'
@@ -840,13 +674,10 @@ def execute():
         with plot_output:
             plot_output.clear_output()
 
-            if len(w_rp.files['bus_pipeline'].keys()) == 1:
-                df_to_plot = w_rp.files['bus_pipeline']['plant']['system']
-            else:
-                df_to_plot = w_rp.files['bus_pipeline']['plant']
+            df_to_plot = w_rp.files['bus_pipeline']['plant']
 
             if w_relation.value == 'Tiempo - Potencia DC':
-                yy = df_to_plot['dc'][w_startdate.value:w_enddate.value] / punits[w_units.value]
+                yy = df_to_plot['p_dc'][w_startdate.value:w_enddate.value] / punits[w_units.value]
 
                 title = 'Comportamiento Potencia DC'
                 xlab = 'Tiempo'
@@ -902,7 +733,7 @@ def execute():
 
             elif w_relation.value == 'Irradiancia - Potencia DC':
                 xx = df_to_plot['poa'][w_startdate.value:w_enddate.value]
-                yy = df_to_plot['dc']['p_mp'][w_startdate.value:w_enddate.value] / punits[w_units.value]
+                yy = df_to_plot['p_dc'][w_startdate.value:w_enddate.value] / punits[w_units.value]
 
                 title = 'Relación Irradiancia vs. Potencia DC'
                 xlab = 'Irradiancia POA, W/m2'

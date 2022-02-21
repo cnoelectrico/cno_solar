@@ -76,9 +76,6 @@
   "strings_per_inverter": [
     4
   ],
-  "per_mppt": [
-    1.0
-  ],
   "num_inverter": 1,
   "loss": 26.9,
   "name": "SD29"

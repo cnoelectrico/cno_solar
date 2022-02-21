@@ -64,10 +64,6 @@
     5,
     3
   ],
-  "per_mppt": [
-    0.66,
-    0.33
-  ],
   "num_inverter": 2,
   "loss": 14.6,
   "name": "Ejemplo3_Inv2"

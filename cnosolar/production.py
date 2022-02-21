@@ -1,4 +1,5 @@
 import pvlib
+import numpy as np
 import pandas as pd
 from functools import reduce
 
@@ -172,22 +173,18 @@ def losses(dc, loss=14.6):
 
 # AC Power
 ## SAPM
-def ac_production_sandia(dc, inverter, num_inverter=1, per_mppt=1.0, availability=1.0):
+def ac_production_sandia(v_dc, p_dc, inverter, num_inverter=1, availability=1.0):
     '''
     Convert DC power and voltage to AC power using Sandia’s 
     Grid-Connected PV Inverter model.
     
     Parameters
     ----------
-    dc : pandas.DataFrame
-            Data structure that contains the following parameters:
-            1. i_sc - Short circuit current in [A].
-            2. v_oc - Open circuit voltage in [V].
-            3. i_mp -Current at maximum power point in [A].
-            4. v_mp -Voltage at maximum power point in [V].
-            5. p_mp -Power at maximum power point in [W].
-            6. i_x -Current at V=0.5·Voc in [A].
-            7. i_xx -Current at V=0.5·(Voc+Vmp) in [A].
+    v_dc : tuple, list or array of numeric
+        Voltage at maximum power point in [V].
+        
+    p_dc : tuple, list or array of numeric
+        Power at maximum power point in [W].
 
     inverter : dict
         Technical parameters of the inverter.
@@ -196,11 +193,6 @@ def ac_production_sandia(dc, inverter, num_inverter=1, per_mppt=1.0, availabilit
         Number of inverters with exactly the same electrical configuration. 
         Used to scale the AC power.
         Default = 1
-
-    per_mppt : float, optional
-        Fraction of power handled by each input (e.g., 1/Number of Inputs 
-        or 1/MPPT Number).
-        Default = 1.0
         
     availability : float, optional
         Percentage value of availability per inverter set with the exact 
@@ -219,10 +211,14 @@ def ac_production_sandia(dc, inverter, num_inverter=1, per_mppt=1.0, availabilit
         2. Scales the AC power by the number of inverters, percentage of entrances
            and availability.
     
-    More details at: https://pvlib-python.readthedocs.io/en/stable/generated/pvlib.inverter.sandia.html
+    More details at: https://pvlib-python.readthedocs.io/en/stable/generated/pvlib.inverter.sandia_multi.html
     '''
-    ac = pvlib.inverter.sandia(dc['v_mp'], dc['p_mp'], inverter)
-    ac = ac * num_inverter * per_mppt * availability
+    if len(p_dc) == 1:
+        v_dc.append(0. * v_dc[0])
+        p_dc.append(0. * p_dc[0])
+
+    ac = pvlib.inverter.sandia_multi(v_dc, p_dc, inverter)
+    ac = ac * num_inverter * availability
     
     ac.loc[ac < 0] = 0
     ac.fillna(value=0, inplace=True)
@@ -230,22 +226,15 @@ def ac_production_sandia(dc, inverter, num_inverter=1, per_mppt=1.0, availabilit
     return ac
 
 ## PVWatts
-def ac_production_pvwatts(dc, inverter, num_inverter=1, per_mppt=1, availability=1):
+def ac_production_pvwatts(p_dc, inverter, num_inverter=1, availability=1):
     '''
     Convert DC power and voltage to AC power using NREL’s 
     PVWatts inverter model. 
     
     Parameters
     ----------
-    dc : pandas.DataFrame
-        Data structure that contains the following parameters:
-            1. i_sc - Short circuit current in [A].
-            2. v_oc - Open circuit voltage in [V].
-            3. i_mp -Current at maximum power point in [A].
-            4. v_mp -Voltage at maximum power point in [V].
-            5. p_mp -Power at maximum power point in [W].
-            6. i_x -Current at V=0.5·Voc in [A].
-            7. i_xx -Current at V=0.5·(Voc+Vmp) in [A].
+    p_dc : tuple, list or array of numeric
+        Power at maximum power point in [W].
 
     inverter : dict
         Technical parameters of the inverter.
@@ -254,11 +243,6 @@ def ac_production_pvwatts(dc, inverter, num_inverter=1, per_mppt=1, availability
         Number of inverters with exactly the same electrical configuration. 
         Used to scale the AC power.
         Default = 1
-
-    per_mppt : float, optional
-        Fraction of power handled by each input (e.g., 1/Number of Inputs 
-        or 1/MPPT Number).
-        Default = 1.0
         
     availability : float, optional
         Percentage value of availability per inverter set with the exact 
@@ -277,14 +261,17 @@ def ac_production_pvwatts(dc, inverter, num_inverter=1, per_mppt=1, availability
         2. Scales the AC power by the number of inverters, percentage of entrances
            and availability.
     
-    More details at: https://pvlib-python.readthedocs.io/en/latest/generated/pvlib.inverter.pvwatts.html
+    More details at: https://pvlib-python.readthedocs.io/en/stable/generated/pvlib.inverter.pvwatts_multi.html
     '''
-    ac = pvlib.inverter.pvwatts(pdc=dc['p_mp'], 
-                                pdc0=inverter['pdc0'],
-                                eta_inv_nom=inverter['eta_inv_nom'],
-                                eta_inv_ref=0.9637).fillna(0)
+    if len(p_dc) == 1:
+        p_dc.append(list(np.repeat(a=0, repeats=len(p_dc[0]))))
+
+    ac = pvlib.inverter.pvwatts_multi(pdc=p_dc, 
+                                      pdc0=inverter['pdc0'],
+                                      eta_inv_nom=inverter['eta_inv_nom'],
+                                      eta_inv_ref=0.9637).fillna(0)
     
-    ac = ac * num_inverter * per_mppt * availability
+    ac = ac * num_inverter * availability
 
     return ac
 
@@ -353,8 +340,8 @@ def get_energy(ac, resolution, energy_units='Wh'):
         
     return energy
 
-# Production Pipeline
-def production_pipeline(poa, cell_temperature, module, inverter, system, ac_model, resolution, loss=14.6, num_inverter=1, per_mppt=1, availability=1, energy_units='Wh'):
+# DC Production Pipeline
+def dc_pipeline(poa, cell_temperature, module, system, loss=14.6):
     '''
     Wrapper that executes the production stages of the PV system, 
     including system losses.
@@ -370,36 +357,76 @@ def production_pipeline(poa, cell_temperature, module, inverter, system, ac_mode
     module : dict
         Technical parameters of the PV module.
 
-    inverter : dict
-        Technical parameters of the inverter.
-
     system : class
         PVlib PV System defined class. Used to scale the results
         according to the PV system architecture (i.e., electrical
         configuration of modules per string and strings per 
         inverter).
         
-    ac_model : string
-        Inverter model to be executed. Valid options are 'sandia' 
-        and 'pvwatts'.
-        
-    resolution : int
-        Temporal resolution of time stamps of the historical data series 
-        (e.g., 5 for five-minute resolution time stamps).
-        
     loss : float, optional
         Overall system losses in [%].
         Default = 14.6
+
+    Returns
+    -------
+    dc : pandas.DataFrame
+        Data structure that contains the following parameters:
+            1. i_sc - Short circuit current in [A].
+            2. v_oc - Open circuit voltage in [V].
+            3. i_mp -Current at maximum power point in [A].
+            4. v_mp -Voltage at maximum power point in [V].
+            5. p_mp -Power at maximum power point in [W].
+            6. i_x -Current at V=0.5·Voc in [A].
+            7. i_xx -Current at V=0.5·(Voc+Vmp) in [A].
+
+    Notes
+    -----
+    The calculation procedure is:
+        1. Calculate the DC production parameters at maximum power point.
+        2. Add overall system losses to DC production.
+           
+    See also
+    --------
+    cno.production.dc_production
+    cno.production.losses
+    '''
+    # DC Production
+    dc = dc_production(poa, cell_temperature, module, system)
+
+    # Losses
+    dc = losses(dc, loss)
+
+    return dc
+
+# AC Production Pipeline
+def ac_pipeline(ac_model, v_dc, p_dc, inverter, resolution, num_inverter=1, availability=1, energy_units='Wh'):
+    '''
+    Wrapper that executes the AC production stages of the PV system, 
+    including system losses.
+    
+    Parameters
+    ----------
+    ac_model : string
+        Inverter model to be executed. Valid options are 'sandia' 
+        and 'pvwatts'.
+    
+    v_dc : tuple, list or array of numeric
+        Voltage at maximum power point in [V].
+        
+    p_dc : tuple, list or array of numeric
+        Power at maximum power point in [W].
+    
+    inverter : dict
+        Technical parameters of the inverter.
+
+    resolution : int
+        Temporal resolution of time stamps of the historical data series 
+        (e.g., 5 for five-minute resolution time stamps).
 
     num_inverter : int, optional
         Number of inverters with exactly the same electrical configuration. 
         Used to scale the AC power.
         Default = 1
-
-    per_mppt : float, optional
-        Fraction of power handled by each input (e.g., 1/Number of Inputs 
-        or 1/MPPT Number).
-        Default = 1.0
         
     availability : float, optional
         Percentage value of availability per inverter set with the exact 
@@ -413,16 +440,6 @@ def production_pipeline(poa, cell_temperature, module, inverter, system, ac_mode
 
     Returns
     -------
-    dc : pandas.DataFrame
-        Data structure that contains the following parameters:
-            1. i_sc - Short circuit current in [A].
-            2. v_oc - Open circuit voltage in [V].
-            3. i_mp -Current at maximum power point in [A].
-            4. v_mp -Voltage at maximum power point in [V].
-            5. p_mp -Power at maximum power point in [W].
-            6. i_x -Current at V=0.5·Voc in [A].
-            7. i_xx -Current at V=0.5·(Voc+Vmp) in [A].
-    
     ac : numeric
         AC power output in [W].
     
@@ -435,33 +452,23 @@ def production_pipeline(poa, cell_temperature, module, inverter, system, ac_mode
     Notes
     -----
     The calculation procedure is:
-        1. Calculate the DC production parameters at maximum power point.
-        2. Add overall system losses to DC production..
-        3. Convert DC power and voltage to AC power using an inverter model. 
-        4. Calculate energy production from AC power.
+        1. Convert DC power and voltage to AC power using an inverter model. 
+        2. Calculate energy production from AC power.
            
     See also
     --------
-    cno.production.dc_production
-    cno.production.losses
     cno.production.ac_production_sandia
     cno.production.ac_production_pvwatts
     cno.production.get_energy
     '''
-    # DC Production
-    dc = dc_production(poa, cell_temperature, module, system)
-
-    # Losses
-    dc = losses(dc, loss)
-
     # AC Production
     if ac_model == 'sandia':
-        ac = ac_production_sandia(dc, inverter, num_inverter, per_mppt, availability)
+        ac = ac_production_sandia(v_dc, p_dc, inverter, num_inverter, availability)
 
     if ac_model == 'pvwatts':
-        ac = ac_production_pvwatts(dc, inverter, num_inverter, per_mppt, availability)
+        ac = ac_production_pvwatts(p_dc, inverter, num_inverter, availability)
 
     # Energy
     energy = get_energy(ac, resolution, energy_units)
 
-    return dc, ac, energy
+    return ac, energy

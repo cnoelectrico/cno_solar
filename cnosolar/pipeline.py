@@ -76,16 +76,10 @@ def run(system_configuration, data, availability, energy_units):
                   water is provided in data parameter), taking into account spectral and 
                   mismatch losses, in [W/m2].
         14. temp_cell - Average cell temperature of cells within a module in [ºC].
-        15. dc - Data structure that contains the following parameters:
-                     1. i_sc - Short circuit current in [A].
-                     2. v_oc - Open circuit voltage in [V].
-                     3. i_mp -Current at maximum power point in [A].
-                     4. v_mp -Voltage at maximum power point in [V].
-                     5. p_mp -Power at maximum power point in [W].
-                     6. i_x -Current at V=0.5·Voc in [A].
-                     7. i_xx -Current at V=0.5·(Voc+Vmp) in [A].
-        16. ac - AC power output in [W].
-        17. energy - Data structure that contains the following parameters:
+        15. v_dc - Voltage at maximum power point in [V].
+        16. p_dc - Power at maximum power point in [W].
+        17. ac - AC power output in [W].
+        18. energy - Data structure that contains the following parameters:
                          1. Daily energy in selected units. Default units in [Wh].
                          2. Weekly energy in selected units. Default units in [Wh].
                          3. Monthly energy in selected units. Default units in [Wh].
@@ -190,12 +184,16 @@ def run(system_configuration, data, availability, energy_units):
                                  'a_ref':a_ref,
                                  'Adjust':Adjust})
         
+        # Temporal Parameters List
         if num_systems > 1:
             superkey = f'inverter{j+1}'
         else:
             superkey = 'plant'
             
         bus_pipeline[superkey] = {}
+        
+        vdc_production = list()
+        pdc_production = list()
         
         for i in tqdm(range(num_subarrays), desc='Subarrays', leave=False):
             # Meteorological Data
@@ -403,97 +401,63 @@ def run(system_configuration, data, availability, energy_units):
                                                             temp_air=data['Tamb'], 
                                                             tnoct=sc['module']['T_NOCT'])
 
-            # DC Production, AC Power and Energy
-            dc, ac, energy = cno.production.production_pipeline(poa=poa, 
-                                                                cell_temperature=temp_cell, 
-                                                                module=sc['module'], 
-                                                                inverter=sc['inverter'], 
-                                                                system=system, 
-                                                                ac_model=sc['ac_model'], 
-                                                                loss=system_losses, 
-                                                                resolution=resolution, 
-                                                                num_inverter=sc['num_inverter'],
-                                                                per_mppt=sc['per_mppt'][i],
-                                                                availability=inv_availability[j],
-                                                                energy_units=energy_units)
-            # Bus Pipeline Dataframe
-            if num_subarrays > 1:
-                key = f'subarray{i+1}'
-            else:
-                key = 'system'
+            # DC Production
+            dc = cno.production.dc_pipeline(poa=poa, 
+                                            cell_temperature=temp_cell, 
+                                            module=sc['module'], 
+                                            system=system, 
+                                            loss=system_losses)
             
-            bus_pipeline[superkey][key] = {'location': location, 
-                                           'solpos': solpos, 
-                                           'airmass': airmass, 
-                                           'etr_nrel': etr_nrel,
-                                           'disc': disc,
-                                           'tracker': tracker, 
-                                           'mount': mount,
-                                           'bifacial': is_bifacial,
-                                           'total_incident_front': total_incident_front,
-                                           'total_incident_back': total_incident_back,
-                                           'total_absorbed_front': total_absorbed_front,
-                                           'total_absorbed_back': total_absorbed_back,
-                                           'poa': poa,
-                                           'string_array': string_array,
-                                           'system': system,
-                                           'temp_cell': temp_cell,
-                                           'dc': dc, 
-                                           'ac': ac, 
-                                           'energy': energy}
-    
-        # AC and Energy Addition for Inverter
-        if num_subarrays > 1:
-            ac_string = []
-            denergy_string = []
-            wenergy_string = []
-            menergy_string = []
-            
-            for i in range(num_subarrays):
-                ac_string.append(bus_pipeline[superkey][f'subarray{i+1}']['ac'])
-                denergy_string.append(pd.DataFrame(bus_pipeline[superkey][f'subarray{i+1}']['energy']['day']).energy)
-                wenergy_string.append(pd.DataFrame(bus_pipeline[superkey][f'subarray{i+1}']['energy']['week']).energy)
-                menergy_string.append(pd.DataFrame(bus_pipeline[superkey][f'subarray{i+1}']['energy']['month']).energy)
+            vdc_production.append(dc['v_mp'])
+            pdc_production.append(dc['p_mp'])
 
-            sys_ac = reduce(lambda a, b: a.add(b, fill_value=0), ac_string)
-            sys_denergy = reduce(lambda a, b: a.add(b, fill_value=0), denergy_string)
-            sys_wenergy = reduce(lambda a, b: a.add(b, fill_value=0), wenergy_string)
-            sys_menergy = reduce(lambda a, b: a.add(b, fill_value=0), menergy_string)
-                
-            bus_pipeline[superkey]['system'] = {'location': location, 
-                                                'solpos': solpos, 
-                                                'airmass': airmass, 
-                                                'etr_nrel': etr_nrel,
-                                                'disc': disc,
-                                                'tracker': tracker, 
-                                                'mount': mount,
-                                                'bifacial': is_bifacial,
-                                                'total_incident_front': total_incident_front,
-                                                'total_incident_back': total_incident_back,
-                                                'total_absorbed_front': total_absorbed_front,
-                                                'total_absorbed_back': total_absorbed_back,
-                                                'poa': poa,
-                                                'temp_cell': temp_cell,
-                                                'dc': dc, 
-                                                'ac': sys_ac, 
-                                                'energy': {'day': sys_denergy,
-                                                           'week': sys_wenergy,
-                                                           'month': sys_menergy}}
-            
-            
+        # AC Power and Energy
+        ac, energy = cno.production.ac_pipeline(ac_model=sc['ac_model'], 
+                                                v_dc=vdc_production,
+                                                p_dc=pdc_production, 
+                                                inverter=sc['inverter'], 
+                                                resolution=resolution, 
+                                                num_inverter=sc['num_inverter'], 
+                                                availability=inv_availability[j], 
+                                                energy_units=energy_units)
+        
+        # Bus Pipeline Dataframe
+        bus_pipeline[superkey] = {'location': location, 
+                                  'solpos': solpos, 
+                                  'airmass': airmass, 
+                                  'etr_nrel': etr_nrel,
+                                  'disc': disc,
+                                  'tracker': tracker, 
+                                  'mount': mount,
+                                  'bifacial': is_bifacial,
+                                  'total_incident_front': total_incident_front,
+                                  'total_incident_back': total_incident_back,
+                                  'total_absorbed_front': total_absorbed_front,
+                                  'total_absorbed_back': total_absorbed_back,
+                                  'poa': poa,
+                                  'string_array': string_array,
+                                  'system': system,
+                                  'temp_cell': temp_cell,
+                                  'p_dc': sum(pdc_production), 
+                                  'ac': ac, 
+                                  'energy': energy}
+
     # AC and Energy Addition for System
     if num_systems > 1:
+        dc_inv = []
         ac_inv = []
         denergy_inv = []
         wenergy_inv = []
         menergy_inv = []
 
         for i in range(num_systems):
-            ac_inv.append(bus_pipeline[f'inverter{i+1}']['system']['ac'])
-            denergy_inv.append(pd.DataFrame(bus_pipeline[f'inverter{i+1}']['system']['energy']['day']).energy)
-            wenergy_inv.append(pd.DataFrame(bus_pipeline[f'inverter{i+1}']['system']['energy']['week']).energy)
-            menergy_inv.append(pd.DataFrame(bus_pipeline[f'inverter{i+1}']['system']['energy']['month']).energy)
+            dc_inv.append(bus_pipeline[f'inverter{i+1}']['p_dc'])
+            ac_inv.append(bus_pipeline[f'inverter{i+1}']['ac'])
+            denergy_inv.append(pd.DataFrame(bus_pipeline[f'inverter{i+1}']['energy']['day']).energy)
+            wenergy_inv.append(pd.DataFrame(bus_pipeline[f'inverter{i+1}']['energy']['week']).energy)
+            menergy_inv.append(pd.DataFrame(bus_pipeline[f'inverter{i+1}']['energy']['month']).energy)
 
+        sys_dc = reduce(lambda a, b: a.add(b, fill_value=0), dc_inv)
         sys_ac = reduce(lambda a, b: a.add(b, fill_value=0), ac_inv)
         sys_denergy = reduce(lambda a, b: a.add(b, fill_value=0), denergy_inv)
         sys_wenergy = reduce(lambda a, b: a.add(b, fill_value=0), wenergy_inv)
@@ -513,10 +477,10 @@ def run(system_configuration, data, availability, energy_units):
                                  'total_absorbed_back': total_absorbed_back,
                                  'poa': poa,
                                  'temp_cell': temp_cell,
-                                 'dc': dc, 
+                                 'p_dc': sys_dc, 
                                  'ac': sys_ac, 
                                  'energy': {'day': sys_denergy,
                                             'week': sys_wenergy,
                                             'month': sys_menergy}}
-    
+        
     return bus_pipeline

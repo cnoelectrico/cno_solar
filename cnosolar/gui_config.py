@@ -170,18 +170,15 @@ def execute():
     28. strings_per_inverter : int or list
             Number of strings in parallel in each subarray.
     
-    29. per_mppt : float or list
-            Fraction of power handled by each input (e.g., 1/Number of Inputs or 1/MPPT Number).
-    
-    30. num_inverter : int
+    29. num_inverter : int
             Number of inverters with electrical configuration exactly equal to the one defined. 
             It allows to scale theproduction calculations.
     
-    31. loss : float
+    30. loss : float
         Overall system losses in percentage.
         Default = 14.6
     
-    32. name : string
+    31. name : string
         Suffix to the name of the configuration file (system_config_suffix). 
         Default = 'system_config'
     '''
@@ -300,7 +297,6 @@ def execute():
                                  <ul>
                                    <li> <b>Módulos por String:</b> Cantidad de módulos en serie por string en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
                                    <li> <b>Strings por Inversor:</b> Cantidad de strings en paralelo en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
-                                   <li> <b>Porcentaje Entradas:</b> Fracción de potencia manejada por cada entrada (e.g., 1/Número de Entradas o 1/Número MPPT). Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
                                    <li> <b>Número de Inversores:</b> Cantidad de inversores con configuración eléctrica exactamente igual a la definida. Permite escalar los cálculos de producción.</li>
                                  </ul>
 
@@ -893,7 +889,6 @@ def execute():
     # ELECTRICAL CONFIGURATION
     w_mps = widgets.Text(value=None, description='', style={'description_width': 'initial'})
     w_spi = widgets.Text(value=None, description='', style={'description_width': 'initial'})
-    w_mppt = widgets.Text(value=None, description='', style={'description_width': 'initial'})
     w_numinv = widgets.IntText(value=1, description='', style={'description_width': 'initial'})
 
     def handle_mppt(change):
@@ -906,7 +901,6 @@ def execute():
             v_others = '0, ' * change['new']
             v_others = v_others[:-2]
 
-        w_mppt.value = v_mppt
         w_mps.value = v_others
         w_spi.value = v_others
 
@@ -915,7 +909,6 @@ def execute():
     conf_elec = widgets.VBox([widgets.Box([widgets.HTML('<h4>Configuración Eléctrica</h4>', layout=widgets.Layout(height='auto'))]),
                               widgets.Box([widgets.Label('Módulos por String'), w_mps], layout=gui_layout),
                               widgets.Box([widgets.Label('Strings por Inversor'), w_spi], layout=gui_layout),
-                              widgets.Box([widgets.Label('Porcentaje Entradas'), w_mppt], layout=gui_layout),
                               widgets.Box([widgets.Label('Número Inversores'), w_numinv], layout=gui_layout)])
 
     # TRACKING AND ORIENTATION CONFIGURATION
@@ -1149,24 +1142,6 @@ def execute():
                       'beta_oc': module_vbox.children[1].children[9].children[1].value,
                       'gamma_r': module_vbox.children[1].children[10].children[1].value,
                       'STC': module_vbox.children[1].children[11].children[1].value}
-            
-#             I_L_ref, I_o_ref, R_s, R_sh_ref, a_ref, Adjust = pvlib.ivtools.sdm.fit_cec_sam(celltype=module['Technology'], 
-#                                                                                            v_mp=module['V_mp_ref'], 
-#                                                                                            i_mp=module['I_mp_ref'], 
-#                                                                                            v_oc=module['V_oc_ref'], 
-#                                                                                            i_sc=module['I_sc_ref'], 
-#                                                                                            alpha_sc=module['alpha_sc'], 
-#                                                                                            beta_voc=module['beta_oc'], 
-#                                                                                            gamma_pmp=module['gamma_r'], 
-#                                                                                            cells_in_series=module['N_s'], 
-#                                                                                            temp_ref=25)
-
-#             module.update({'I_L_ref':I_L_ref, 
-#                            'I_o_ref':I_o_ref,
-#                            'R_s':R_s, 
-#                            'R_sh_ref':R_sh_ref, 
-#                            'a_ref':a_ref,
-#                            'Adjust':Adjust})
 
             modules_database = None
             modules_name = None
@@ -1243,14 +1218,12 @@ def execute():
         if num_arrays == 1:
             modules_per_string = [int(w_mps.value)] #Modules Per String
             strings_per_inverter = [int(w_spi.value)] #Strings Per Inverter
-            per_mppt = [float(w_mppt.value)]
 
         elif num_arrays > 1:
             modules_per_string = str_to_list(w_mps.value) #Modules Per String
             strings_per_inverter = str_to_list(w_spi.value) #Strings Per Inverter
-            per_mppt = str_to_list(w_mppt.value)
 
-        return [modules_per_string, strings_per_inverter, per_mppt, num_inverters]
+        return [modules_per_string, strings_per_inverter, num_inverters]
 
     ## System Configuration
     def sys_config(inverter_status, module_status, mount_status, econfig_status):
@@ -1291,8 +1264,7 @@ def execute():
                                 'num_arrays': w_subarrays.value,
                                 'modules_per_string': econfig_status[0],
                                 'strings_per_inverter': econfig_status[1],
-                                'per_mppt': econfig_status[2],
-                                'num_inverter': econfig_status[3],
+                                'num_inverter': econfig_status[2],
 
                                 # Global Parameters
                                 'loss': w_loss.value,

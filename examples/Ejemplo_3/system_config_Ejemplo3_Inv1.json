@@ -59,9 +59,6 @@
   "strings_per_inverter": [
     7
   ],
-  "per_mppt": [
-    1.0
-  ],
   "num_inverter": 4,
   "loss": 14.6,
   "name": "Ejemplo3_Inv1"
