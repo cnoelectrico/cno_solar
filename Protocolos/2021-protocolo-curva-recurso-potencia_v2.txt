@@ -323,8 +323,6 @@ La estructura de datos del archivo de configuración JSON contiene los siguiente
     9. beta_oc: Coeficiente térmico del voltaje de circuito abierto en V/ºC.
     10. gamma_r: Coeficiente térmico de potencia en el punto de mayor potencia en %/ºC.
     11. STC: Potencia nominal del módulo bajo condiciones STC en W.
-    
-%TODO    Los parámetros que creemos deberían estar son: 'alpha_sc', 'a_ref', 'I_L_ref', 'I_o_ref', 'R_sh_ref', 'R_s', 'Adjust' y 'T_NOC'
           
 14. bifacial : bool
 
@@ -386,20 +384,16 @@ La estructura de datos del archivo de configuración JSON contiene los siguiente
 
     Número de strings en paralelo en cada subarreglo.
 
-29. per_mppt : float or list
-
-    Fracción de la potencia que ocupa un subarrelgo o entrada (por ejemplo, 1/Número de Entradas o 1/Número de MPPT).
-
-30. num_inverter : int
+29. num_inverter : int
 
     Número de inversores con configuración eléctrica idéntica a la definida en el archivo de configuración. Permite escalar el cálculo de la potencia producida.
 
-31. loss : float
+30. loss : float
 
     Pérdidas globales del sistema en porcentaje.
     Valor por defecto = 14.6
 
-32. name : string
+31. name : string
 
     Nombre de la configuración de planta.
     
@@ -470,9 +464,6 @@ A continuación un ejemplo parcial de la estructura de un archivo de configuraci
   ],
   "strings_per_inverter": [
     4
-  ],
-  "per_mppt": [
-    1.0
   ],
   ...
   "name": "SD29"
