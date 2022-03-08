@@ -20,7 +20,7 @@ logo-width: 380pt
 lang: es-CO
 ---
 
-[//]: pandoc -F pandoc-crossref --citeproc --template eisvogel 2021-protocolo-curva-recurso-potencia_v2.txt -o 2021-protocolo-curva-recurso-potencia_v2.pdf
+[//]: pandoc -F pandoc-crossref --citeproc --template eisvogel 2021-protocolo-curva-recurso-potencia_v3.txt -o 2021-protocolo-curva-recurso-potencia_v3.pdf
 
 # Introducción
 
