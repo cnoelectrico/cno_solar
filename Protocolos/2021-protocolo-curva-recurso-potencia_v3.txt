@@ -1,0 +1,499 @@
+---
+title: Protocolo para la construcción del modelo de una planta solar fotovoltaica
+subtitle: "autores: Andrés González Mancera, Ph.D., Nelson Salazar Peña, M.Sc."
+author:
+  - Universidad de los Andes - Consejo Nacional de Operación
+date: Febrero de 2022
+documentclass: article
+bibliography: 2021-cen_solar.bib
+csl: ieee.csl
+geometry:
+- margin=3cm
+papersize: letter
+numbersections: true
+titlepage: true
+titlepage-text-color: '002d62'
+titlepage-rule-color: 'FF9f00'
+titlepage-rule-height: 4
+logo: "Uniandes-CNO2.png"
+logo-width: 380pt
+lang: es-CO
+---
+
+[//]: pandoc -F pandoc-crossref --citeproc --template eisvogel 2021-protocolo-curva-recurso-potencia_v2.txt -o 2021-protocolo-curva-recurso-potencia_v2.pdf
+
+# Introducción
+
+Para modelar la producción de una planta solar fotovoltaica se requiere información sobre su su ubicación y disposición, la arquitectura eléctrica de la planta y las especificaciones técnicas de inversores y módulos fotovoltaicos. También se requiere información precisa sobre el recurso solar y las condiciones ambientales en el lugar de la planta, generalmente en forma de series de tiempo. 
+
+El modelo de la planta debe representar de manera adecuada los fenómenos de conversión de energía, desde la radiación solar, hasta la potencia AC en la frontera comercial. Este modelo, junto con las series de tiempo con información de irradiancia y temperatura ambiente, permiten correr simulaciones para predecir la producción de la planta en el tiempo. Estas simulaciones permiten, entre otras cosas, estimar la producción de la planta en diferentes escalas de tiempo, estimar la producción mínima de energía en un período de tiempo y calcular la Capacidad Efectiva Neta - CEN de la planta. 
+
+El presente documento presenta el protocolo con las consideraciones y aspectos importantes para la construcción del modelo de una planta solar fotovotaica. De igual manera se especifica el formato para la construcción del archivo de configuración de una planta solar fotovoltaica necesario para correr el modelo del CNO.
+
+# Modelo - Procedimiento de cálculo
+
+Un modelo que represente de manera adecuada el desempeño de una planta solar fotovoltaica debe caracterizar la cadena de transformaciones y transporte de la energía desde el recurso solar hasta la frontera comercial. Los modelos más usados comúnmente consisten de una serie de pasos que representen las transformaciones y pérdidas durante el proceso de conversión de energía. 
+
+El primer paso consiste en calcular la irradiancia efectiva que incide sobre las celdas solares fotovoltaicas. Este paso requiere transponer las componentes de la irradiancia medida (o estimada) en el plano horizontal.
+
+Una vez se conoce la irradiancia efectiva, el segundo paso consiste en modelar la conversión a energía eléctrica. Esto se realiza mediante un modelo adecuado que permita estimar la producción eléctrica DC como función de la irradiancia, la temperatura de la celda y las características técnicas de las celdas solares fotovoltaicas (ver Sección 2.2.2). En esta etapa también se incluyen las pérdidas asociadas al proceso de transformación y transmisión en DC.
+
+En el tercer paso, se modela la conversión DC-AC. Estos modelos deben incluir las nolinealidades del proceso de transformación y su dependencia con la temperatura y otros parámetros de operación.
+
+Finalmente, en el cuarto paso, se consideran e incluyen todas las pérdidas asociadas a la transmisión y transformación en AC hasta la frontera comercial.
+
+A continuación se determinan los requerimientos para cada una de las etapas del proceso de modelado.
+
+## Descomposición y transposición de la irradiancia
+
+Estimar la irradiancia POA requiere una secuencia de tareas:
+
+1. Descomposición: $GHI \rightarrow DNI, DHI$. Para lo que se encuentran disponibles métodos tales como Erbs, Boland, DISC, DIRINT y DIRINDEX.
+2. Transposición: $GHI, DNI, DHI \rightarrow POA$. Para lo que se encuentran disponibles métodos tales como Isotrópico, Klucher, Reindl, King, Hay-Davies, Perez-Ineichen.
+
+El proceso de modelado sigue el fluyo de trabajo estipulado por Lave et al. (2014) [@Lave:2014vx] y sintetizado en el siguiente diagrama.
+
+![Diagrama adaptado de Lave et al. (2014) [@Lave:2014vx].](Flujo_Trabajo.png)
+
+Notar que la irradiancia directa normal *DNI* se puede estimar a partir de la irradiancia horizontal global y la irradiancia difusa según la siguiente relación.
+
+$$ DNI = \frac{GHI-DHI}{\cos(cenit)}$$
+
+Tras un estudio del desempeño de los diferentes modelos disponibles, comparando los resultados contra datos medidos en varias regiones de Colombia y documentado en la memoria de cálculos ubicada en `Memoria_de_Calculos/01_descomposicion_transposicion_sd_5min.ipynb` en el repositorio que hace parte integral de este protocolo, se estableció que la mejor combinación para la estimación de la POA son los modelos de *DISC + Perez-Ineichen 1990*. En un segundo lugar, con resultados similiares se ubicó la combinación de modelos *ERBS + Perez-Ineichen 1990*. Cualquiera de las dos combinaciones se puede utilizar para el cálculo de la *POA* a partir de la *GHI*.
+
+## Modelamiento de la planta solar fotovoltaica
+
+El modelamiento de la planta se puede realizar en cualquier software o librería para modelamiento de plantas usado en la industria y que incluya modelos equivalentes a los enunciados en este protocolo.
+
+Los pasos para el modelamiento, así como los requerimientos y consideraciones en cada uno de los pasos se describen a continuación.
+
+### Ubicación de la planta
+
+La ubicación de la planta se describe mediante sus coordenadas, altura sobre el nivel del mar, zona horaria y el albedo según el tipo de superficie.
+
+### Módulos Fotovoltaicos
+
+Para el modelamiento de los módulos solares se requiere la definición de los siguientes parámetros:
+
+* $T_{NOCT}$: Temperatura nominal de funcionamiento de la celda en ºC.
+* Tecnología: Tecnología de la celda fotovoltaica.
+* Número Celdas: Número de celdas fotovoltaicas en serie.
+* $I_{SC}$ en STC: Corriente de corto circuito en condiciones STC en A.
+* $V_{OC}$ en STC:Voltaje de circuito abierto en condiciones STC en V.
+* $I_{MP}$ en STC: Corriente en el punto de máxima potencia en condiciones STC en A.
+* $V_{MP}$ en STC: Voltaje en el punto de máxima potencia en condiciones STC en V.
+* Coef. Temp. $I_{SC}$: Coeficiente de temperatura de la corriente de cortocircuito en A/ºC.
+* Coef. Temp. $V_{OC}$: Coeficiente de temperatura de voltaje de circuito abierto en V/ºC.
+* Coef. Temp. $P_{MP}$: Coeficiente de temperatura de la potencia en el punto máximo en %/ºC.
+* $P_{Nominal}$ en STC: Potencia nominal del módulo fotovoltaico en condiciones STC en W.
+
+En caso de que los módulos sean bifaciales, se requieren los parámetros definidos a continuación.
+
+* Bifacialidad: Relación entre la eficiencia del lado frontal y posterior del módulo fotovoltaico, medida en condiciones STC. Utilice un valor porcentual en escala entre 0 y 1.
+* Alto Fila Paneles: Altura de las filas de paneles fotovoltaicos medida en su centro en unidades de metros.
+* Ancho Fila Paneles: Ancho de las filas de paneles fotovoltaicos en el plano 2D considerado en unidades de metros (por ejemplo, 1P, 2P, 4L). 
+
+### Inversores
+
+El modelamiento de los inversores permite dos métodos: *Sandia National Laboratories* (SNL) y *National Renewable Energy Laboratory* (NREL - PVWatts); el segundo con menos parámetros requeridos que el primero a expensas de una representación menos precisa del rendimiento del inversor y, por ende, un modelo más simple.
+
+Para el modelamiento de los inversores con el método *SNL* se requiere la definición de los siguientes parámetros:
+
+* $P_{AC}$ Nominal: Potencia AC nominal del inversor en W.
+* $P_{DC}$ Nominal: Potencia DC nominal del inversor en W.
+* $V_{DC}$ Nominal: Voltaje DC al que se alcanza la Potencia AC nominal con la entrada de Potencia DC en V.
+* $P_{DC}$ de Arraque: Potencia DC necesaria para iniciar el proceso de inversión en W.
+* $C_0$: Parámetro que define la curvatura de la relación entre la Potencia AC y Potencia DC en condición STC en 1/W.
+* $C_1$: Coeficiente empírico que permite que la Potencia DC Nominal varíe linealmente con el Voltaje DC en 1/V.
+* $C_2$: Coeficiente empírico que permite que la Potencia DC de Arranque varíe linealmente con el Voltaje DC en 1/V.
+* $C_3$: Coeficiente empírico que permite que $C_0$ varíe linealmente con el Voltaje DC en 1/V.
+* $P_{AC}$ Consumo Nocturno: Potencia AC consumida por el inversor durante la noche en W.
+
+Por otra parte, con el método *NREL - PVWatts* se requiere la definición de los siguientes parámetros:
+
+* $P_{DC}$ Nominal: Potencia DC nominal del inversor en W.
+* Eficiencia Nominal: Eficiencia nominal del inversor en magnitud adimensional.
+
+### Diseño de la Planta
+
+Finalmente, se debe realizar la configuración de la arquitectura de la planta mediante la definición de los parámetros definidos como se indica a continuación.
+
+#### Subarrays
+
+* Cantidad Subarrays: Conjunto de arreglos conectados a un inversor. Cada subarray se compone de módulos en serie por string, strings en paralelo y el número de entradas al inversor (ya sea entradas completas por inversor o número de entradas MPPT).
+
+#### Configuración Eléctrica
+
+* Módulos por String: Cantidad de módulos en serie por string en cada subarray.
+* Strings por Inversor: Cantidad de strings en paralelo en cada subarray. 
+* Porcentaje Entradas: Fracción de potencia manejada por cada entrada (por ejemplo, 1/Número de Entradas o 1/Número MPPT).
+* Número de Inversores: Cantidad de inversores con configuración eléctrica exactamente igual a la definida.
+
+#### Seguidores y Orientación  
+  
+1. *Sin seguidor*
+
+* Azimutal: Ángulo azimutal en grados decimales (Norte = 0, Sur = 180, Este = 90, Oeste = 270). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal es el mismo).
+* Inclinación Ángulos de inclinación desde la horizontal en grados decimales. Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la inclinación es la misma).
+* Racking: Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.
+
+2. *Seguidor 1-Eje*
+
+El ángulo de rotación se determina en un sistema de coordenadas diestro. El seguidor define el eje-y positivo, el eje-x positivo está a 90º en sentido horario desde el eje-y y es paralelo a la superficie, y el eje-z positivo es normal a ambos ejes (-x y -y), y está orientado hacia el cielo. El ángulo de rotación es una rotación hacia la derecha alrededor del eje-y en el sistema de coordenadas e indica la posición del seguidor en relación con la horizontal. Por ejemplo, si Azimutal Eje es 180º (orientado al sur) y Elevación Eje es 0º, entonces un ángulo del seguidor de 0º es horizontal, de 30º es una rotación hacia el oeste, y -90º es una rotación al plano vertical hacia el este.
+
+* Inclinación Eje: Inclinación del eje de rotación con respecto a la horizontal en grados decimales (e.g., un valor de 0º indica que el eje de soporte de los paneles fotovoltaicos está horizontal). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la inclinación del eje es la misma).
+* Azimutal Eje: Ángulo perpendicular por regla de la mano derecha al eje de rotación en grados decimales (e.g., un valor de 180º --i.e., dirección sur-- indica una rotación de este a oeste). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal del eje es el mismo).
+* Ángulo Máximo: Ángulo de rotación máximo del seguidor desde su posición horizontal en grados decimales (e.g., un valor de 90º permite que el seguidor gire desde y hasta una posición vertical en la que el panel mira hacia el horizonte). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el ángulo máximo es el mismo).
+* Racking: Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.
+
+La siguiente figura describe algunos de los parámetros utilizados para la descripción del sistema con seguidor de 1 eje.
+
+![Descripción de los parámetros para la definición de un sistema a un eje. Diagrama adaptado de [@Papathanasiou:2021aa].](seguidor-1-eje.png)
+
+## Modelo DC
+
+Para estimar la producción DC se recomienda la utilización de un modelo de circuito equivalente que modele la curva *I-V*. El modelo debe incluir la respuesta del sistema a la temperatura de las celdas solares. 
+
+El circuito equivalente modela el comportamiento eléctrico de una celda solar fotovoltaica descrito de la siguiente manera:
+
+$$
+I = I_L - I_o \left[ exp \left( \frac{V + I R_s}{a} \right) - 1 \right] - \frac{V + I R_s}{R_{sh}}
+$$
+
+Siendo $I_L$ la corriente de fotoluminiscencia ---corriente inducida por el efecto fotoeléctrico---, $I_o$ la corriente de saturación inversa que causa el fenómeno de difusión en la unión P-N (*P-N junction*), $a$ el factor de no idealidad modificado, y las resistencias que representan el comportamiento no ideal del panel: resistencia de derivación (*shunt*) $R_{sh}$ que limita el flujo de corriente causada por defectos de manufactura y la resistencia en serie $R_s$ que reduce la eficiencia por la generación de calor.
+
+## Modelo AC
+
+La producción AC se estima mediante un modelo que determine la salida de potencia AC a partir de las características técnicas del inversor, y el voltaje y potencia DC. Se ha establecido que aplicando el modelo de *Sandia National Laboratory* (SNL) genera resultados favorables para las plantas a escala utility. El modelo está dado por la siguiente ecuación.
+
+$$
+P_{AC} = \left[ \frac{P_{AC_0}}{A-B} - C \left(A-B \right) \right] \cdot \left( P_{DC} - B \right) - C \left( P_{DC} - B \right)^2 
+$$
+
+Donde:
+
+$$
+A = P_{DC_0} \left[ 1 + C_1 \left(V_{DC} - V_{DC_0} \right) \right]
+$$
+
+$$
+B = P_{S_0} \left[ 1 + C_2 \left(V_{DC} - V_{DC_0} \right) \right]
+$$
+
+$$
+C = C_0 \left[ 1 + C_3 \left(V_{DC} - V_{DC_0} \right) \right]
+$$
+
+De acuerdo con Smets et al. (2016) [@Smets:2016vk], la principal cualidad del modelo de SNL es que toma en cuenta las fuentes que causan una no linealidad entre la potencia DC y AC para un voltaje DC dado. De esta manera se consigue una eficienta variable del sistema, lo cual es más acertado que asumir una eficiencia lineal. Algunas de las fuentes de pérdidas alteran la eficiencia del inversor y que el modelo SNL tiene en cuenta son:
+
+- Autoconsumo del inversor mediante el parámetro $P_{S_0}$.
+- Pérdidas proporcionales a $P_{AC}$ debido a caídas fijas de voltaje en semiconductores.
+- Pérdidas resistivas por cableado.
+
+Mayor detalle sobre este modelo se puede encontrar en la documentación de [*pvlib*](https://pvlib-python.readthedocs.io/en/stable/generated/pvlib.inverter.sandia.html).
+
+En caso de no contar con todos los parámetros requeridos por el modelo *SNL* para la caracterización del inversor, se permite una representación mediante el modelo *NREL - PVWatts*. Este modelo utiliza una descripción simplificada aunque con exactitud similar.
+
+El modelo de inversor de *NREL PVWatts* está dado por las siguientes ecuaciones.
+
+$$
+\eta = \frac{\eta_{nom}}{\eta_{ref}} \left( -0.0162 \cdot \zeta - \frac{0.0059}{\zeta} + 0.9858 \right)
+$$
+
+$$
+P_{AC} = \text{min} \left(\eta P_{DC}, P_{AC_0} \right)
+$$
+
+Donde:
+
+$$
+\zeta = \frac{P_{DC}}{P_{DC_0}}
+$$
+
+$$
+P_{DC_0} = \frac{P_{AC_0}}{\eta_{nom}}
+$$
+
+Siendo $P_{DC_0}$ y $P_{AC_0}$ la potencia DC y AC indicada por la capacidad instalada, $\eta_{nom}$ la eficiencia nominal del inversor y $\eta_{ref}$ la eficiencia de referencia del inversor (definida como 0.9637 por PVWatts).
+
+Mayor detalle sobre este modelo se puede encontrar en la documentación de [*pvlib*](https://pvlib-python.readthedocs.io/en/stable/generated/pvlib.inverter.pvwatts.html).
+
+## Pérdidas
+
+Si bien el modelo tiene en cuenta los principales fenómenos de la planta, incluyendo las pérdidas asociadas a la conversión y transmisión de energía, es necesario incluir algunos aspectos adicionales. Fenómenos como la suciedad, pérdidas de desajuste, entre otros, se incorporan a través de factores porcentuales característicos del sistema.
+
+El factor de pérdidas globales DC del sistema, se define como el porcentaje de pérdidas causado por efecto de la suciedad, sombreado, el desajuste entre módulos, degradación, entre otros. Se recomienda un valor por defecto de 14.6%, esto basado en la literatura y validaciones realizadas con datos de plantas en operación. Si se cuenta con un modelo que permita estimar un valor más adecuado para la planta éste se puede usar.
+
+Por el lado AC, el modelo estima la producción a la salida de los inversores. Es necesario incluir factores que incorporen las pérdidas de transformación y transmisión hasta el punto de conexión. En este sentido se requieren tres factores asociados a estos procesos así:
+
+* $k_{pc}$: pérdidas de transmisión hasta el punto común de acople de los inversores.
+* $k_{t}$: pérdidas asociadas a la transformación (elevación de tensión).
+* $k_{in}$: pérdidas de interconexión, transmisión ransmisión hasta el punto de conexión.
+
+Estos factores deben ser estimados mediante un modelo eléctrico específico a la planta. 
+
+# Especificación archivo de configuración de una planta solar fotovoltaica
+
+En el modelo de plantas solares fotovoltaicas del CNO, la configuración del modelo de una planta solar fotovoltaica se realiza mediante una serie de archivos en formato JSON (uno por cada configuración de inversor disponible en la planta). Estos archivos permiten configurar los modelos para el cálculo de la producción de la planta como función del recurso.
+
+El archivo de configuración en formato JSON inicia y termina con corchetes `{}`. Entre estos corchetes, cada línea contiene una llave con el nombre del parámetro en paréntesis, seguido del valor correspondiente a dicho parámetro y cada fila separada por coma así: 
+
+```json
+"nombre_parámetro": valor_parámetro,
+```
+
+La Figura 1 muestra de manera gráfica los parámetros que deben aparecer en el archivo de configuración dependiendo de la configuración de la planta solar fotovoltaica y las fuentes de información a utilizar.
+
+![Estructura archivo de configuración JSON para modelar una planta solar fotovoltaica.](Estructura_JSON.png)
+
+La estructura de datos del archivo de configuración JSON contiene los siguientes parámetros:
+
+1. latitude : float
+
+    Latitud basada en la localización de la planta solar fotovoltaica en notación de grados decimales.
+    
+2. longitude : float
+
+    Longitud basada en la localización de la planta solar fotovoltaica en notación de grados decimales.
+	    
+3. tz : string
+
+    Zona horaria de la localización de la planta solar fotovoltaica.
+
+4. altitude : float
+
+    Altura sobre el nivel del mar de la planta solar fotovoltacia en [m].
+
+5. surface_type : string
+
+    Tipo de superficie para determinar el albedo. Opcional si el valor del albedo no se conoce.
+
+6. surface_albedo : float
+
+    Albedo.
+
+7. inverters_database : string
+    
+    Repositorio a utilizar para obtener parámetros de inversores. Las opciones válidas son: CECInverter, SandiaInverter o ADRInverter. Si el método de configuración es archivo de PVsyst o Manual, el valor se asigna `null`.
+
+8. inverter_name : string
+
+    Nombre del inversor siguiendo el formato del repositorio a utilizar. Si el método de configuración es archivo de PVsyst o Manual, el valor se asigna `null`.
+
+9. inverter : dict
+
+    **Parámetros técnicos del inversor.**
+
+    Parámetros para utilizar el método *SNL PVlib*:
+
+    1. Paco: Potencia de salida AC nominal del inversor en W.
+    2. Pdco: Potencia de entrada DC nominal del inversor en W.
+    3. Vdco: Voltaje DC al que se alcanza la potencia nominal AC con
+	   la potencia DC nominal en V.
+    4. Pso: Potencia DC requerida para iniciar el inversor en W.
+    5. C0: Parámetros que definen la curvatura de la relación entre
+	   la potencia AC la potencia DC en condiciones STC en 1/W.
+    6. C1: Coeficiente empíricos que permiten la variación lineal de la
+	   potencia DC nominal como función del voltaje DC en 1/V.
+    7. C2: Coeficiente empíricos que permiten la variación lineal de la 
+	   potencia DC de arranque como función del voltaje DC in 1/V.
+    8. C3: Coeficiente empírico que permite la variación lineal de $C_0$ 
+	   como función del voltaje DC en 1/V.
+    9. Pnt: Potencia AC consumida por el inversor en W.
+
+    Parámetros para utilizar el método *NREL PVWatts*:
+
+    1. Pdco: Potencia DC nominal del inversor en W.
+    2. eta_inv_nom: Eficiencia nominal del inversor adimensional.
+    
+10. ac_model : string
+
+    Método a usar para el modelamiento del inversor. Las opciones válidas son: sandia o pvwatts.
+
+11. modules_database : string
+
+    Repositorio a utilizar para obtener parámetros de módulos solares fotovoltaicos. Las opciones válidas son: *pvmodule* o *cecmodul*. Si el método de configuración es PVFree, archivo de PVsyst o Manual, el valor se asigna `null`.
+
+12. module_name : string
+        
+    Nombre del módulo solar fotovoltaico siguiendo el formato del repositorio a utilizar. Si el método de configuración es PVFree, archivo de PVsyst o Manual, el valor se asigna `null`.
+
+13. module : dict
+
+    **Parámetros técnicos del módulo solar fotovoltaico.**
+
+    1. T_NOCT: Temperatura de celda de operación nominal en ºC.
+    2. Technology: Tecnología de la celda solar fotovoltaica. Opciones válidas: monosi, multisi, cigs, cdte, asi o None.
+    3. N_s: Número de celdas solares en serie.
+    4. I_sc_ref: Corriente de circuito cerrado en condiciones STC en A.
+    5. V_oc_ref: Voltaje de circuito abierto en condiciones STC en V.
+    6. I_mp_ref: Corriente en el punto de máxima potencia en condiciones STC en A.
+    7. V_mp_ref: Voltaje en el punto de máxima potencia en condiciones STC en V.
+    8. alpha_sc: Coeficiente térmico de la corriente de circuito cerrado en A/ºC.
+    9. beta_oc: Coeficiente térmico del voltaje de circuito abierto en V/ºC.
+    10. gamma_r: Coeficiente térmico de potencia en el punto de mayor potencia en %/ºC.
+    11. STC: Potencia nominal del módulo bajo condiciones STC en W.
+          
+14. bifacial : bool
+
+    Define si el módulo es bifacial o no.
+
+15. bifaciality : float
+
+    Fracción entre la eficiencia del frente y la parte trasera del módulo solar fotovoltaico, medido bajo condiciones STC.
+
+16. row_height : float
+
+    Altura de las filas de los módulos solares medido en su centro en m.
+
+17. row_width : float
+
+    Ancho de las filas de módulos solares en el plano 2D en unidades de metros (por ejemplo, 1P, 2P, 4L).
+
+18. with_tracker : bool
+
+    Parámetro que define si los arreglso están montados en estructuras fijas o con seguimiento a un eje.
+
+19. surface_azimuth : float or list
+
+    Ángulo azimutal de la superficie del módulo. Norte = 0, Este = 90, 
+        Sur = 180 y Oeste = 270. Si `with_tracker = true`, el valor se asigna a `null`.
+
+20. surface_tilt : float or list
+
+    Inclinación de la superficie de los módulos. La inclinación se asigna desde la horizontal (por ejemplo, superficie horizontal = 0, superficie hasta el horizonte = 90). Si `with_tracker = true`, el valor se asigna a `null`.
+    
+21. axis_tilt : float
+
+    Inclinación del eje de rotación con respecto a la horizontal (por ejemplo, un valor de 0º indica que el eje de rotación de los módulos se encuentra horizontal) en [grados]. Si `with_tracker = false`, el valor se asigna a `null`.
+
+22. axis_azimuth : float
+
+    Ángulo perpendicular al eje de rotación siguiendo la regla de la mano derecha (por ejemplo, un valor de 180º indica una rotation de este a oeste) en [grados]. Si `with_tracker = false`, el valor se asigna a `null`.
+
+23. max_angle : float
+        Máximo angulo de rotación del seguidor desde su posición horizontal (por ejemplo, un valor de 90º permite al seguidor girar desde y hasta la posición vertical donde las caras del módulo miran al horizonte) en [grados]. Si `with_tracker = false`, el valor se asigna a `null`.
+
+24. module_type : string
+
+    Método de montaje de los módulos solares y materiales del frente y parte trasera de los mismos. Las opciones válidas son: `open_rack_glass_glass`, `close_mount_glass_glass` o `insulated_back_glass_polymer`.
+
+25. racking_model : string, optional
+
+    Método de racking de los módulos solares. Opciones válidas son 'open_rack', 'close_mount' e 'insulated_back'. Se utiliza para la difinición de los parámetros del modelo de temperatura de las celdas *SAPM*.
+    
+26. num_arrays : int
+
+    Número de subarreglos conectados al inversor. Para cada subarreglo se define el número de módulos en serie en un *string*, *strings* en paralelo, y fracción de la entradas al inversor.
+
+27. modules_per_string : int or list
+
+    Número de módulos en serie por string en un subarreglo.
+
+28. strings_per_inverter : int or list
+
+    Número de strings en paralelo en cada subarreglo.
+
+29. num_inverter : int
+
+    Número de inversores con configuración eléctrica idéntica a la definida en el archivo de configuración. Permite escalar el cálculo de la potencia producida.
+
+30. loss : float
+
+    Pérdidas globales del sistema del lado DC en porcentaje.
+    Valor por defecto = 14.6
+    
+31. kpc : float
+
+    Pérdidas de transmisión hasta el punto común de acople de los inversores en porcentaje.
+
+32. kt : float
+
+    Pérdidas asociadas a la transformación (elevación de tensión) en porcentaje.
+
+33. kin: float
+
+    Pérdidas de interconexión, transmisión hasta el punto de conexión en porcentaje.
+
+34. name : string
+
+    Nombre de la configuración de planta.
+    
+A continuación un ejemplo parcial de la estructura de un archivo de configuración de una planta solar fotovoltaica en formato JSON.
+
+```json
+{
+  "latitude": 4.604535,
+  "longitude": -74.066038,
+  "tz": "America/Bogota",
+  ...
+  "inverter": {
+    "Paco": 27600.0,
+    "Pdco": 28199.2,
+    "Vdco": 715.0,
+    "Pso": 92.1,
+    "C0": -2.513804e-07,
+    "C1": -3.1e-05,
+    "C2": -0.001336,
+    "C3": -0.001753,
+    "Pnt": 8.28
+  },
+  "ac_model": "sandia",
+  ...
+  "module": {
+    "A_c": 2.0,
+    "Adjust": 9.380614,
+    "BIPV": false,
+    "Bifacial": false,
+    "Date": "2018-11-04",
+    "I_L_ref": 10.48115,
+    "I_mp_ref": 9.86,
+    "I_o_ref": 1.807477e-11,
+    "I_sc_ref": 10.47,
+    "Length": 2.0,
+    "N_s": 72,
+    "Name": "LG Electronics Inc. LG400N2W-A5",
+    "PTC": 368.4,
+    "R_s": 0.312859,
+    "R_sh_ref": 293.80542,
+    "STC": 400.316,
+    "T_NOCT": 47.7,
+    "Technology": "Mono-c-Si",
+    "V_mp_ref": 40.6,
+    "V_oc_ref": 49.3,
+    "Version": "SAM 2018.10.29",
+    "Width": 1.0,
+    "a_ref": 1.821208,
+    "alpha_sc": 0.003141,
+    "beta_oc": -0.12818,
+    "created_on": "2019-02-12",
+    "gamma_r": -0.36,
+    "id": 10267,
+    "modified_on": "2019-02-12",
+    "resource_uri": "/api/v1/cecmodule/10267/"
+  },
+  ...
+  "surface_azimuth": [
+    180.0
+  ],
+  "surface_tilt": [
+    10.0
+  ],
+  ...
+  "num_arrays": 1,
+  "modules_per_string": [
+    18
+  ],
+  "strings_per_inverter": [
+    4
+  ],
+  ...
+  "name": "SD29"
+}
+```
+
+La configuración de la planta se puede realizar de manera manual siguiendo la descripción de este protocolo. También se puede crear de manera automática a través de una interfaz gráfica siguiendo una serie de pasos o tareas correspondientes a pestañas disponibles al correr la primera celda del cuaderno de Jupyter `CNO_Configuracion_Sistema.ipynb`. La primera pestaña *Documentación* contiene información detallada sobre los parámetros requeridos en cada una de las tareas.
+
+En la carpeta `examples`, las carpetas `Ejemplo_x` contiene archivos de configuración de ejemplo para plantas solares fotovoltaicas con diferentes arquitecturas. 
+
+# Referencias {#sec:referencias}
