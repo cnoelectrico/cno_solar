@@ -228,7 +228,7 @@ Por el lado AC, el modelo estima la producción a la salida de los inversores. E
 
 * $k_{pc}$: pérdidas de transmisión hasta el punto común de acople de los inversores.
 * $k_{t}$: pérdidas asociadas a la transformación (elevación de tensión).
-* $k_{in}$: pérdidas de interconexión, transmisión ransmisión hasta el punto de conexión.
+* $k_{in}$: pérdidas de interconexión, transmisión hasta el punto de conexión.
 
 Estos factores deben ser estimados mediante un modelo eléctrico específico a la planta. 
 
