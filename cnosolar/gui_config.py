@@ -336,7 +336,7 @@ def execute():
 
                                      <h5>Parámetros Globales</h5>
                                      <ul>
-                                       <li> <b>Pérdidas:</b> Porcentaje de pérdidas globales DC del sistema. Por defecto: 14.6%.</li>
+                                       <li> <b>Pérdidas DC:</b> Porcentaje de pérdidas globales DC del sistema. Por defecto: 14.6%.</li>
                                        <li> <b>$k_{pc}$:</b> Pérdidas de transmisión hasta el punto común de acople de los inversores. Por defecto: 0%.</li>
                                        <li> <b>$k_{t}$:</b> Pérdidas asociadas a la transformación (elevación de tensión). Por defecto: 0%.</li>
                                        <li> <b>$k_{in}$:</b> Pérdidas de interconexión, transmisión hasta la frontera comercial. Por defecto: 0%.</li>
@@ -993,11 +993,13 @@ def execute():
     kin_loss = widgets.BoundedFloatText(value=0.0, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
     
     conf_globalparams = widgets.VBox([widgets.Box([widgets.HTML('<h4>Parámetros Globales</h4>', layout=widgets.Layout(height='auto'))]),
-                                      widgets.Box([widgets.Label('Pérdidas [%]'), w_loss], layout=gui_layout),
-                                      widgets.Box([widgets.Label('Nombre Planta'), w_name], layout=gui_layout),
+                                      widgets.Box([widgets.Label('Pérdidas DC [%]'), w_loss], layout=gui_layout),
+                                      widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
                                       widgets.Box([widgets.Label('$k_{pc}$ [%]'), kpc_loss], layout=gui_layout),
                                       widgets.Box([widgets.Label('$k_{t}$ [%]'), kt_loss], layout=gui_layout),
-                                      widgets.Box([widgets.Label('$k_{in}$ [%]'), kin_loss], layout=gui_layout)])
+                                      widgets.Box([widgets.Label('$k_{in}$ [%]'), kin_loss], layout=gui_layout),
+                                      widgets.Box([widgets.HTML('<h4> </h4>', layout=widgets.Layout(height='auto'))]),
+                                      widgets.Box([widgets.Label('Nombre Planta'), w_name], layout=gui_layout)])
 
     # CONFIGURATION FILE
     # Config Button
