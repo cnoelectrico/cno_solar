@@ -66,5 +66,8 @@
   ],
   "num_inverter": 2,
   "loss": 14.6,
+  "kpc": 0.0,
+  "kt": 0.0,
+  "kin": 0.0,
   "name": "Ejemplo3_Inv2"
 }

@@ -175,10 +175,22 @@ def execute():
             It allows to scale theproduction calculations.
     
     30. loss : float
-        Overall system losses in percentage.
+        Overall DC system losses in percentage.
         Default = 14.6
     
-    31. name : string
+    31. kpc : float
+        Transmission losses up to the common coupling point of the inverters.
+        Default = 0.0
+        
+    32. kt : float
+        Losses associated with the transformation (voltage rise).
+        Default = 0.0
+        
+    33. kin : float
+        Interconnection losses, transmission up to the trade border.
+        Default = 0.0
+    
+    34. name : string
         Suffix to the name of the configuration file (system_config_suffix). 
         Default = 'system_config'
     '''
@@ -287,53 +299,56 @@ def execute():
                                   </ul>
                                 ''', layout=widgets.Layout(height='auto'))
 
-    doc_sysdesign = widgets.HTML('''
-                                 <h5>Subarrays</h5>
-                                 <ul>
-                                   <li> <b>Cantidad Subarrays:</b> Conjunto de arreglos conectados a un inversor. Cada subarray se compone de módulos en serie por string, strings en paralelo y el número de entradas al inversor (ya sea entradas completas por inversor o número de entradas MPPT).</li>
-                                 </ul>
-
-                                 <h5>Configuración Eléctrica</h5>
-                                 <ul>
-                                   <li> <b>Módulos por String:</b> Cantidad de módulos en serie por string en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
-                                   <li> <b>Strings por Inversor:</b> Cantidad de strings en paralelo en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
-                                   <li> <b>Número de Inversores:</b> Cantidad de inversores con configuración eléctrica exactamente igual a la definida. Permite escalar los cálculos de producción.</li>
-                                 </ul>
-
-                                  <h5>Seguidores y Orientación</h5>
-                                  <ul>
-                                    <li> <b>Sin Seguidor</b> 
-                                     <ul class='square'>
-                                       <li> <b>Azimutal:</b> Ángulo azimutal en grados decimales (Norte = 0, Sur = 180, Este = 90, Oeste = 270). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal es el mismo).</li>
-                                       <li> <b>Elevación:</b> Ángulos de inclinación desde la horizontal en grados decimales. Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación es la misma).</li>
-                                       <li> <b>Racking:</b> Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.</li>
+    doc_sysdesign = widgets.HTMLMath('''
+                                     <h5>Subarrays</h5>
+                                     <ul>
+                                       <li> <b>Cantidad Subarrays:</b> Conjunto de arreglos conectados a un inversor. Cada subarray se compone de módulos en serie por string, strings en paralelo y el número de entradas al inversor (ya sea entradas completas por inversor o número de entradas MPPT).</li>
                                      </ul>
-                                    </li>
 
-                                    <li> <b>Seguidor 1-Eje</b><br>
-                                    El ángulo de rotación se determina en un sistema de coordenadas diestro. El seguidor define el eje-y positivo, el eje-x positivo está a 90º en sentido horario desde el eje-y y es paralelo a la superficie, y el eje-z positivo es normal a ambos ejes (-x y -y), y está orientado hacia el cielo. El ángulo de rotación es una rotación hacia la derecha alrededor del eje-y en el sistema de coordenadas e indica la posición del seguidor en relación con la horizontal. Por ejemplo, si Azimutal Eje es 180º (orientado al sur) y Elevación Eje es 0º, entonces un ángulo del seguidor de 0º es horizontal, de 30º es una rotación hacia el oeste, y -90º es una rotación al plano vertical hacia el este.
-
-                                     <ul class='square'>
-                                       <li> <b>Elevación Eje:</b> Elevación del eje de rotación con respecto a la horizontal en grados decimales (e.g., un valor de 0º indica que el eje de soporte de los paneles fotovoltaicos está horizontal). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación del eje es la misma).</li>
-                                       <li> <b>Azimutal Eje:</b> Ángulo perpendicular por regla de la mano derecha al eje de rotación en grados decimales (e.g., un valor de 180º --i.e., dirección sur-- indica una rotación de este a oeste). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal del eje es el mismo).</li>
-                                       <li> <b>Ángulo Máximo:</b> Ángulo de rotación máximo del seguidor desde su posición horizontal en grados decimales (e.g., un valor de 90º permite que el seguidor gire desde y hasta una posición vertical en la que el panel mira hacia el horizonte). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el ángulo máximo es el mismo).</li>
-                                       <li> <b>Racking:</b> Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.</li>
+                                     <h5>Configuración Eléctrica</h5>
+                                     <ul>
+                                       <li> <b>Módulos por String:</b> Cantidad de módulos en serie por string en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
+                                       <li> <b>Strings por Inversor:</b> Cantidad de strings en paralelo en cada subarray. Para múltiples subarrays, separe los valores con una coma de manera ordenada.</li>
+                                       <li> <b>Número de Inversores:</b> Cantidad de inversores con configuración eléctrica exactamente igual a la definida. Permite escalar los cálculos de producción.</li>
                                      </ul>
-                                    </li>
-                                  </ul>
 
-                                 <h5>Parámetros Globales</h5>
-                                 <ul>
-                                   <li> <b>Pérdidas:</b> Porcentaje de pérdidas globales del sistema. Por defecto: 14.6%.</li>
-                                   <li> <b>Nombre Planta:</b> Sufijo al nombre del archivo de configuración (system_config_<i>sufijo</i>). Por defecto: system_config.</li>
-                                 </ul>
+                                      <h5>Seguidores y Orientación</h5>
+                                      <ul>
+                                        <li> <b>Sin Seguidor</b> 
+                                         <ul class='square'>
+                                           <li> <b>Azimutal:</b> Ángulo azimutal en grados decimales (Norte = 0, Sur = 180, Este = 90, Oeste = 270). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal es el mismo).</li>
+                                           <li> <b>Elevación:</b> Ángulos de inclinación desde la horizontal en grados decimales. Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación es la misma).</li>
+                                           <li> <b>Racking:</b> Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.</li>
+                                         </ul>
+                                        </li>
+
+                                        <li> <b>Seguidor 1-Eje</b><br>
+                                        El ángulo de rotación se determina en un sistema de coordenadas diestro. El seguidor define el eje-y positivo, el eje-x positivo está a 90º en sentido horario desde el eje-y y es paralelo a la superficie, y el eje-z positivo es normal a ambos ejes (-x y -y), y está orientado hacia el cielo. El ángulo de rotación es una rotación hacia la derecha alrededor del eje-y en el sistema de coordenadas e indica la posición del seguidor en relación con la horizontal. Por ejemplo, si Azimutal Eje es 180º (orientado al sur) y Elevación Eje es 0º, entonces un ángulo del seguidor de 0º es horizontal, de 30º es una rotación hacia el oeste, y -90º es una rotación al plano vertical hacia el este.
+
+                                         <ul class='square'>
+                                           <li> <b>Elevación Eje:</b> Elevación del eje de rotación con respecto a la horizontal en grados decimales (e.g., un valor de 0º indica que el eje de soporte de los paneles fotovoltaicos está horizontal). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si la elevación del eje es la misma).</li>
+                                           <li> <b>Azimutal Eje:</b> Ángulo perpendicular por regla de la mano derecha al eje de rotación en grados decimales (e.g., un valor de 180º --i.e., dirección sur-- indica una rotación de este a oeste). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el azimutal del eje es el mismo).</li>
+                                           <li> <b>Ángulo Máximo:</b> Ángulo de rotación máximo del seguidor desde su posición horizontal en grados decimales (e.g., un valor de 90º permite que el seguidor gire desde y hasta una posición vertical en la que el panel mira hacia el horizonte). Para múltiples subarrays, separe los valores con una coma de manera ordenada (también aplica si el ángulo máximo es el mismo).</li>
+                                           <li> <b>Racking:</b> Tipo de ventilación del montaje. Se utiliza para identificar un conjunto de parámetros para el modelo de temperatura de la celda.</li>
+                                         </ul>
+                                        </li>
+                                      </ul>
+
+                                     <h5>Parámetros Globales</h5>
+                                     <ul>
+                                       <li> <b>Pérdidas:</b> Porcentaje de pérdidas globales DC del sistema. Por defecto: 14.6%.</li>
+                                       <li> <b>$k_{pc}$:</b> Pérdidas de transmisión hasta el punto común de acople de los inversores. Por defecto: 0%.</li>
+                                       <li> <b>$k_{t}$:</b> Pérdidas asociadas a la transformación (elevación de tensión). Por defecto: 0%.</li>
+                                       <li> <b>$k_{in}$:</b> Pérdidas de interconexión, transmisión hasta la frontera comercial. Por defecto: 0%.</li>
+                                       <li> <b>Nombre Planta:</b> Sufijo al nombre del archivo de configuración (system_config_<i>sufijo</i>). Por defecto: system_config.</li>
+                                     </ul>
                                  
-                                 <h5>Archivo Configuración</h5>
-                                 <ul>
-                                   <li> <b>Generar Configuración:</b> Dé clic en este botón para que el algoritmo genere internamente el archivo de configuración con los parámetros previamente asignados. El ícono y la descripción del botón cambiarán para notificar la ejecución de la configuración.</li>
-                                   <li> <b>Descargar Configuración:</b> Dé clic en este botón para descargar el archivo de configuración genererado con el botón 'Generar Configuración' (una vez este haya notificado su ejecución). Se descargará un archivo .JSON que se alojarán en la carpeta <i>cno_solar/configurations/<span style='color:blue'>system_config.json</span></i>. El ícono y la descripción del botón cambiarán para notificar la descarga del archivo.</li>
-                                 </ul>
-                                 ''', layout=widgets.Layout(height='auto'))
+                                     <h5>Archivo Configuración</h5>
+                                     <ul>
+                                       <li> <b>Generar Configuración:</b> Dé clic en este botón para que el algoritmo genere internamente el archivo de configuración con los parámetros previamente asignados. El ícono y la descripción del botón cambiarán para notificar la ejecución de la configuración.</li>
+                                       <li> <b>Descargar Configuración:</b> Dé clic en este botón para descargar el archivo de configuración genererado con el botón 'Generar Configuración' (una vez este haya notificado su ejecución). Se descargará un archivo .JSON que se alojarán en la carpeta <i>cno_solar/configurations/<span style='color:blue'>system_config.json</span></i>. El ícono y la descripción del botón cambiarán para notificar la descarga del archivo.</li>
+                                     </ul>
+                                     ''', layout=widgets.Layout(height='auto'))
 
     ac_documentation = widgets.Accordion(children=[doc_location, doc_inverter, doc_module, doc_sysdesign])
     ac_documentation.set_title(0, 'Tab Ubicación')
@@ -973,10 +988,16 @@ def execute():
     # GLOBAL PARAMETERS
     w_loss = widgets.BoundedFloatText(value=14.6, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
     w_name = widgets.Text(value='', placeholder='Sufijo extensión .JSON', description='', style={'description_width': 'initial'})
-
+    kpc_loss = widgets.BoundedFloatText(value=0.0, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
+    kt_loss = widgets.BoundedFloatText(value=0.0, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
+    kin_loss = widgets.BoundedFloatText(value=0.0, min=0, max=100, step=0.1, description='', style={'description_width': 'initial'})
+    
     conf_globalparams = widgets.VBox([widgets.Box([widgets.HTML('<h4>Parámetros Globales</h4>', layout=widgets.Layout(height='auto'))]),
                                       widgets.Box([widgets.Label('Pérdidas [%]'), w_loss], layout=gui_layout),
-                                      widgets.Box([widgets.Label('Nombre Planta'), w_name], layout=gui_layout)])
+                                      widgets.Box([widgets.Label('Nombre Planta'), w_name], layout=gui_layout),
+                                      widgets.Box([widgets.Label('$k_{pc}$ [%]'), kpc_loss], layout=gui_layout),
+                                      widgets.Box([widgets.Label('$k_{t}$ [%]'), kt_loss], layout=gui_layout),
+                                      widgets.Box([widgets.Label('$k_{in}$ [%]'), kin_loss], layout=gui_layout)])
 
     # CONFIGURATION FILE
     # Config Button
@@ -1268,6 +1289,9 @@ def execute():
 
                                 # Global Parameters
                                 'loss': w_loss.value,
+                                'kpc': kpc_loss.value,
+                                'kt': kt_loss.value,
+                                'kin': kin_loss.value,
                                 'name': w_name.value}
 
         return system_configuration

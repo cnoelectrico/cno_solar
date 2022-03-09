@@ -415,7 +415,10 @@ def run(system_configuration, data, availability, energy_units):
                                                 v_dc=vdc_production,
                                                 p_dc=pdc_production, 
                                                 inverter=sc['inverter'], 
-                                                resolution=resolution, 
+                                                resolution=resolution,
+                                                kpc=sc['kpc'],
+                                                kt=sc['kt'],
+                                                kin=sc['kin'],
                                                 num_inverter=sc['num_inverter'], 
                                                 availability=inv_availability[j], 
                                                 energy_units=energy_units)

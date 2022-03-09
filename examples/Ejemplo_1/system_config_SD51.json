@@ -80,5 +80,8 @@
   ],
   "num_inverter": 1,
   "loss": 26.9,
+  "kpc": 0.0,
+  "kt": 0.0,
+  "kin": 0.0,
   "name": "SD51"
 }

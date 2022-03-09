@@ -5,8 +5,6 @@
   "altitude": 2632.0,
   "surface_type": "urban",
   "surface_albedo": 0.18,
-  "relative_humidity": 70.0,
-  "pressure": 102300.0,
   "inverters_database": "CECInverter",
   "inverter_name": "ABB__TRIO_50_0_TL_OUTD_US_480__480V_",
   "inverter": {
@@ -80,10 +78,10 @@
   "strings_per_inverter": [
     8
   ],
-  "per_mppt": [
-    1.0
-  ],
   "num_inverter": 1,
   "loss": 26.9,
-  "name": "sd_51"
+  "kpc": 0.0,
+  "kt": 0.0,
+  "kin": 0.0,
+  "name": "SD51"
 }

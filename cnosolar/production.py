@@ -173,7 +173,7 @@ def losses(dc, loss=14.6):
 
 # AC Power
 ## SAPM
-def ac_production_sandia(v_dc, p_dc, inverter, num_inverter=1, availability=1.0):
+def ac_production_sandia(v_dc, p_dc, inverter, kpc=0, kt=0, kin=0, num_inverter=1, availability=1.0):
     '''
     Convert DC power and voltage to AC power using Sandia’s 
     Grid-Connected PV Inverter model.
@@ -188,6 +188,18 @@ def ac_production_sandia(v_dc, p_dc, inverter, num_inverter=1, availability=1.0)
 
     inverter : dict
         Technical parameters of the inverter.
+        
+    kpc : float
+        Transmission losses up to the common coupling point of the inverters.
+        Default = 0.0
+        
+    kt : float
+        Losses associated with the transformation (voltage rise).
+        Default = 0.0
+        
+    kin : float
+        Interconnection losses, transmission up to the trade border.
+        Default = 0.0
         
     num_inverter : int, optional
         Number of inverters with exactly the same electrical configuration. 
@@ -220,13 +232,15 @@ def ac_production_sandia(v_dc, p_dc, inverter, num_inverter=1, availability=1.0)
     ac = pvlib.inverter.sandia_multi(v_dc, p_dc, inverter)
     ac = ac * num_inverter * availability
     
+    ac = ac * (1-kpc/100) * (1-kt/100) * (1-kin/100)
+    
     ac.loc[ac < 0] = 0
     ac.fillna(value=0, inplace=True)
     
     return ac
 
 ## PVWatts
-def ac_production_pvwatts(p_dc, inverter, num_inverter=1, availability=1):
+def ac_production_pvwatts(p_dc, inverter, kpc=0, kt=0, kin=0, num_inverter=1, availability=1):
     '''
     Convert DC power and voltage to AC power using NREL’s 
     PVWatts inverter model. 
@@ -238,7 +252,19 @@ def ac_production_pvwatts(p_dc, inverter, num_inverter=1, availability=1):
 
     inverter : dict
         Technical parameters of the inverter.
+       
+    kpc : float
+        Transmission losses up to the common coupling point of the inverters.
+        Default = 0.0
         
+    kt : float
+        Losses associated with the transformation (voltage rise).
+        Default = 0.0
+        
+    kin : float
+        Interconnection losses, transmission up to the trade border.
+        Default = 0.0
+       
     num_inverter : int, optional
         Number of inverters with exactly the same electrical configuration. 
         Used to scale the AC power.
@@ -272,7 +298,9 @@ def ac_production_pvwatts(p_dc, inverter, num_inverter=1, availability=1):
                                       eta_inv_ref=0.9637).fillna(0)
     
     ac = ac * num_inverter * availability
-
+    
+    ac = ac * (1-kpc/100) * (1-kt/100) * (1-kin/100)
+    
     return ac
 
 # Daily, Weekly, Monthly Energy
@@ -399,7 +427,7 @@ def dc_pipeline(poa, cell_temperature, module, system, loss=14.6):
     return dc
 
 # AC Production Pipeline
-def ac_pipeline(ac_model, v_dc, p_dc, inverter, resolution, num_inverter=1, availability=1, energy_units='Wh'):
+def ac_pipeline(ac_model, v_dc, p_dc, inverter, resolution, kpc=0, kt=0, kin=0, num_inverter=1, availability=1, energy_units='Wh'):
     '''
     Wrapper that executes the AC production stages of the PV system, 
     including system losses.
@@ -422,6 +450,18 @@ def ac_pipeline(ac_model, v_dc, p_dc, inverter, resolution, num_inverter=1, avai
     resolution : int
         Temporal resolution of time stamps of the historical data series 
         (e.g., 5 for five-minute resolution time stamps).
+
+    kpc : float
+        Transmission losses up to the common coupling point of the inverters.
+        Default = 0.0
+        
+    kt : float
+        Losses associated with the transformation (voltage rise).
+        Default = 0.0
+        
+    kin : float
+        Interconnection losses, transmission up to the trade border.
+        Default = 0.0
 
     num_inverter : int, optional
         Number of inverters with exactly the same electrical configuration. 
@@ -463,10 +503,10 @@ def ac_pipeline(ac_model, v_dc, p_dc, inverter, resolution, num_inverter=1, avai
     '''
     # AC Production
     if ac_model == 'sandia':
-        ac = ac_production_sandia(v_dc, p_dc, inverter, num_inverter, availability)
+        ac = ac_production_sandia(v_dc, p_dc, inverter, kpc, kt, kin, num_inverter, availability)
 
     if ac_model == 'pvwatts':
-        ac = ac_production_pvwatts(p_dc, inverter, num_inverter, availability)
+        ac = ac_production_pvwatts(p_dc, inverter, kpc, kt, kin, num_inverter, availability)
 
     # Energy
     energy = get_energy(ac, resolution, energy_units)
